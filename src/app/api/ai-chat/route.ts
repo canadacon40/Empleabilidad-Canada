@@ -30,10 +30,12 @@ TU ESTILO:
 SOLUCIONES: 
 - SI NECESITAN EL CV TOOL ($29 USD): Link: https://buy.stripe.com/8x2cN57a22wo463fXe3gk06
 - SI NECESITAN ESTRATEGIA / ASESORÍA ($109 USD): Link: https://buy.stripe.com/8x2cN57a22wo463fXe
+- SI QUIEREN AGENDAR UN "CAFÉ CON METAS" (LLAMADA): Link: https://calendly.com/canadacon40-2023/cafe-con-metas
 
 REGLAS:
 - Responde en el idioma del usuario.
 - Habla en primera persona.
+- Si el usuario muestra interés o duda en su perfil, ofrécele el link del acelerador ($29) o agendar un Café con Metas (Calendly).
 `;
 
 const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [

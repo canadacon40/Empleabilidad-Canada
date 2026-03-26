@@ -94,6 +94,30 @@ export default function AiChatbot() {
         }
     }
 
+    const renderMessage = (content: string, role: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const parts = content.split(urlRegex);
+        
+        return parts.map((part, i) => {
+            if (part.match(urlRegex)) {
+                return (
+                    <a 
+                        key={i} 
+                        href={part} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`underline font-bold break-all ${
+                            role === "user" ? "text-white hover:text-blue-100" : "text-primary hover:text-primary/80"
+                        }`}
+                    >
+                        {part}
+                    </a>
+                );
+            }
+            return part;
+        });
+    }
+
     return (
         <div className="fixed bottom-6 right-6 z-[200] font-sans">
             <AnimatePresence>
@@ -153,7 +177,7 @@ export default function AiChatbot() {
                                         ? "bg-primary text-primary-foreground rounded-tr-none" 
                                         : "bg-white border border-slate-100 text-slate-700 rounded-tl-none"
                                     }`}>
-                                        {msg.content}
+                                        {renderMessage(msg.content, msg.role)}
                                     </div>
                                 </div>
                             ))}
