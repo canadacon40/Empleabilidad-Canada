@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "NEXT_PRIVATE_WORKER_THREADS": "false"
+  },
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=4096",
+      "NEXT_PRIVATE_WORKER_THREADS": "false"
+    }
+  }
+}

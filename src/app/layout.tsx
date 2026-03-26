@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Diagnostica tu perfil profesional en 60 segundos. Optimiza tu CV con IA y estrategias de élite para cualquier mercado.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{

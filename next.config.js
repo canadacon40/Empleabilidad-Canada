@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
+    serverComponentsExternalPackages: [
+      '@react-pdf/renderer',
+      'xlsx',
+      'docx',
+      'pdf-parse'
+    ],
     workerThreads: false,
-    cpus: 1
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,6 +15,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  staticPageGenerationTimeout: 300,
 };
 
 module.exports = nextConfig;
