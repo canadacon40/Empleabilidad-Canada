@@ -9,10 +9,10 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
-        const { text, email } = await req.json();
+        const { cvText, leadId } = await req.json();
 
-        if (!text) {
-            return NextResponse.json({ error: 'No text provided' }, { status: 400 });
+        if (!cvText) {
+            return NextResponse.json({ error: 'No CV text provided' }, { status: 400 });
         }
 
         const completion = await openai.chat.completions.create({
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
                 },
                 {
                     role: "user",
-                    content: `CV TEXT: ${text}`
+                    content: `CV TEXT: ${cvText}`
                 }
             ],
             response_format: { type: "json_object" }
@@ -32,33 +32,20 @@ export async function POST(req: Request) {
 
         const analysis = JSON.parse(completion.choices[0].message.content || '{}');
 
-        // Save to DB if email provided
-        if (email) {
+        // Save to DB if leadId provided
+        if (leadId) {
             const prisma = (await import("@/lib/db")).default;
-            const user = await prisma.user.upsert({
-                where: { email: email.toLowerCase().trim() },
-                update: {},
-                create: { email: email.toLowerCase().trim() }
-            });
-
-            const lead = await prisma.lead.upsert({
-                where: { userId: user.id },
-                update: {},
-                create: { userId: user.id }
-            });
-
-            await prisma.cvScore.create({
+            await prisma.score.create({
                 data: {
-                    leadId: lead.id,
-                    score: analysis.score || 0,
+                    leadId: leadId,
                     level: analysis.level || 'MEDIUM_RISK',
                     summary: analysis.summary || '',
-                    rawAnalysis: analysis,
+                    gaps: analysis, // Storing full analysis in gaps for now
                 }
             });
         }
 
-        return NextResponse.json(analysis);
+        return NextResponse.json({ result: analysis });
     } catch (error: any) {
         console.error('CV Analysis error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
