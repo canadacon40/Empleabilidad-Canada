@@ -25,7 +25,7 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                     
                     <div className="mb-4">
                         <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">Plan de Empleabilidad Personalizado</h2>
-                        <p className="text-primary font-semibold text-lg mb-4">$149 USD <span className="text-muted-foreground text-sm font-normal ml-2">(Consulta por descuento si ya tienes tu reporte)</span></p>
+                        <p className="text-primary font-semibold text-lg mb-4">$109 USD <span className="text-muted-foreground text-sm font-normal ml-2">(Oferta especial por tiempo limitado)</span></p>
                         
                         <div className="bg-orange-100/50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900 rounded-lg p-4 mb-4">
                             <h4 className="font-bold text-orange-800 dark:text-orange-400 mb-1 text-sm">⚠️ ¿Vienes de un video en TikTok buscando asesoría?</h4>
@@ -82,12 +82,12 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Button size="lg" className="w-full text-base h-12" onClick={onClaimOffer}>
-                            Ver Oferta Especial y Agendar
-                        </Button>
-                        <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank'); }}>
-                            Agendar a Precio Regular
-                        </Button>
+                        <Button size="lg" className="w-full text-base h-12" onClick={() => { window.open('https://buy.stripe.com/8x2cN57a22wo463fXe', '_blank'); }}>
+                             Comprar Plan y Asegurar Cupo
+                         </Button>
+                         <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cafe-con-metas', '_blank'); }}>
+                             Agendar Llamada Estratégica
+                         </Button>
                     </div>
 
                     </motion.div>

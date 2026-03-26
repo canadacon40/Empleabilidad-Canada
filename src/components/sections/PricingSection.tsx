@@ -92,7 +92,7 @@ export default function PricingSection() {
                             className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Acelerador", price: 29 });
-                                window.location.href = "https://buy.stripe.com/test_7sI9E83vgeBiaWscMM";
+                                window.location.href = "https://buy.stripe.com/8x2cN57a22wo463fXe3gk06";
                             }}
                         >
                             Lo quiero ahora
@@ -145,7 +145,7 @@ export default function PricingSection() {
                             className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all ring-offset-background group"
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Plan Personalizado", price: 109 });
-                                window.location.href = "https://buy.stripe.com/test_5kA5nX5DofFm4Cc9AA";
+                                window.location.href = "https://buy.stripe.com/8x2cN57a22wo463fXe";
                             }}
                         >
                             Lo quiero ahora

@@ -50,7 +50,7 @@ export default function DiscountModal({ isOpen, onClose }: { isOpen: boolean, on
                             <div className="text-sm text-muted-foreground mb-1">Precio Normal: <span className="line-through">$149 USD</span></div>
                             <div className="text-3xl font-black text-primary mb-2">$109 USD</div>
                             <div className="text-sm font-semibold text-foreground flex items-center justify-center gap-2">
-                                Usa el código: <span className="bg-background px-2 py-1 rounded border font-mono">ESTRATEGICO109</span>
+                                Oferta Especial por Tiempo Limitado
                             </div>
                         </div>
 
@@ -61,13 +61,13 @@ export default function DiscountModal({ isOpen, onClose }: { isOpen: boolean, on
 
                         <div className="space-y-3">
                             <Button size="lg" className="w-full text-base h-12" asChild>
-                                <a href="https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon" target="_blank" rel="noopener noreferrer">
+                                <a href="https://calendly.com/canadacon40-2023/cafe-con-metas" target="_blank" rel="noopener noreferrer">
                                     Reclamar Oferta y Agendar
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </a>
                             </Button>
                             <button onClick={() => { window.open('https://buy.stripe.com/8x2cN57a22wo463fXe', '_blank'); onClose(); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-4 block w-full text-center">
-                                No gracias, prefiero pagar el precio completo ($149 USD) en otro momento.
+                                No gracias, prefiero ver los detalles del plan completo.
                             </button>
                         </div>
                     </div>
