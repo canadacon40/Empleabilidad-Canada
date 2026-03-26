@@ -85,7 +85,7 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                         <Button size="lg" className="w-full text-base h-12" onClick={() => { window.open('https://buy.stripe.com/8x2cN57a22wo463fXe', '_blank'); }}>
                              Comprar Plan y Asegurar Cupo
                          </Button>
-                         <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cafe-con-metas', '_blank'); }}>
+                         <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank'); }}>
                              Agendar Llamada Estratégica
                          </Button>
                     </div>

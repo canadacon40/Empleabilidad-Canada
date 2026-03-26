@@ -99,19 +99,31 @@ export default function AiChatbot() {
         const parts = content.split(urlRegex);
         
         return parts.map((part, i) => {
-            if (part.match(urlRegex)) {
+            if (part.match(/^https?:\/\//)) {
+                let cleanUrl = part;
+                let trailingPunctuation = "";
+                
+                // Handle trailing punctuation like . , ; ! ?
+                const match = part.match(/^(.*?)([.,;!?'"]+)$/);
+                if (match) {
+                    cleanUrl = match[1];
+                    trailingPunctuation = match[2];
+                }
+                
                 return (
-                    <a 
-                        key={i} 
-                        href={part} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={`underline font-bold break-all ${
-                            role === "user" ? "text-white hover:text-blue-100" : "text-primary hover:text-primary/80"
-                        }`}
-                    >
-                        {part}
-                    </a>
+                    <span key={i}>
+                        <a 
+                            href={cleanUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={`underline font-bold break-all ${
+                                role === "user" ? "text-white hover:text-blue-100" : "text-primary hover:text-primary/80"
+                            }`}
+                        >
+                            {cleanUrl}
+                        </a>
+                        {trailingPunctuation}
+                    </span>
                 );
             }
             return part;

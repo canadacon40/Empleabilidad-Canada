@@ -61,7 +61,7 @@ export default function DiscountModal({ isOpen, onClose }: { isOpen: boolean, on
 
                         <div className="space-y-3">
                             <Button size="lg" className="w-full text-base h-12" asChild>
-                                <a href="https://calendly.com/canadacon40-2023/cafe-con-metas" target="_blank" rel="noopener noreferrer">
+                                <a href="https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon" target="_blank" rel="noopener noreferrer">
                                     Reclamar Oferta y Agendar
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </a>
