@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  leads     Lead[]
+  events    Event[]
+}
+
+model Lead {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  formData        Json      // Captures all form fields
+  cvText          String?   @db.Text
+  status          String    @default("NEW") // NEW | EVALUATED | CONTACTED | CONVERTED
+  createdAt       DateTime  @default(now())
+  scores          Score[]
+  decisions       Decision[]
+  tags            Tag[]
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  userId    String?  // Can be null for anonymous tracking before email capture
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String   // PAGE_VIEW | CTA_CLICK | FORM_START | FORM_SUBMIT | SCROLL_DEPTH
+  payload   Json?
+  createdAt DateTime @default(now())
+}
+
+model Score {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  level     String   // HIGH | MID | LOW
+  summary   String   @db.Text
+  gaps      Json?
+  createdAt DateTime @default(now())
+}
+
+model Decision {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  strategy  String   // DIRECT_CONVERSION | EDUCATE_AND_CONVERT | REDIRECT
+  message   String?  @db.Text
+  offer     String?
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([leadId, name])
+}
