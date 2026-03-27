@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     AlertTriangle, CheckCircle, XCircle, Shield, Award, Shuffle, MapPin, DollarSign, Building2, Loader2, ExternalLink, Info, Download, FileSpreadsheet, Lock, Languages, Sparkles, Check, Banknote, Rocket, ChevronRight
 } from "lucide-react"
@@ -26,6 +26,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false)
 
     const handleAnalyze = async () => {
+        if (isLoading) return
         setIsLoading(true)
         setError("")
         try {
@@ -40,6 +41,12 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
         } catch { setError("Error de conexión. Intenta de nuevo.") }
         finally { setIsLoading(false) }
     }
+    useEffect(() => {
+        const isResultValid = result?.veredictoFinal || result?.diagnostico?.length > 0;
+        if (!isResultValid && cvText && !isLoading && !error) {
+            handleAnalyze();
+        }
+    }, [cvText]);
 
     const downloadFullReport = () => {
         if (!result) return
@@ -176,6 +183,21 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
                         </div>
                     </div>
                 )}
+            </div>
+        )
+    }
+
+    // Defensive check: if result is empty or missing key parts, show try again
+    const isResultValid = result.veredictoFinal || result.diagnostico?.length > 0;
+    if (!isResultValid && !isLoading) {
+        return (
+            <div className="text-center p-12 bg-amber-50 rounded-3xl border border-amber-200">
+                <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-amber-900">Análisis Incompleto</h3>
+                <p className="text-amber-700 text-sm mb-6">Pierre no pudo completar el análisis detallado. Esto ocurre a veces si el CV es ilegible o muy corto.</p>
+                <Button onClick={handleAnalyze} variant="outline" className="border-amber-400 text-amber-800 hover:bg-amber-100">
+                    <Shuffle className="w-4 h-4 mr-2" /> Re-intentar Análisis Detallado
+                </Button>
             </div>
         )
     }
@@ -602,9 +624,4 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
             </div>
         </div>
     )
-}
-
-function generateReportHTML(result: any): string {
-    // ... (rest of the helper functions remain the same)
-    return ""; // Placeholder for brevity, but I will include it full in the write_to_file
 }

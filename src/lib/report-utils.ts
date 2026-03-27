@@ -20,15 +20,16 @@ export function generateReportHTML(result: any): string {
     html += `<div class="disclaimer"><strong>Nota:</strong> Esta información es referencial. Los precios, disponibilidad y rangos salariales pueden variar. Verifica siempre en los sitios web oficiales.</div>`
 
     // Diagnóstico
-    if (result.diagnostico?.length) {
+    const diagnostico = result.diagnostico?.lista || result.diagnostico || [];
+    if (diagnostico.length) {
         html += `<h2>❌ Diagnóstico del CV Actual</h2><table><tr><th>Problema</th><th>¿Por qué?</th><th>Cambio</th></tr>`
-        result.diagnostico.forEach((d: any) => { html += `<tr><td>${d.problema}</td><td>${d.porque}</td><td>${d.cambio}</td></tr>` })
+        diagnostico.forEach((d: any) => { html += `<tr><td>${d.problema}</td><td>${d.porque}</td><td>${d.cambio}</td></tr>` })
         html += `</table>`
     }
 
     // Regulación
     if (result.regulacion) {
-        html += `<h2>🛡️ Regulación Profesional — ${result.regulacion.profesion}</h2>`
+        html += `<h2>🛡️ Regulación Profesional — ${result.regulacion.profesion} ${result.regulacion.nocHabitual ? `(NOC ${result.regulacion.nocHabitual})` : ""}</h2>`
         html += `<p><strong>${result.regulacion.esRegulada ? "⚠️ Profesión Regulada" : "✅ Profesión No Regulada"}</strong></p>`
         html += `<p>${result.regulacion.detalle}</p>`
         if (result.regulacion.reguladoresPorProvincia?.length) {
@@ -52,28 +53,31 @@ export function generateReportHTML(result: any): string {
     }
 
     // Certificaciones
-    if (result.certificaciones?.length) {
+    const certificaciones = result.certificaciones?.lista || result.certificaciones || [];
+    if (certificaciones.length) {
         html += `<h2>🏆 Certificaciones Recomendadas</h2><table><tr><th>Nombre</th><th>Tipo</th><th>Costo</th><th>URL</th></tr>`
-        result.certificaciones.forEach((c: any) => {
+        certificaciones.forEach((c: any) => {
             html += `<tr><td>${c.nombre}</td><td>${c.tipo}</td><td>${c.costoCAD}</td><td><a href="${c.url}">${c.url}</a></td></tr>`
         })
         html += `</table>`
     }
 
     // Roles Puente
-    if (result.rolesPuente?.length) {
+    const rolesPuente = result.rolesPuente?.lista || result.rolesPuente || [];
+    if (rolesPuente.length) {
         html += `<h2>🔀 Roles Puente (Bridge Roles)</h2><table><tr><th>Título</th><th>Equivalencia</th><th>Salario Estimado</th></tr>`
-        result.rolesPuente.forEach((r: any) => {
-            html += `<tr><td>${r.titulo}</td><td>${r.tituloEspanol}</td><td>${r.salarioPromedio} CAD/año</td></tr>`
+        rolesPuente.forEach((r: any) => {
+            html += `<tr><td>${r.titulo}</td><td>${r.tituloEspanol || r.titulo}</td><td>${r.salarioPromedio} CAD/año</td></tr>`
         })
         html += `</table>`
     }
 
     // Demanda
-    if (result.demandaProvincia?.length) {
+    const demanda = result.demandaProvincia?.lista || result.demandaProvincia || [];
+    if (demanda.length) {
         html += `<h2>📍 Demanda por Provincia</h2><table><tr><th>Provincia</th><th>Demanda</th><th>Puntos Clave</th></tr>`
-        result.demandaProvincia.forEach((p: any) => {
-            html += `<tr><td>${p.provincia}</td><td>${p.demanda}</td><td>${p.nota}</td></tr>`
+        demanda.forEach((p: any) => {
+            html += `<tr><td>${p.provincia}</td><td>${p.demanda}</td><td>${p.nota || p.puntosClave || ""}</td></tr>`
         })
         html += `</table>`
     }
@@ -82,15 +86,15 @@ export function generateReportHTML(result: any): string {
     if (result.salarios) {
         html += `<h2>💰 Rangos Salariales (CAD/año)</h2><table><tr><th>Entry Level</th><th>Mid Level</th><th>Senior</th></tr>`
         html += `<tr><td>${result.salarios.entry}</td><td>${result.salarios.mid}</td><td>${result.salarios.senior}</td></tr></table>`
-        if (result.salarios.promedioCanada) html += `<p><strong>Promedio Nacional:</strong> ${result.salarios.promedioCanada}</p>`
     }
 
     // Empresas LMIA
-    if (result.empresasLMIA?.length) {
+    const empresas = result.empresasLMIA?.lista || result.empresasLMIA || [];
+    if (empresas.length) {
         html += `<h2>🏗️ Empresas con Historial de Patrocinio (LMIA)</h2>`
-        html += `<div class="lmia-disclaimer">Estas empresas han gestionado patrocinios recientemente. Se recomienda contactar directamente.</div>`
+        html += `<div class="lmia-disclaimer">Estas empresas han gestionado patrocinios recientemente en sectores similares.</div>`
         html += `<table><tr><th>Empresa</th><th>Provincia</th><th>Industria</th><th>Web</th></tr>`
-        result.empresasLMIA.forEach((e: any) => {
+        empresas.forEach((e: any) => {
             html += `<tr><td>${e.nombre}</td><td>${e.provincia}</td><td>${e.industria}</td><td><a href="${e.website}">${e.website}</a></td></tr>`
         })
         html += `</table>`
@@ -114,9 +118,10 @@ export function downloadFullReportPDF(result: any) {
 }
 
 export async function downloadLMIAExcel(result: any) {
-    if (!result?.empresasLMIA?.length) return
+    const empresas = result.empresasLMIA?.lista || result.empresasLMIA || [];
+    if (!empresas.length) return
     const XLSX = await import("xlsx")
-    const data = result.empresasLMIA.map((e: any, i: number) => ({
+    const data = empresas.map((e: any, i: number) => ({
         "#": i + 1,
         "Empresa": e.nombre,
         "Provincia": e.provincia,

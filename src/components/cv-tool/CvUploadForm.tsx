@@ -83,11 +83,11 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         setError("")
         
         // Block reuse of the tool for the same email address
-        const isTestEmail = email.toLowerCase().includes("+test")
-        const storedEmail = localStorage.getItem(`cvReportGenerated_${email.toLowerCase().trim()}`)
+        const isTestEmail = email.toLowerCase().includes("test");
+        const storedEmail = localStorage.getItem(`cvReportGenerated_${email.toLowerCase().trim()}`);
         if (storedEmail && !isTestEmail) {
-             setAlreadyUsedEmail(email.toLowerCase().trim())
-             return
+             setAlreadyUsedEmail(email.toLowerCase().trim());
+             return;
         }
         
         // Save the email to local storage to prevent reuse and for personalization
@@ -106,6 +106,11 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             date: new Date().toISOString(),
             source: "Free CV Tool"
         };
+
+        // If it's a test email, clear cache so we forcer a fresh analysis
+        if (email.toLowerCase().includes("test")) {
+            localStorage.removeItem("pendingReportData");
+        }
 
         // Fire GTM event for lead capture
         sendGTMEvent({ 
@@ -213,7 +218,15 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                     <input 
                         type="email" 
                         value={email} 
-                        onChange={(e) => {setEmail(e.target.value); setError("")}} 
+                        onChange={(e) => {
+                            const val = e.target.value.toLowerCase().trim();
+                            setEmail(val); 
+                            setError("");
+                            // If it's a test email, clear any previous "already used" lock
+                            if (val.includes("test")) {
+                                setAlreadyUsedEmail(null);
+                            }
+                        }} 
                         placeholder="tucorreo@ejemplo.com" 
                         className="w-full px-4 py-3 rounded-xl border border-border bg-background transition-all" 
                     />
@@ -406,9 +419,9 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
 
             <Button 
                 size="lg" 
-                className={`w-full text-xl py-9 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-all ${alreadyUsedEmail ? 'opacity-50 grayscale pointer-events-none' : ''}`} 
+                className={`w-full text-xl py-9 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-all ${(!!alreadyUsedEmail && !email.toLowerCase().includes("test")) ? 'opacity-50 grayscale pointer-events-none' : ''}`} 
                 onClick={handleSubmit} 
-                disabled={!cvText.trim() || !name || !email || !status || !urgency || !budget || !!alreadyUsedEmail}
+                disabled={!cvText.trim() || !name || !email || !status || !urgency || !budget || (!!alreadyUsedEmail && !email.toLowerCase().includes("test"))}
             >
                 <Sparkles className="mr-3 h-6 w-6 fill-current" />
                 GENERAR MI REPORTE AHORA 🚀
