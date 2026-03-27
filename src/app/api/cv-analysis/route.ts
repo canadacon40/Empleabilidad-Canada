@@ -58,9 +58,9 @@ Estructura obligatoria (format JSON):
     "recursosGratuitos": [{"nombre": string, "url": string}]
   },
   "certificaciones": {
-    "mandatory": [{"nombre": string, "costo": string, "duracion": string, "donde": string}],
-    "recommended": [{"nombre": string, "costo": string, "duracion": string, "donde": string}],
-    "niceToHave": [{"nombre": string, "costo": string, "duracion": string, "donde": string}]
+    "mandatory": [{"nombre": string, "sitioWeb": string, "precio": string, "duracion": string, "url": string}], // Certificaciones obligatorias o licencias (ej. Red Seal, P.Eng, CPA, etc.)
+    "highlyRecommended": [{"nombre": string, "sitioWeb": string, "precio": string, "duracion": string, "url": string}], // Altamente recomendadas para destacar (ej. PMP, ITIL, AWS, etc.)
+    "niceToHave": [{"nombre": string, "sitioWeb": string, "precio": string, "duracion": string, "url": string}] // Diferenciadores (Nice to Have)
   },
   "rolesPuente": [
     {"titulo": string, "descripcionNOC": string, "funciones": [string], "salarioAnual": string}

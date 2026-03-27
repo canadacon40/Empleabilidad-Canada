@@ -244,8 +244,9 @@ export default function CvAnalysis({
           Diagnostic Engine v2.5
         </div>
         <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-none">
-          Reporte de Empleabilidad <span className="text-primary italic">Pierre</span>
+          Reporte de Empleabilidad <span className="text-primary italic">Canadá</span>
         </h3>
+        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.5em] mt-2">by Pierre</p>
         <div className="flex flex-wrap justify-center gap-4 pt-4">
           <Button
             size="lg"
@@ -331,7 +332,7 @@ export default function CvAnalysis({
       {/* 3. IDIOMAS */}
       {result.idiomas && (
         <section className="bg-white rounded-[2.5rem] border-2 shadow-xl overflow-hidden">
-          <div className="bg-slate-900 p-8 text-white font-black flex items-center gap-3"><Languages className="w-6 h-6 text-primary" /> Academia Pierre</div>
+          <div className="bg-slate-900 p-8 text-white font-black flex items-center gap-3"><Languages className="w-6 h-6 text-primary" /> Diagnóstico de Idioma</div>
           <div className="p-8 grid lg:grid-cols-2 gap-8">
             <div className="p-8 rounded-[2rem] bg-slate-50 border-2">
                 <p className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Nivel Actual: {result.idiomas.nivelActualEstimado}</p>
@@ -357,14 +358,27 @@ export default function CvAnalysis({
         <section className="bg-white rounded-[2.5rem] border-2 shadow-xl overflow-hidden">
           <div className="bg-slate-900 p-8 text-white font-black text-xl flex items-center gap-3"><Award className="w-6 h-6 text-primary" /> Tickets de Éxito</div>
           <div className="p-8 space-y-10">
-            {["mandatory", "recommended"].map((type) => {
+            {["mandatory", "highlyRecommended", "niceToHave"].map((type) => {
               const list = (result.certificaciones as any)[type];
               if (!list || list.length === 0) return null;
+              
+              const typeLabels: any = {
+                mandatory: "Mandatorias (Licencias de ley)",
+                highlyRecommended: "Altamente Recomendadas (Impacto PRO)",
+                niceToHave: "Nice to Have (Diferenciación)"
+              };
+
+              const typeColors: any = {
+                mandatory: "bg-red-500",
+                highlyRecommended: "bg-primary font-black",
+                niceToHave: "bg-blue-500"
+              };
+
               return (
                 <div key={type} className="space-y-6">
                   <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-3">
-                    <span className={`w-2 h-2 rounded-full ${type === "mandatory" ? "bg-red-500" : "bg-amber-500"}`} />
-                    {type === "mandatory" ? "Mandatorias (Entrada Directa)" : "Recomendadas (Diferenciación)"}
+                    <span className={`w-2 h-2 rounded-full ${typeColors[type] || "bg-slate-500"}`} />
+                    {typeLabels[type]}
                   </h5>
                   <div className="grid gap-6">
                     {list.map((c: any, i: number) => (
@@ -372,12 +386,21 @@ export default function CvAnalysis({
                         <div className="space-y-2 text-center md:text-left">
                             <h6 className="text-lg font-black text-slate-900">{c.nombre}</h6>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-[11px] font-black text-slate-500">
-                                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-emerald-500" /> {c.costo}</span>
+                                <span className="flex items-center gap-1 font-black text-slate-900">🌐 {c.sitioWeb || c.donde}</span>
+                                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-emerald-500" /> {c.precio || c.costo}</span>
                                 <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-primary" /> {c.duracion}</span>
-                                <span className="flex items-center gap-1">📍 {c.donde}</span>
                             </div>
                         </div>
-                        {c.url && <Button variant="outline" size="sm" className="rounded-xl font-black" onClick={() => window.open(c.url, "_blank")}>Detalles <ExternalLink className="w-3 h-3 ml-2" /></Button>}
+                        {(c.url || c.enlace) && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="rounded-xl font-black border-2 hover:bg-slate-50"
+                            onClick={() => window.open(c.url || c.enlace, "_blank")}
+                          >
+                            Inscribirse <ExternalLink className="w-3 h-3 ml-2" />
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -536,8 +559,8 @@ export default function CvAnalysis({
             <span className="tracking-tight">Bonus: La Estructura Ganadora (Standards 2026)</span>
             <Layout className="w-8 h-8 opacity-50" />
           </div>
-          <div className="p-10 sm:p-24 flex flex-col xl:flex-row gap-20">
-            <div className="xl:w-96 shrink-0 bg-slate-50 p-12 rounded-[4rem] border-4 shadow-inner relative group">
+          <div className="p-10 sm:p-16 flex flex-col xl:flex-row gap-16">
+            <div className="xl:w-96 shrink-0 bg-slate-50 p-10 rounded-[4rem] border-4 shadow-inner relative group">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:rotate-12 transition-transform"><Briefcase className="w-32 h-32" /></div>
                 <p className="text-[12px] font-black text-slate-400 uppercase mb-10 border-b-2 pb-6 tracking-widest block">Arquitectura Táctica</p>
                 <ol className="space-y-8 relative z-10">
@@ -582,7 +605,7 @@ export default function CvAnalysis({
             
             <div className="relative z-10 max-w-5xl mx-auto space-y-16">
               <div className="inline-flex gap-4 px-10 py-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.5em] backdrop-blur-md animate-pulse">
-                <Sparkles className="w-5 h-5" /> Oferta Estratégica Pierre
+                <Sparkles className="w-5 h-5" /> Oferta Versión PRO
               </div>
               <h4 className="text-4xl sm:text-8xl font-black tracking-tighter leading-[1] drop-shadow-2xl">
                 ¿Tu futuro al azar o en manos de <span className="text-primary italic">Pierre</span>?
@@ -598,17 +621,31 @@ export default function CvAnalysis({
 
               <div className="grid sm:grid-cols-2 gap-12 text-left bg-white/5 p-12 sm:p-20 rounded-[4rem] border border-white/10 shadow-inner scale-105 backdrop-blur-xl">
                  <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Shuffle className="w-10 h-10" /></div>
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Download className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Transformer Pro</p>
-                        <p className="text-sm text-slate-400 font-medium">Transformación de tu CV a estándares canadienses en el idioma que necesites.</p>
+                        <p className="text-2xl font-black tracking-tight">Reporte PDF Maestro</p>
+                        <p className="text-sm text-slate-400 font-medium">Desbloquea la versión descargable de alta fidelidad para presentar a empleadores.</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-6 group/item">
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><FileSpreadsheet className="w-10 h-10" /></div>
+                    <div className="space-y-2">
+                        <p className="text-2xl font-black tracking-tight">Directorio LMIA (Excel)</p>
+                        <p className="text-sm text-slate-400 font-medium">Bases de datos de empresas reales con historial de patrocinio internacional.</p>
                     </div>
                  </div>
                  <div className="flex gap-6 group/item">
                     <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Target className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">ATS 100% Score</p>
-                        <p className="text-sm text-slate-400 font-medium">Inyección de keywords tácticas para que ningún sistema te ignore.</p>
+                        <p className="text-2xl font-black tracking-tight">Inyección ATS Master</p>
+                        <p className="text-sm text-slate-400 font-medium">Adaptación profunda de tu perfil a las keywords de Job Bank Canada.</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-6 group/item">
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Rocket className="w-10 h-10" /></div>
+                    <div className="space-y-2">
+                        <p className="text-2xl font-black tracking-tight">Acceso Centro Táctico</p>
+                        <p className="text-sm text-slate-400 font-medium">Herramientas de personalización de CV, cover letter y preparación de entrevistas.</p>
                     </div>
                  </div>
               </div>
@@ -622,7 +659,7 @@ export default function CvAnalysis({
                     <div className="flex flex-col scale-150 origin-bottom relative">
                         <div className="absolute -top-12 -right-24 bg-emerald-500 text-white text-[10px] font-black px-6 py-2 rounded-full rotate-12 shadow-3xl animate-bounce border-b-4 border-emerald-700">SOLO HOY: -43%</div>
                         <span className="text-[12px] font-black text-primary uppercase tracking-[0.5em] mb-4 text-center">Acelerador Pierre</span>
-                        <span className="text-9xl font-black text-primary tracking-tighter drop-shadow-[0_20px_50px_rgba(var(--primary),0.5)] leading-none">$29</span>
+                        <span className="text-9xl font-black text-white drop-shadow-[0_20px_50px_rgba(var(--primary),0.5)] leading-none">$29</span>
                     </div>
                 </div>
 
@@ -638,7 +675,7 @@ export default function CvAnalysis({
                         ) : (
                             <Rocket className="w-12 h-12 mr-6 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500" />
                         )}
-                        Activar Pierre PRO por $29
+                        Activar Versión PRO por $29
                     </Button>
                     <div className="flex justify-center gap-12 pt-12 opacity-40">
                         <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Shield className="w-5 h-5" /> Seguro</div>
