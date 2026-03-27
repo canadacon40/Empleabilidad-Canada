@@ -20,29 +20,72 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: "Eres un experto en reclutamiento canadiense. Analiza el siguiente CV y proporciona un score de empleabilidad (0-100), un nivel (CRITICAL_RISK, HIGH_RISK, MEDIUM_RISK, LOW_RISK, PREMIUM), un resumen y recomendaciones."
+                    content: `Eres un experto estratega para Canadá. 
+Instrucción crítica: Tu respuesta DEBE ser un objeto json válido.
+
+Estructura obligatoria (formato json):
+{
+  "score": 0-100,
+  "level": "NIVEL_DE_RIESGO",
+  "diagnostico": [{"problema": "string", "porque": "string", "cambio": "string"}],
+  "regulacion": {"profesion": "string", "esRegulada": boolean, "detalle": "string", "reguladoresPorProvincia": [], "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "idiomas": {"mensajeIngles": "string", "necesitaMejorarIngles": boolean},
+  "certificaciones": {"lista": [], "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "rolesPuente": {"lista": [], "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "demandaProvincia": {"lista": [], "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "salarios": {"entry": "string", "mid": "string", "senior": "string", "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "empresasLMIA": {"lista": [], "resumenImpacto": {"estatus": "string", "mensaje": "string"}},
+  "veredictoFinal": {"demandaMercado": "Alta" | "Media" | "Baja", "calificaciónPerfil": "Alta" | "Media" | "Baja", "conclusion": "string", "puntosFuertes": [], "oportunidadesMejora": [], "recomendaciónPrincipal": "string"}
+}
+
+IMPORTANTE: Responde solo json.`
                 },
                 {
                     role: "user",
-                    content: `CV TEXT: ${cvText}`
+                    content: `Analiza este CV y devuelve un json con el reporte: ${cvText}`
                 }
             ],
             response_format: { type: "json_object" }
         });
 
-        const analysis = JSON.parse(completion.choices[0].message.content || '{}');
+        const content = completion.choices[0].message.content || '{}';
+        const analysis = JSON.parse(content);
 
         // Save to DB if leadId provided
         if (leadId) {
-            const prisma = (await import("@/lib/db")).default;
-            await prisma.score.create({
-                data: {
-                    leadId: leadId,
-                    level: analysis.level || 'MEDIUM_RISK',
-                    summary: analysis.summary || '',
-                    gaps: analysis, // Storing full analysis in gaps for now
-                }
-            });
+            try {
+                const prisma = (await import("@/lib/db")).default;
+                
+                // 1. Save Score & Gaps
+                await prisma.score.create({
+                    data: {
+                        leadId: leadId,
+                        level: analysis.veredictoFinal?.calificacionPerfil || "MID",
+                        summary: analysis.veredictoFinal?.conclusion || "Análisis completado",
+                        gaps: analysis.diagnostico || [],
+                    }
+                });
+
+                // 2. Save Strategic Decision
+                await prisma.decision.create({
+                    data: {
+                        leadId: leadId,
+                        strategy: analysis.veredictoFinal?.demandaMercado === "Alta" ? "DIRECT_CONVERSION" : "EDUCATE_AND_CONVERT",
+                        message: analysis.veredictoFinal?.recomendacionPrincipal || "",
+                        offer: "Acelerador PRO $29",
+                    }
+                });
+
+                // 3. Update Lead Status
+                await prisma.lead.update({
+                    where: { id: leadId },
+                    data: { status: "EVALUATED" }
+                });
+
+                console.log(`Persistence completed for Lead: ${leadId}`);
+            } catch (dbError) {
+                console.error('Database persistence error:', dbError);
+            }
         }
 
         return NextResponse.json({ result: analysis });

@@ -102,6 +102,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             urgency, 
             budget,
             language,
+            cvText: cvText.trim(),
             date: new Date().toISOString(),
             source: "Free CV Tool"
         };
