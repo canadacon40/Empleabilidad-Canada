@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
 
 export async function POST(req: Request) {
     try {
@@ -10,6 +9,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Email is required" }, { status: 400 });
         }
 
+        const prisma = (await import("@/lib/db")).default;
+        
         // 1. Upsert the User
         const user = await prisma.user.upsert({
             where: { email: email.toLowerCase().trim() },

@@ -25,8 +25,8 @@ export async function POST(req: Request) {
     const log = await prisma.event.create({
       data: {
         type: event || "UNKNOWN",
-        payload: { ...properties, email, sessionId } || {},
-        userId: user?.id || userId || null,
+        payload: { properties, email, sessionId: sessionId || "unknown" } || {},
+        userId: (user?.id && user.id !== "") ? user.id : (userId && userId !== "" ? userId : null),
       }
     });
 
