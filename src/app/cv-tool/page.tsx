@@ -8,6 +8,31 @@ import StrategyResources from "@/components/cv-tool/StrategyResources";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+const DUMMY_LEAD_DATA = {
+    name: "Juan Perez (Test)",
+    email: "test@example.com",
+    status: "outside_canada",
+    province: "Ontario",
+    urgency: "immediate",
+    budget: "yes_pro",
+    language: "es",
+    analysis: {
+        score: 85,
+        summary: "Perfil altamente competitivo para el sector tecnológico en Canadá.",
+        strengths: ["Experiencia internacional", "Nivel de inglés avanzado", "Certificaciones técnicas"],
+        weaknesses: ["Falta de experiencia local", "Networking limitado"],
+        salary_range: "$70,000 - $95,000 CAD",
+        verdict: "Ready to Apply",
+        certifications: [
+            { name: "PMP Certification", duration: "6 months", price: "$400", link: "#" },
+            { name: "AWS Solutions Architect", duration: "3 months", price: "$150", link: "#" }
+        ]
+    }
+};
+
+const DUMMY_CV_TEXT = "Juan Perez. Senior Software Engineer with 8 years of experience in Fullstack Development. Lead teams of 5+ developers. Proficient in React, Node.js, and Cloud Architecture.";
+
+
 function CvToolContent() {
     const searchParams = useSearchParams();
     const sessionId = searchParams.get("session_id");
@@ -25,6 +50,8 @@ function CvToolContent() {
         
         // Developer Bypass: ?code=DEBUG_PRO
         if (queryCode === "DEBUG_PRO") {
+            setLeadData(DUMMY_LEAD_DATA);
+            setCvText(DUMMY_CV_TEXT);
             setAccessCode("PREMIUM");
             if (step === "form") setStep("analysis");
             return;
