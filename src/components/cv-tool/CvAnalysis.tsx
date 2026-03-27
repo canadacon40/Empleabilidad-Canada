@@ -278,8 +278,13 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
                     <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
                         <Shield className="w-5 h-5 text-primary" />
                         Regulación Profesional: {result.regulacion.profesion}
+                        {result.regulacion.nocHabitual && (
+                            <span className="ml-2 text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full font-black tracking-widest">
+                                NOC {result.regulacion.nocHabitual}
+                            </span>
+                        )}
                     </h4>
-                    <div className={`rounded-xl border p-5 ${result.regulacion.esRegulada ? "border-amber-300 bg-amber-50/50" : "border-green-300 bg-green-50/50"
+                    <div className={`rounded-2xl border-2 p-5 sm:p-8 ${result.regulacion.esRegulada ? "border-amber-200 bg-amber-50/30" : "border-emerald-200 bg-emerald-50/30"
                         }`}>
                         <div className="flex items-center gap-2 mb-2">
                             <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${result.regulacion.esRegulada ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
@@ -382,7 +387,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
                     </h4>
                     <div className="space-y-3">
                         {result.certificaciones.lista.slice(0, 3).map((c: any, i: number) => (
-                            <div key={i} className="rounded-xl border border-border p-4 hover:shadow-sm transition-shadow">
+                            <div key={i} className="rounded-xl border border-border p-4 hover:shadow-sm transition-shadow bg-white/40">
                                 <div className="flex items-start justify-between gap-2 mb-2">
                                     <h5 className="font-bold text-foreground text-sm">{c.nombre}</h5>
                                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{c.tipo}</span>
@@ -400,6 +405,70 @@ export default function CvAnalysis({ cvText, onAnalysisComplete, accessCode, lea
                         ))}
                     </div>
                     <RealityCheck data={result.certificaciones.resumenImpacto} />
+                </section>
+            )}
+
+            {/* 4.5. ROLES PUENTE (BRIDGE ROLES) */}
+            {result.rolesPuente?.lista?.length > 0 && (
+                <section className="mt-8">
+                    <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
+                        <Shuffle className="w-5 h-5 text-primary" />
+                        Roles Puente: Alternativas de Entrada Rápida
+                    </h4>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        {result.rolesPuente.lista.map((r: any, i: number) => (
+                            <div key={i} className="rounded-2xl border border-primary/20 p-5 bg-primary/5 flex flex-col hover:border-primary/40 transition-all">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h5 className="font-black text-sm text-primary">{r.titulo}</h5>
+                                    <div className="bg-white px-2 py-1 rounded-lg shadow-sm border border-primary/10">
+                                        <p className="text-[9px] font-bold text-primary uppercase">Salario Est.</p>
+                                        <p className="text-xs font-black text-slate-900">{r.salarioPromedio}</p>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed mb-4 italic">
+                                    "{r.porque}"
+                                </p>
+                                <div className="mt-auto pt-3 border-t border-primary/10 flex items-center gap-2">
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                    <p className="text-[10px] font-bold text-emerald-700">Oportunidad de contratación inmediata</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* 4.7. EMPRESAS CON HISTORIAL LMIA */}
+            {result.empresasLMIA?.lista?.length > 0 && (
+                <section className="mt-8 bg-slate-50 rounded-3xl p-6 border border-slate-200">
+                    <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
+                        <Building2 className="w-5 h-5 text-primary" />
+                        Directorio de Empresas con Historial de Patrocinio (LMIA)
+                    </h4>
+                    <p className="text-xs text-muted-foreground mb-4">
+                        Estas empresas han contratado talento internacional en roles similares en los últimos 24 meses. Contáctalas directamente como parte de tu estrategia.
+                    </p>
+                    <div className="grid gap-2">
+                        {result.empresasLMIA.lista.map((e: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white border border-slate-200 hover:border-primary/30 group transition-all">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+                                        <Building2 className="w-4 h-4 text-slate-400 group-hover:text-primary" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-900">{e.nombre}</p>
+                                        <p className="text-[10px] text-slate-500 uppercase flex items-center gap-1">
+                                            <MapPin className="w-2 h-2" /> {e.provincia} • {e.industria}
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href={e.website} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-primary/10 text-slate-400 hover:text-primary transition-all">
+                                    <ExternalLink className="w-4 h-4" />
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                    <RealityCheck data={result.empresasLMIA.resumenImpacto} />
                 </section>
             )}
 
