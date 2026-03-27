@@ -131,7 +131,7 @@ export default function CvAnalysis({
     downloadLMIAExcel(result);
   };
 
-  const handleCheckout = async (amount: number, successUrl: string) => {
+  const handleCheckout = async (amount: number, successUrl: string, productName?: string) => {
     sendGTMEvent({
       event: "checkout_started",
       value: { amount: amount / 100, currency: "USD" },
@@ -157,6 +157,7 @@ export default function CvAnalysis({
         body: JSON.stringify({
           priceOverride: amount,
           successPath: successUrl,
+          productNameOverride: productName,
         }),
       });
       const data = await res.json();
@@ -607,8 +608,8 @@ export default function CvAnalysis({
               <div className="inline-flex gap-4 px-10 py-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.5em] backdrop-blur-md animate-pulse">
                 <Sparkles className="w-5 h-5" /> Oferta Versión PRO
               </div>
-              <h4 className="text-4xl sm:text-8xl font-black tracking-tighter leading-[1] drop-shadow-2xl">
-                ¿Tu futuro al azar o en manos de <span className="text-primary italic">Pierre</span>?
+              <h4 className="text-4xl sm:text-7xl font-black tracking-tighter leading-[1] drop-shadow-2xl">
+                Sesión Estratégica 1:1 + <span className="text-primary italic">Plan de Empleabilidad</span>
               </h4>
               
               {result.veredictoFinal?.ofertaEstrategica && (
@@ -621,31 +622,31 @@ export default function CvAnalysis({
 
               <div className="grid sm:grid-cols-2 gap-12 text-left bg-white/5 p-12 sm:p-20 rounded-[4rem] border border-white/10 shadow-inner scale-105 backdrop-blur-xl">
                  <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Download className="w-10 h-10" /></div>
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Calendar className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Reporte PDF Maestro</p>
-                        <p className="text-sm text-slate-400 font-medium">Desbloquea la versión descargable de alta fidelidad para presentar a empleadores.</p>
-                    </div>
-                 </div>
-                 <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><FileSpreadsheet className="w-10 h-10" /></div>
-                    <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Directorio LMIA (Excel)</p>
-                        <p className="text-sm text-slate-400 font-medium">Bases de datos de empresas reales con historial de patrocinio internacional.</p>
+                        <p className="text-2xl font-black tracking-tight">Sesión 1-a-1 Especializada</p>
+                        <p className="text-sm text-slate-400 font-medium">Validación de perfil 1-a-1 para corregir errores que Pierre no puede ver.</p>
                     </div>
                  </div>
                  <div className="flex gap-6 group/item">
                     <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Target className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Inyección ATS Master</p>
-                        <p className="text-sm text-slate-400 font-medium">Adaptación profunda de tu perfil a las keywords de Job Bank Canada.</p>
+                        <p className="text-2xl font-black tracking-tight">Plan de Empleabilidad</p>
+                        <p className="text-sm text-slate-400 font-medium">Hoja de ruta personalizada para los próximos 90 días en Canadá.</p>
                     </div>
                  </div>
                  <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Rocket className="w-10 h-10" /></div>
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Shield className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Acceso Centro Táctico</p>
-                        <p className="text-sm text-slate-400 font-medium">Herramientas de personalización de CV, cover letter y preparación de entrevistas.</p>
+                        <p className="text-2xl font-black tracking-tight">Estrategia IMP (Sin LMIA)</p>
+                        <p className="text-sm text-slate-400 font-medium">Búsqueda selectiva de exenciones de LMIA según tu perfil y nacionalidad.</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-6 group/item">
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Download className="w-10 h-10" /></div>
+                    <div className="space-y-2">
+                        <p className="text-2xl font-black tracking-tight">Reporte Maestro PDF + Excel</p>
+                        <p className="text-sm text-slate-400 font-medium">Todo tu diagnóstico Pierre descargado y listo para ejecutar.</p>
                     </div>
                  </div>
               </div>
@@ -667,7 +668,7 @@ export default function CvAnalysis({
                     <Button
                         size="lg"
                         className="w-full h-28 text-3xl font-black bg-primary hover:bg-primary/90 text-white shadow-[0_40px_80px_-20px_rgba(var(--primary),0.6)] hover:scale-105 active:scale-95 transition-all rounded-[3rem] group border-b-[12px] border-primary-foreground/20 active:border-b-0"
-                        onClick={() => handleCheckout(2900, "/cv-tool")}
+                        onClick={() => handleCheckout(2900, "/checkout/success-session", "Sesión 1:1 + Plan de Empleabilidad (Oferta Pierre)")}
                         disabled={isCheckoutLoading}
                     >
                         {isCheckoutLoading ? (
@@ -675,7 +676,7 @@ export default function CvAnalysis({
                         ) : (
                             <Rocket className="w-12 h-12 mr-6 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500" />
                         )}
-                        Activar Versión PRO por $29
+                        Comprar Sesión + Plan por $29
                     </Button>
                     <div className="flex justify-center gap-12 pt-12 opacity-40">
                         <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Shield className="w-5 h-5" /> Seguro</div>

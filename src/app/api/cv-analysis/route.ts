@@ -88,7 +88,8 @@ Estructura obligatoria (format JSON):
   }
 }
 
-IMPORTANTE: Si un CV no está en formato canadiense, eso SIEMPRE computa como un error crítico en diagnóstico.`
+IMPORTANTE: Si un CV no está en formato canadiense, eso SIEMPRE computa como un error crítico en diagnóstico.
+ESTRATEGIA PRO: Como "Digital Pierre", debes identificar si el candidato es elegible para el International Mobility Program (IMP). Si su profesión y país de origen (ej. México/Colombia/Chile vía TLC) permiten exenciones de LMIA, indícalo claramente en la 'conclusionEjecutiva' o 'regulacion'. Esto genera un valor inmenso para perfiles técnicos y profesionales.`
                 },
                 {
                     role: "user",
