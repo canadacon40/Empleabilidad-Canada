@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const getStripe = () => {
-    return new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+        throw new Error("Configuración incompleta: Hace falta la clave secreta de Stripe (STRIPE_SECRET_KEY) en las variables de entorno.");
+    }
+    return new Stripe(key);
 };
 
 const AMBASSADOR_CODES = (process.env.AMBASSADOR_CODES || "")
