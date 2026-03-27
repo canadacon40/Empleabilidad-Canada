@@ -108,8 +108,8 @@ IMPORTANTE: Si un CV no está en formato canadiense, eso SIEMPRE computa como un
                 await prisma.score.create({
                     data: {
                         leadId: leadId,
-                        level: analysis.veredictoFinal?.calificacionPerfil || "MID",
-                        summary: analysis.veredictoFinal?.conclusion || "Análisis completado",
+                        level: analysis.level || "MID",
+                        summary: analysis.veredictoFinal?.conclusion || analysis.conclusionEjecutiva?.recomendacionMaestra || "Análisis completado",
                         gaps: analysis.diagnostico || [],
                     }
                 });

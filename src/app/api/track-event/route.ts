@@ -11,20 +11,22 @@ export async function POST(req: Request) {
     if (email) {
       user = await prisma.user.upsert({
         where: { email: email.toLowerCase().trim() },
-        update: { lastSeen: new Date() },
+        update: { 
+          name: properties?.name || undefined,
+        },
         create: { 
           email: email.toLowerCase().trim(),
           name: properties?.name || "Anonymous",
         }
       });
     }
-
-    const log = await prisma.trackingLog.create({
+    
+    // Model in schema is named 'Event'
+    const log = await prisma.event.create({
       data: {
-        event,
-        properties: properties || {},
+        type: event || "UNKNOWN",
+        payload: { ...properties, email, sessionId } || {},
         userId: user?.id || userId || null,
-        sessionId: sessionId || "unknown",
       }
     });
 
