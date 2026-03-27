@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+            throw new Error("Configuración incompleta: Hace falta la clave de OpenAI (OPENAI_API_KEY) en las variables de entorno para que Pierre pueda analizar el CV.");
+        }
+
+        const openai = new OpenAI({ apiKey });
         const { cvText, leadId } = await req.json();
 
         if (!cvText) {
