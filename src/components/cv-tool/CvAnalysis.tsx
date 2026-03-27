@@ -31,11 +31,14 @@ import {
   Layout,
   ChevronUp,
   ChevronDown,
+  Gift,
+  Key,
 } from "lucide-react";
 import GaugeChart from "./GaugeChart";
 import { Button } from "@/components/ui/button";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { downloadFullReportPDF, downloadLMIAExcel } from "@/lib/report-utils";
+import { initUsagePremium } from "@/lib/usage-tracker";
 
 interface CvAnalysisProps {
   cvText: string;
@@ -43,6 +46,7 @@ interface CvAnalysisProps {
   accessCode?: string;
   leadData?: any;
   leadId?: string;
+  onUnlockPremium?: (code: string) => void;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -59,6 +63,10 @@ export default function CvAnalysis({
   const [result, setResult] = useState<any>(leadData || null);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [codeError, setCodeError] = useState("");
   
   // Loading state with jokes
   const [loadingStep, setLoadingStep] = useState(0);
@@ -67,8 +75,8 @@ export default function CvAnalysis({
     "Traduciendo 'Echarle ganas' al estándar canadiense...",
     "Buscando osos polares en tu historial laboral...",
     "Convenciendo a los reclutadores de que tu CV no es spam...",
-    "Inyectando keywords de Job Bank Canada (vía Pierre)...",
-    "Analizando rutas IMP sin LMIA (Estrategia Pro)...",
+    "Inyectando palabras clave de alta demanda (vía Pierre)...",
+    "Identificando empresas con alto potencial de patrocinio...",
     "Finalizando el veredicto maestro...",
     "Pierre está aplicando el sello de aprobación final..."
   ];
@@ -119,7 +127,7 @@ export default function CvAnalysis({
       const timer = setTimeout(() => {
         window.dispatchEvent(new CustomEvent('pierreChatGreeting', { 
             detail: { 
-                message: `¡Hola! He analizado tu perfil. Tu score es ${result.scoreGeneral}/100. 🚀 He identificado roles puente y rutas IMP estratégicas para ti. ¿Quieres que te explique cómo optimizar tu CV o tienes alguna duda específica?` 
+                message: `¡Hola! He analizado tu perfil. Tu score es ${result.scoreGeneral}/100. 🚀 He identificado fortalezas críticas y el camino exacto para optimizar tu CV para empresas canadienses. ¿Quieres que te explique por dónde empezar?` 
             } 
         }));
         setHasGreeted(true);
@@ -725,10 +733,68 @@ export default function CvAnalysis({
                             )}
                             Activar Versión PRO por $29
                         </Button>
-                    <div className="flex justify-center gap-12 pt-12 opacity-40">
-                        <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Shield className="w-5 h-5" /> Seguro</div>
-                        <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><CheckCircle className="w-5 h-5" /> Instantáneo</div>
-                        <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Lock className="w-5 h-5" /> Cifrado</div>
+                    <div className="flex flex-col items-center gap-6 mt-12 w-full">
+                        <div className="flex justify-center gap-12 opacity-40">
+                            <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Shield className="w-5 h-5" /> Seguro</div>
+                            <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><CheckCircle className="w-5 h-5" /> Instantáneo</div>
+                            <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Lock className="w-5 h-5" /> Cifrado</div>
+                        </div>
+
+                        {/* Promo Code Trigger */}
+                        <div className="w-full max-w-xs pt-4">
+                            {!showCodeInput ? (
+                                <button 
+                                    onClick={() => setShowCodeInput(true)}
+                                    className="text-[10px] font-bold text-slate-500 hover:text-primary transition-colors uppercase tracking-widest underline underline-offset-4 flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <Gift className="w-3 h-3" /> ¿Tienes un código de acceso o beca?
+                                </button>
+                            ) : (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="relative group">
+                                        <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                                        <input 
+                                            type="text" 
+                                            value={promoCode}
+                                            onChange={(e) => {
+                                                setPromoCode(e.target.value.toUpperCase());
+                                                setCodeError("");
+                                            }}
+                                            placeholder="INTRODUCE TU CÓDIGO"
+                                            className="w-full h-14 pl-12 pr-4 bg-white/5 border-2 border-slate-200 rounded-2xl text-xs font-black tracking-widest focus:border-primary focus:ring-0 transition-all text-white placeholder:text-slate-500 uppercase"
+                                        />
+                                    </div>
+                                    {codeError && <p className="text-[10px] font-black text-rose-500 text-center uppercase tracking-widest">{codeError}</p>}
+                                    <Button 
+                                        onClick={() => {
+                                            setIsVerifyingCode(true);
+                                            // Mock verification for the specified valid code
+                                            setTimeout(() => {
+                                                const validCodes = ["PIERRE-PRO-2026", "DEBUG_PRO", "VIP_CANADA"];
+                                                if (validCodes.includes(promoCode)) {
+                                                    initUsagePremium(promoCode);
+                                                    if (onUnlockPremium) onUnlockPremium("PREMIUM");
+                                                    if (onAnalysisComplete) onAnalysisComplete();
+                                                } else {
+                                                    setCodeError("CÓDIGO NO VÁLIDO O EXPIRADO");
+                                                    setIsVerifyingCode(false);
+                                                }
+                                            }, 1000);
+                                        }}
+                                        disabled={isVerifyingCode || !promoCode}
+                                        className="w-full h-12 bg-white text-slate-900 hover:bg-slate-50 font-black rounded-xl text-[10px] uppercase tracking-[0.2em]"
+                                    >
+                                        {isVerifyingCode ? "Verificando..." : "Validar Código"}
+                                    </Button>
+                                    <button 
+                                        onClick={() => setShowCodeInput(false)}
+                                        className="w-full text-[9px] font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest text-center"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
               </div>

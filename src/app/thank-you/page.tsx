@@ -116,7 +116,7 @@ function ThankYouContent() {
                             <Button 
                                 size="lg" 
                                 className="w-full text-base sm:text-lg py-6 sm:py-8 h-auto shadow-lg bg-[#0f172a] hover:bg-slate-800 text-white flex flex-col items-center justify-center gap-1"
-                                onClick={() => window.open("https://buy.stripe.com/8x2cN57a22wo463fXe", "_blank")}
+                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon", "_blank")}
                                 disabled={isLoading}
                             >
                                 {isLoading ? (

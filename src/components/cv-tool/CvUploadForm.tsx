@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { FileText, User, Mail, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart } from "lucide-react"
+import { FileText, User, Mail, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sendGTMEvent } from "@next/third-parties/google"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
@@ -33,6 +33,9 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     const [showCvWarning, setShowCvWarning] = useState(false)
     const [highlightFields, setHighlightFields] = useState<string[]>([])
     const [hasStartedForm, setHasStartedForm] = useState(false)
+    const [showPromoInput, setShowPromoInput] = useState(false)
+    const [promoCode, setPromoCode] = useState("")
+    const [isPromoSuccess, setIsPromoSuccess] = useState(false)
 
     // Track when user starts typing
     useEffect(() => {
@@ -90,9 +93,10 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
              return;
         }
         
-        // Save the email to local storage to prevent reuse and for personalization
+        // Save the email and name to local storage to prevent reuse and for personalization
         localStorage.setItem(`cvReportGenerated_${email.toLowerCase().trim()}`, "true")
         localStorage.setItem("lead_email", email.toLowerCase().trim())
+        localStorage.setItem("lead_name", name.trim())
 
         const leadData = { 
             name: name.trim(), 
@@ -377,7 +381,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
 
                             {/* Option 2: Plan */}
                             <div className="rounded-2xl border-2 border-primary bg-primary/5 p-5 flex flex-col group hover:scale-[1.03] transition-all cursor-pointer relative"
-                                onClick={() => window.open("https://buy.stripe.com/8x2cN57a22wo463fXe", "_blank")}
+                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon", "_blank")}
                             >
                                 <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-primary text-white text-[8px] font-bold rounded uppercase">Premium</div>
                                 <div className="space-y-1 mb-3">
@@ -393,10 +397,50 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-center gap-3 pt-2">
-                             <p className="text-[10px] text-primary font-bold bg-primary/5 px-2 py-1 rounded-lg animate-pulse uppercase tracking-wider">
-                                ⏳ Oferta limitada solo por hoy
-                            </p>
+                        <div className="flex flex-col items-center gap-3 pt-4 border-t border-slate-100">
+                             {!showPromoInput ? (
+                                <button 
+                                    onClick={() => setShowPromoInput(true)}
+                                    className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+                                >
+                                    ¿Tienes un código de acceso PRO?
+                                </button>
+                             ) : (
+                                <div className="w-full space-y-2 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text"
+                                            value={promoCode}
+                                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                            placeholder="Introduce tu código..."
+                                            className="flex-1 px-3 py-2 rounded-lg border border-primary/30 bg-primary/5 text-xs font-bold uppercase"
+                                        />
+                                        <Button 
+                                            size="sm" 
+                                            className="h-9 px-4 text-[10px] font-black uppercase"
+                                            onClick={() => {
+                                                if (promoCode === "PIERRE-PRO-2026" || promoCode === "DEBUG_PRO") {
+                                                    setIsPromoSuccess(true);
+                                                    setTimeout(() => {
+                                                        setAlreadyUsedEmail(null);
+                                                        localStorage.setItem("pierre_promo_unlocked", "true");
+                                                    }, 1500);
+                                                } else {
+                                                    alert("Código inválido. Intenta de nuevo.");
+                                                }
+                                            }}
+                                        >
+                                            Validar
+                                        </Button>
+                                    </div>
+                                    {isPromoSuccess && (
+                                        <p className="text-[10px] text-emerald-600 font-bold text-center animate-pulse">
+                                            ¡Código aceptado! Desbloqueando acceso...
+                                        </p>
+                                    )}
+                                </div>
+                             )}
+                            
                             <button 
                                 onClick={() => setAlreadyUsedEmail(null)}
                                 className="text-[10px] text-muted-foreground hover:text-foreground underline"

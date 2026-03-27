@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles, Minus } from "lucide-react"
+import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles, Minus, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -25,12 +25,19 @@ export default function AiChatbot() {
             if (!hasOpenedOnce && !isOpen) {
                 setShowBubble(true)
                 setHasOpenedOnce(true)
-                // Initial greeting from Pierre
+                
+                // Retrieve lead name for personalization
+                const leadName = localStorage.getItem("lead_name") || "Hola"
+                
+                // Initial greeting from Pierre (discovery oriented)
                 if (messages.length === 0) {
-                   setMessages([{ role: "assistant", content: "Hola. Soy Pierre. He ayudado a muchos profesionales a dejar de aplicar a ciegas y empezar a navegar el mercado canadiense con estrategia. ¿Sientes que tu búsqueda está estancada o no sabes por dónde empezar?" }])
+                    setMessages([{ 
+                        role: "assistant", 
+                        content: `Hola ${leadName}. Soy Pierre. He analizado tu perfil y tengo algunas observaciones estratégicas para que dejemos de 'sobrevivir' y empecemos a 'competir' en Canadá. ¿Quieres que te explique por dónde empezar?` 
+                    }])
                 }
             }
-        }, 45000) // 45 seconds
+        }, 60000) // 60 seconds (1 minute)
         return () => clearTimeout(timer)
     }, [hasOpenedOnce, isOpen, messages.length])
 
@@ -40,9 +47,9 @@ export default function AiChatbot() {
             const { message } = event.detail || {};
             if (message) {
                 setMessages((prev) => [...prev, { role: "assistant", content: message }]);
-                setIsOpen(true);
+                // DO NOT auto-open full window anymore
+                setShowBubble(true);
                 setHasOpenedOnce(true);
-                setShowBubble(false);
             }
         };
 
@@ -257,7 +264,7 @@ export default function AiChatbot() {
                             initial={{ opacity: 0, x: 20, scale: 0.8 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             exit={{ opacity: 0, x: 20, scale: 0.8 }}
-                            className="absolute bottom-20 right-0 mb-2 w-[220px] bg-white p-4 rounded-2xl rounded-br-none shadow-xl border border-slate-200 text-slate-700 text-xs font-medium leading-relaxed"
+                            className="absolute bottom-20 right-0 mb-2 w-[260px] bg-white p-5 rounded-[2rem] rounded-br-none shadow-2xl border border-slate-200 text-slate-700 text-sm font-medium leading-relaxed cursor-pointer group"
                             onClick={() => {
                                 setIsOpen(true)
                                 setShowBubble(false)
@@ -268,11 +275,21 @@ export default function AiChatbot() {
                                     e.stopPropagation();
                                     setShowBubble(false);
                                 }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-slate-200 text-slate-500 rounded-full flex items-center justify-center hover:bg-slate-300 transition-colors"
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-white text-slate-400 rounded-full flex items-center justify-center hover:text-slate-600 transition-colors shadow-md border"
                             >
-                                <X className="w-3 h-3" />
+                                <X className="w-3.5 h-3.5" />
                             </button>
-                            Si quieres hacerme alguna pregunta, estoy aquí para ayudarte. 👋
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Pierre tiene un consejo:</span>
+                            </div>
+                            <p className="text-slate-600 italic line-clamp-3">
+                                "{messages[messages.length - 1]?.content || "¿Quieres que revisemos tu reporte?"}"
+                            </p>
+                            <div className="mt-3 flex items-center gap-1 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span>Haz clic para responder</span>
+                                <ArrowRight className="w-3 h-3" />
+                            </div>
                             <div className="absolute bottom-[-10px] right-4 w-4 h-4 bg-white border-r border-b border-slate-200 rotate-45" />
                         </motion.div>
                     )}
@@ -290,9 +307,12 @@ export default function AiChatbot() {
                         isOpen ? 'bg-white text-slate-900 border border-slate-200' : 'bg-primary text-white'
                     }`}
                 >
-                    {/* Background pulse effect */}
-                    {!isOpen && (
-                        <div className="absolute inset-0 bg-primary/40 rounded-full animate-ping pointer-events-none" />
+                    {/* Background buzz/pulse effect when bubble is shown */}
+                    {showBubble && !isOpen && (
+                        <>
+                            <div className="absolute inset-0 bg-primary/40 rounded-full animate-ping pointer-events-none" />
+                            <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse pointer-events-none" />
+                        </>
                     )}
                     
                     {isOpen ? <X className="w-7 h-7" /> : (
@@ -302,14 +322,14 @@ export default function AiChatbot() {
                                 alt="Chat with Pierre"
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                             />
-                             <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors" />
+                             <div className={`absolute inset-0 transition-colors ${showBubble ? 'bg-transparent' : 'bg-primary/10 group-hover:bg-transparent'}`} />
                         </div>
                     )}
                     
-                    {/* Unread indicator with bubble sync */}
-                    {(showBubble || (!hasOpenedOnce && !isOpen)) && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center animate-bounce">
-                            <span className="text-[10px] font-bold text-white">1</span>
+                    {/* Unread indicator sync */}
+                    {showBubble && !isOpen && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center animate-bounce shadow-lg">
+                            <span className="text-[11px] font-black text-white">1</span>
                         </div>
                     )}
                 </motion.button>

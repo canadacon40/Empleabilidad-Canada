@@ -53,6 +53,7 @@ function CvToolContent() {
             setLeadData(DUMMY_LEAD_DATA);
             setCvText(DUMMY_CV_TEXT);
             setAccessCode("PREMIUM");
+            import("@/lib/usage-tracker").then(mod => mod.initUsagePremium("DEBUG_PRO"));
             if (step === "form") setStep("analysis");
             return;
         }
@@ -104,6 +105,7 @@ function CvToolContent() {
                         leadId={leadId}
                         accessCode={accessCode}
                         onAnalysisComplete={() => setStep("strategy")} 
+                        onUnlockPremium={(code) => setAccessCode(code)}
                     />
                 </div>
             )}

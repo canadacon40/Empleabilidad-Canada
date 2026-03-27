@@ -66,7 +66,7 @@ export default function DiscountModal({ isOpen, onClose }: { isOpen: boolean, on
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </a>
                             </Button>
-                            <button onClick={() => { window.open('https://buy.stripe.com/8x2cN57a22wo463fXe', '_blank'); onClose(); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-4 block w-full text-center">
+                            <button onClick={() => { window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank'); onClose(); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-4 block w-full text-center">
                                 No gracias, prefiero ver los detalles del plan completo.
                             </button>
                         </div>

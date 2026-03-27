@@ -1,7 +1,8 @@
 "use client"
 
 const MAX_TRANSFORMS = 10
-const MAX_STRATEGY_ACTIONS = 40 // shared pool: customize + cover letter + interview
+const MAX_STRATEGY_ACTIONS = 40 // default for lead magnet
+const MAX_STRATEGY_ACTIONS_PRO = 50 // for paid/code users
 const STORAGE_KEY = "cv_tool_usage"
 
 interface UsageData {
@@ -67,6 +68,22 @@ export function initUsageWithCode(code: string): UsageData {
         strategyActionsUsed: 0,
         chatMessagesRemaining: 15,
         onboardingCompleted: false,
+        history: [],
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    return data
+}
+
+export function initUsagePremium(sessionId: string): UsageData {
+    const data: UsageData = {
+        sessionId,
+        email: "premium_user",
+        usesRemaining: 20,
+        totalUsed: 0,
+        strategyActionsRemaining: MAX_STRATEGY_ACTIONS_PRO,
+        strategyActionsUsed: 0,
+        chatMessagesRemaining: 50,
+        onboardingCompleted: true,
         history: [],
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))

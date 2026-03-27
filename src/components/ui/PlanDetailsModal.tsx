@@ -86,34 +86,13 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                     <div className="flex flex-col sm:flex-row gap-4">
                         <Button 
                             size="lg" 
-                            className="w-full text-base h-12" 
+                            className="w-full text-base h-12 bg-slate-900 text-white hover:bg-slate-800" 
                             disabled={isLoading}
-                            onClick={async () => { 
-                                setIsLoading(true);
-                                try {
-                                    const res = await fetch("/api/create-checkout", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({
-                                            priceOverride: 10900,
-                                            successPath: "/checkout/success-session",
-                                            productNameOverride: "Plan de Empleabilidad Personalizado + Sesión 1:1",
-                                        }),
-                                    });
-                                    const data = await res.json();
-                                    if (data.url) {
-                                        window.location.href = data.url;
-                                    } else {
-                                        alert("Error al procesar el pago.");
-                                        setIsLoading(false);
-                                    }
-                                } catch (e) {
-                                    alert("Error de conexión.");
-                                    setIsLoading(false);
-                                }
+                            onClick={() => {
+                                window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank');
                             }}
                         >
-                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Comprar Plan y Asegurar Cupo"}
+                             Comprar Plan y Asegurar Cupo
                          </Button>
                          <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank'); }}>
                              Agendar Llamada Estratégica

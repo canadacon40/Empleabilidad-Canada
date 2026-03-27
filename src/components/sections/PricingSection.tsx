@@ -1,16 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle2, CreditCard, Sparkles, ExternalLink as ExternalIcon, Zap, Check, Info } from "lucide-react"
+import { CheckCircle2, CreditCard, Sparkles, ExternalLink as ExternalIcon, Zap, Check, Info, ArrowRight, User } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import PlanDetailsModal from "../ui/PlanDetailsModal"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
+import { useRouter } from "next/navigation"
 
 import { Loader2 } from "lucide-react"
 
 export default function PricingSection() {
     const { trackEvent } = useLeadTracking();
+    const router = useRouter();
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
     const [isAloading, setIsAloading] = useState(false)
     const [isBloading, setIsBloading] = useState(false)
@@ -75,119 +77,160 @@ export default function PricingSection() {
                     </motion.p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                    {/* Plan A: The Tool */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                    {/* Plan A: Free Report */}
                     <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.3 }}
-                        className="rounded-3xl border border-border bg-card p-8 flex flex-col hover:border-primary/50 transition-all shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                        transition={{ delay: 0.2 }}
+                        className="rounded-3xl border border-border bg-card p-6 flex flex-col hover:border-primary/30 transition-all shadow-sm group"
                     >
-                        <div className="mb-6">
-                            <h3 className="text-2xl font-bold text-foreground">Kit de Inicio Profesional</h3>
-                            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                                **El punto de partida.** Obtén tu diagnóstico de empleabilidad completo y descubre exactamente qué te separa de las mejores ofertas del mercado.
+                        <div className="mb-4">
+                            <h3 className="text-xl font-bold text-foreground">Reporte Inicial</h3>
+                            <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
+                                Diagnóstico base con IA para entender tu estatus actual en el mercado canadiense.
                             </p>
                         </div>
                         
-                        <div className="mb-8">
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-bold text-foreground">Gratis</span>
-                                <span className="text-sm text-muted-foreground font-medium">*Diagnóstico Inicial</span>
+                        <div className="mb-6">
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-3xl font-bold text-foreground">Gratis</span>
                             </div>
-                            <p className="text-xs text-primary font-bold mt-2 flex items-center gap-1.5 uppercase tracking-wide">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                Incluye Veredicto Estratégico IA
+                            <p className="text-[9px] text-primary font-bold mt-1 uppercase tracking-wide flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" /> Veredicto Técnico IA
                             </p>
                         </div>
 
-                        <div className="space-y-4 mb-10 flex-1">
+                        <div className="space-y-3 mb-8 flex-1">
                             {[
                                 "Diagnóstico de Perfil con IA",
                                 "Veredicto Técnico de Mercado",
                                 "Match % con Vacantes Reales",
-                                "Acceso al Acelerador PRO ($29)",
-                                "Optimización de Keywords ATS",
-                                "Formato Profesional Exportable"
+                                "Opción de Upgrade PRO"
                             ].map((item, i) => (
-                                <div key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                <div key={i} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                                     <span>{item}</span>
                                 </div>
                             ))}
                         </div>
 
                         <Button 
-                            className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                            variant="outline"
+                            className="w-full py-5 text-sm font-bold rounded-xl border-2 hover:bg-primary hover:text-white transition-all shadow-sm"
+                            onClick={() => {
+                                trackEvent("CTA_CLICK", { plan: "Gratis", price: 0 });
+                                router.push('/cv-tool');
+                            }}
+                        >
+                            Generar Gratis
+                        </Button>
+                    </motion.div>
+
+                    {/* Plan B: Acelerador PRO ($29) */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.3 }}
+                        className="rounded-3xl border border-primary/50 bg-primary/5 p-6 flex flex-col hover:border-primary transition-all shadow-xl shadow-primary/5 relative scale-105 z-10"
+                    >
+                        <div className="absolute top-0 right-0 px-3 py-1 bg-primary text-white text-[9px] font-bold rounded-bl-xl uppercase tracking-widest">Popular</div>
+                        <div className="mb-4">
+                            <h3 className="text-xl font-bold text-foreground">Acelerador PRO</h3>
+                            <p className="text-[10px] text-primary/80 mt-1 leading-relaxed">
+                                La base táctica para ganar entrevistas. Optimización ATS y herramientas avanzadas.
+                            </p>
+                        </div>
+                        
+                        <div className="mb-6">
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-3xl font-bold text-primary">$29</span>
+                                <span className="text-xs text-primary/60">USD</span>
+                            </div>
+                            <p className="text-[9px] text-primary/90 font-bold mt-1 uppercase tracking-wide flex items-center gap-1">
+                                <Zap className="w-3 h-3" /> Acceso Instantáneo PRO
+                            </p>
+                        </div>
+
+                        <div className="space-y-3 mb-8 flex-1">
+                            {[
+                                "Todo lo del Reporte Inicial",
+                                "Optimización de Keywords ATS",
+                                "Formato Profesional Exportable",
+                                "50 Créditos de Herramientas",
+                                "Identificación de Patrocinio"
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-start gap-2 text-[11px] text-foreground font-medium">
+                                    <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                                    <span>{item}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <Button 
+                            className="w-full py-5 text-sm font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
                             disabled={isAloading}
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Acelerador", price: 29 });
                                 handleCheckout(2900, "/cv-tool", "Acelerador PRO (Herramientas)", setIsAloading);
                             }}
                         >
-                            {isAloading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Lo quiero ahora"}
+                            {isAloading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Lo quiero ahora"}
                         </Button>
                     </motion.div>
 
-                    {/* Plan B: Plan de Empleabilidad Personalizado */}
+                    {/* Plan C: Plan Personalizado ($109) */}
                     <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.4 }}
-                        className="rounded-3xl border-2 border-primary bg-primary/5 p-8 flex flex-col relative overflow-hidden shadow-2xl shadow-primary/10 md:scale-105 z-10"
+                        className="rounded-3xl border border-border bg-card p-6 flex flex-col hover:border-slate-400 transition-all shadow-sm"
                     >
-                        <div className="absolute top-0 right-0 px-6 py-2 bg-primary text-white text-xs font-bold rounded-bl-3xl uppercase tracking-widest">Recomendado</div>
-                        
-                        <div className="mb-6">
-                            <h3 className="text-2xl font-bold text-foreground">Plan de Empleabilidad Personalizado</h3>
-                            <p className="text-sm text-primary/80 mt-2 font-medium">Mentoría experta personalizada para una estrategia sin errores.</p>
+                        <div className="mb-4">
+                            <h3 className="text-xl font-bold text-foreground">Estrategia 1-a-1</h3>
+                            <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
+                                Mentoría experta personalizada para una hoja de ruta sin errores.
+                            </p>
                         </div>
                         
-                        <div className="mb-8">
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-bold text-primary">$109</span>
-                                <span className="text-lg text-primary/80 font-medium">USD</span>
-                                <s className="text-sm text-muted-foreground/60 ml-2 font-normal font-mono">$149</s>
+                        <div className="mb-6">
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-3xl font-bold text-foreground">$109</span>
+                                <span className="text-xs text-muted-foreground">USD</span>
                             </div>
-                            <p className="text-xs text-primary/90 font-bold mt-2 flex items-center gap-1.5 uppercase tracking-wide">
-                                💥 Acceso Prioritario y Garantía
+                            <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-wide flex items-center gap-1">
+                                <User className="w-3 h-3" /> Sesión Directa con Pierre
                             </p>
                         </div>
 
-                        <div className="space-y-4 mb-10 flex-1">
+                        <div className="space-y-3 mb-8 flex-1">
                             {[
-                                "Todo lo incluido en el Kit Profesional",
-                                "Sesión 1-a-1 de Estrategia (Zoom)",
+                                "Todo lo incluido en el Kit PRO",
+                                "Sesión 1-a-1 vía Zoom",
                                 "Hoja de Ruta Personalizada",
-                                "Optimización de LinkedIn de Alto Impacto",
-                                "Guía de Búsqueda de Sponsoring",
-                                "Soporte VIP por WhatsApp (30 días)"
+                                "Optimización de LinkedIn",
+                                "Soporte VIP WhatsApp"
                             ].map((item, i) => (
-                                <div key={i} className="flex items-start gap-3 text-sm text-foreground font-medium">
-                                    <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                                <div key={i} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                                    <CheckCircle2 className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                     <span>{item}</span>
                                 </div>
                             ))}
                         </div>
 
                         <Button 
-                            className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all ring-offset-background group"
-                            disabled={isBloading}
+                            variant="secondary"
+                            className="w-full py-5 text-sm font-bold rounded-xl border-2 transition-all shadow-sm group"
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Plan Personalizado", price: 109 });
-                                handleCheckout(10900, "/checkout/success-session", "Plan de Empleabilidad Personalizado + Sesión 1:1", setIsBloading);
+                                window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank');
                             }}
                         >
-                            {isBloading ? (
-                                <Loader2 className="w-6 h-6 animate-spin" />
-                            ) : (
-                                <>
-                                    Lo quiero ahora
-                                    <Check className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                                </>
-                            )}
+                            Agendar Sesión
+                            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </motion.div>
                 </div>

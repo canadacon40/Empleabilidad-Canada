@@ -1045,6 +1045,25 @@ function JobBoardTab() {
     )
 }
 
+function UsageBanner() {
+    const remaining = getStrategyRemaining();
+    if (remaining > 10) return null;
+
+    return (
+        <div className="mb-8 p-6 rounded-[2rem] bg-orange-500/10 border-2 border-orange-500/20 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left animate-pulse">
+            <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
+                <Shield className="w-6 h-6 text-white" />
+            </div>
+            <div>
+                <h4 className="text-orange-950 font-black uppercase text-xs tracking-widest mb-1">¡Acciones Limitadas!</h4>
+                <p className="text-orange-900/80 text-sm font-bold leading-tight">
+                    Te quedan solo <span className="text-orange-600 underline underline-offset-2">{remaining}</span> aplicaciones estratégicas. Úsalas con sabiduría para tus vacantes más importantes.
+                </p>
+            </div>
+        </div>
+    );
+}
+
 // ============= MAIN COMPONENT =============
 export default function StrategyResources({ cvText, onCustomize, resultData }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any }) {
     const [activeTab, setActiveTab] = useState<string>("customize")
@@ -1065,8 +1084,13 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                 <div className="relative z-10 space-y-8">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-8">
                         <div className="space-y-4 text-center sm:text-left">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
-                                <Rocket className="w-4 h-4" /> Arsenal Táctico Activado
+                            <div className="flex flex-col sm:flex-row items-center gap-3">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
+                                    <Rocket className="w-4 h-4" /> Arsenal Táctico Activado
+                                </div>
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
+                                    Créditos PRO: <span className="text-white">{getStrategyRemaining()} / 50</span>
+                                </div>
                             </div>
                             <h3 className="text-3xl sm:text-5xl font-black tracking-tighter leading-none">
                                 Centro de Estrategia <span className="text-primary italic">Pierre PRO</span>
@@ -1099,6 +1123,9 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                     </div>
                 </div>
             </div>
+
+            {/* Usage Warning Banner */}
+            <UsageBanner />
 
             {/* Modern Tabs */}
             <div className="sticky top-20 z-40 flex overflow-x-auto gap-2 p-2 bg-slate-50/80 backdrop-blur-md border rounded-[2rem] shadow-sm no-scrollbar">
