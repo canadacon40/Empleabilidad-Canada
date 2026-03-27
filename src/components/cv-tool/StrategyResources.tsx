@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette } from "lucide-react"
+import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { consumeStrategyAction, hasStrategyActionsRemaining, getStrategyRemaining } from "@/lib/usage-tracker"
 import { downloadCustomizedCVPDF } from "@/lib/report-utils"
 
 const tabs = [
     { id: "customize", label: "Personalizar CV", icon: FileText },
+    { id: "job-boards", label: "Canales de Empleo", icon: Search },
     { id: "cover-letter", label: "Cover Letter", icon: Mail },
     { id: "interview", label: "Entrevista", icon: MessageSquare },
     { id: "scripts", label: "Scripts", icon: Phone },
@@ -925,6 +926,94 @@ Saludos,
         </div>
     )
 }
+// ============= JOB BOARDS TAB =============
+function JobBoardTab() {
+    const jobBoards = [
+        {
+            category: "Federal (Todo Canadá)",
+            boards: [
+                { name: "Job Bank (Official)", description: "Portal oficial del Gobierno de Canadá. El más confiable.", url: "https://www.jobbank.gc.ca/", icon: Globe },
+                { name: "Indeed Canada", description: "El buscador más grande del sector privado.", url: "https://ca.indeed.com/", icon: Search },
+                { name: "LinkedIn Jobs", description: "Esencial para networking y roles especializados.", url: "https://www.linkedin.com/jobs/", icon: Target },
+            ]
+        },
+        {
+            category: "Portales de Gobierno (Provincias)",
+            boards: [
+                { name: "Ontario Public Service", description: "Carreras oficiales en el gobierno de Ontario.", url: "https://www.gojobs.gov.on.ca/", icon: Globe },
+                { name: "Québec Emploi", description: "Portal oficial de empleo del gobierno de Québec.", url: "https://www.quebec.ca/emploi/chercher-un-emploi/quebec-emploi", icon: Globe },
+                { name: "WorkBC (British Columbia)", description: "Bolsa de trabajo oficial de B.C.", url: "https://www.workbc.ca/", icon: Globe },
+                { name: "Alberta Jobs (Alis)", description: "Portal oficial de empleos y carreras de Alberta.", url: "https://www.alberta.ca/alberta-jobs", icon: Globe },
+                { name: "SaskJobs (Saskatchewan)", description: "Portal principal de empleo para SK.", url: "https://www.saskjobs.ca/", icon: Globe },
+                { name: "Work in Manitoba", description: "Portal de empleo oficial de la provincia de Manitoba.", url: "https://www.workinmanitoba.ca/", icon: Globe },
+                { name: "NBJobs (New Brunswick)", description: "Portal oficial de empleos de New Brunswick.", url: "https://www.nbjobs.ca/", icon: Globe },
+                { name: "Nova Scotia Gov Careers", description: "Bolsa de trabajo oficial del gobierno de N.S.", url: "https://jobs.novascotia.ca/", icon: Globe },
+                { name: "Jobs PEI (P.E.I.)", description: "Portal oficial de Prince Edward Island.", url: "https://www.jobspei.ca/", icon: Globe },
+                { name: "Public Careers (NL)", description: "Oportunidades en Newfoundland and Labrador.", url: "https://www.gov.nl.ca/exec/ias/public-service-commission/public-career-opportunities/", icon: Globe },
+            ]
+        },
+        {
+            category: "Mercado Oculto (Directorio de Empresas)",
+            boards: [
+                { name: "Canada Business Registry", description: "Busca empresas por nombre e industria para contacto directo.", url: "https://www.beta.canadabusinessregistries.ca/search", icon: ShieldCheck },
+                { name: "Glassdoor Canada", description: "Investiga salarios y opiniones antes de aplicar.", url: "https://www.glassdoor.ca/", icon: Search },
+            ]
+        }
+    ]
+
+    return (
+        <div className="space-y-6">
+            <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
+                <h3 className="font-bold text-foreground mb-1">🌐 Canales Tácticos de Empleo</h3>
+                <p className="text-sm text-muted-foreground">
+                    Pierre ha seleccionado los portales con mayor tasa de éxito. No pierdas tiempo en portales genéricos; enfócate en estos canales oficiales.
+                </p>
+            </div>
+
+            <div className="space-y-8">
+                {jobBoards.map((cat, idx) => (
+                    <div key={idx}>
+                        <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4 tracking-wider">{cat.category}</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {cat.boards.map((board, bIdx) => {
+                                const Icon = board.icon
+                                return (
+                                    <a
+                                        key={bIdx}
+                                        href={board.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:shadow-md transition-all flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                                                <Icon className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <h5 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{board.name}</h5>
+                                            <p className="text-xs text-muted-foreground leading-relaxed">{board.description}</p>
+                                        </div>
+                                        <div className="mt-4 flex items-center text-[10px] font-bold text-primary uppercase tracking-tighter">
+                                            Acceder al portal 🚀
+                                        </div>
+                                    </a>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="p-5 bg-muted/30 rounded-xl border border-dashed border-border mt-8">
+                <h4 className="font-bold text-foreground text-sm mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4 text-primary" /> El "Mercado Oculto" de Canadá
+                </h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                    ¿Sabías que hasta el <strong>80% de las vacantes en Canadá nunca se publican</strong>? Usa los buscadores de empresas (como Business Registry) para identificar compañías en tu industria y provincia, e intenta contactarlas usando tus <strong>Scripts de Pierre</strong>. ¡Esa es la verdadera ventaja PRO!
+                </p>
+            </div>
+        </div>
+    )
+}
 
 // ============= MAIN COMPONENT =============
 export default function StrategyResources({ cvText, onCustomize }: { cvText: string; onCustomize?: (data: any) => void }) {
@@ -964,6 +1053,7 @@ export default function StrategyResources({ cvText, onCustomize }: { cvText: str
             {/* Tab Content */}
             <div>
                 {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={onCustomize} />}
+                {activeTab === "job-boards" && <JobBoardTab />}
                 {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} />}
                 {activeTab === "interview" && <InterviewTab cvText={cvText} />}
                 {activeTab === "scripts" && <ScriptsTab />}
