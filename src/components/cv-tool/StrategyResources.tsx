@@ -4,6 +4,7 @@ import { useState } from "react"
 import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { consumeStrategyAction, hasStrategyActionsRemaining, getStrategyRemaining } from "@/lib/usage-tracker"
+import { downloadCustomizedCVPDF } from "@/lib/report-utils"
 
 const tabs = [
     { id: "customize", label: "Personalizar CV", icon: FileText },
@@ -197,17 +198,15 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
                             <Target className="w-4 h-4 text-primary" /> CV Adaptado
                         </h4>
                         <div className="flex items-center gap-2">
-                            {onCustomize && (
-                                <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="gap-1.5 h-8 text-xs font-bold border-primary/40 hover:bg-primary/10"
-                                    onClick={() => onCustomize(customizeResult)}
-                                >
-                                    <Palette className="w-3 h-3" />
-                                    Descargar con Diseño (PDF/Word)
-                                </Button>
-                            )}
+                            <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="gap-1.5 h-8 text-xs font-bold border-primary/40 hover:bg-primary/10"
+                                onClick={() => onCustomize ? onCustomize(customizeResult) : downloadCustomizedCVPDF(customizeResult)}
+                            >
+                                <Palette className="w-3 h-3" />
+                                Descargar con Diseño (PDF/Word)
+                            </Button>
                             <CopyButton text={customizeResult.fullCvText || ""} />
                         </div>
                     </div>
