@@ -34,6 +34,22 @@ export default function AiChatbot() {
         return () => clearTimeout(timer)
     }, [hasOpenedOnce, isOpen, messages.length])
 
+    // Global event listener for personalized greetings
+    useEffect(() => {
+        const handleGreeting = (event: any) => {
+            const { message } = event.detail || {};
+            if (message) {
+                setMessages((prev) => [...prev, { role: "assistant", content: message }]);
+                setIsOpen(true);
+                setHasOpenedOnce(true);
+                setShowBubble(false);
+            }
+        };
+
+        window.addEventListener("pierreChatGreeting", handleGreeting);
+        return () => window.removeEventListener("pierreChatGreeting", handleGreeting);
+    }, []);
+
     // Scroll to bottom
     useEffect(() => {
         if (scrollRef.current) {
@@ -138,7 +154,7 @@ export default function AiChatbot() {
                         initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: "bottom right" }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="mb-4 w-[360px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
+                        className="mb-4 w-[calc(100vw-3rem)] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
                     >
                         {/* Header */}
                         <div className="bg-[#0f172a] p-5 text-white flex items-center justify-between">

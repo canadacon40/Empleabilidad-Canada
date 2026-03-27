@@ -58,42 +58,34 @@ export default function CvAnalysis({
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(leadData || null);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentJoke, setCurrentJoke] = useState(0);
-
-  const jokes = [
-    "¿Sabes por qué los programadores canadienses siempre tienen frío? ¡Porque se olvidaron de cerrar las ventanas (Windows)!... Pierre lo cerrarían por ti.",
-    "Pierre está analizando tu perfil... ¡Espero que tengas más suerte en Canadá que el alce que intentó cruzar la frontera sin pasaporte!",
-    "El 90% de los CVs son ignorados por los filtros ATS. El otro 10% son los que Pierre audita personalmente... ya casi terminamos.",
-    "Canadá es el país más acogedor del mundo, pero Pierre es el más exigente auditando tu CV. Falta muy poco para tu veredicto.",
-    "Pierre está verificando si tu CV tiene 'Maple Syrup' suficiente para endulzar a los reclutadores... ¡Analizando!",
-    "Dato curioso: Montreal es la segunda ciudad de habla francesa más grande después de París. Pierre está revisando si tu francés está a la altura.",
+  const [hasGreeted, setHasGreeted] = useState(false);
+  
+  // Loading state with jokes
+  const [loadingStep, setLoadingStep] = useState(0);
+  const loadingMessages = [
+    "Iniciando escaneo táctico de perfil...",
+    "Traduciendo 'Echarle ganas' al estándar canadiense...",
+    "Buscando osos polares en tu historial laboral...",
+    "Convenciendo a los reclutadores de que tu CV no es spam...",
+    "Inyectando keywords de Job Bank Canada (vía Pierre)...",
+    "Analizando rutas IMP sin LMIA (Estrategia Pro)...",
+    "Finalizando el veredicto maestro...",
+    "Pierre está aplicando el sello de aprobación final..."
   ];
 
   useEffect(() => {
     if (isLoading) {
-      setProgress(0);
       const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 96) return prev + 0.1;
-          return prev + Math.random() * 4;
-        });
-      }, 700);
-
-      const jokeInterval = setInterval(() => {
-        setCurrentJoke((prev) => (prev + 1) % jokes.length);
-      }, 6000);
-
-      return () => {
-        clearInterval(interval);
-        clearInterval(jokeInterval);
-      };
+        setLoadingStep((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+      }, 3500); // 3.5 seconds per message
+      return () => clearInterval(interval);
     }
   }, [isLoading]);
 
   const handleAnalyze = async () => {
     if (isLoading) return;
     setIsLoading(true);
+    setHasGreeted(false);
     setError("");
     try {
       const res = await fetch("/api/cv-analysis", {
@@ -103,7 +95,7 @@ export default function CvAnalysis({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error);
+        setError(data.error || "Ocurrió un error inesperado.");
         return;
       }
       setResult(data.result);
@@ -115,21 +107,26 @@ export default function CvAnalysis({
   };
 
   useEffect(() => {
-    const isResultValid = result?.veredictoFinal || result?.diagnostico?.length > 0;
+    const isResultValid = result?.veredictoFinal || (result?.diagnostico && result.diagnostico.length > 0);
     if (!isResultValid && cvText && !isLoading && !error) {
       handleAnalyze();
     }
   }, [cvText]);
 
-  const downloadFullReport = () => {
-    if (!result) return;
-    downloadFullReportPDF(result);
-  };
-
-  const downloadExcel = () => {
-    if (!result) return;
-    downloadLMIAExcel(result);
-  };
+  // Chatbot Greeting Trigger
+  useEffect(() => {
+    if (result && !isLoading && !hasGreeted) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('pierreChatGreeting', { 
+            detail: { 
+                message: `¡Hola! He analizado tu perfil. Tu score es ${result.scoreGeneral}/100. 🚀 He identificado roles puente y rutas IMP estratégicas para ti. ¿Quieres que te explique cómo optimizar tu CV o tienes alguna duda específica?` 
+            } 
+        }));
+        setHasGreeted(true);
+      }, 5000); // 5 seconds after report loads
+      return () => clearTimeout(timer);
+    }
+  }, [result, isLoading, hasGreeted]);
 
   const handleCheckout = async (amount: number, successUrl: string, productName?: string) => {
     sendGTMEvent({
@@ -173,6 +170,16 @@ export default function CvAnalysis({
     }
   };
 
+  const downloadFullReport = () => {
+    if (!result) return;
+    downloadFullReportPDF(result);
+  };
+
+  const downloadExcel = () => {
+    if (!result) return;
+    downloadLMIAExcel(result);
+  };
+
   const RealityCheck = ({ data, title = "Reality Check" }: any) => {
     if (!data) return null;
     const colors = {
@@ -205,26 +212,66 @@ export default function CvAnalysis({
     </div>
   );
 
+  if (error) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
+        <h3 className="text-xl font-bold">Vaya, algo salió mal</h3>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={handleAnalyze}>Intentar de nuevo</Button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[60vh] bg-slate-50 flex flex-col items-center justify-center p-8 text-center space-y-10 animate-in fade-in duration-1000">
+          <div className="relative w-48 h-48">
+              <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
+              <div className="absolute inset-4 border-[6px] border-dashed border-primary rounded-full animate-spin duration-[6000ms]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative group">
+                    <img src="/images/pierre-avatar.png" alt="Analizando" className="w-28 h-28 rounded-full shadow-2xl transition-transform group-hover:scale-110" />
+                    <Sparkles className="absolute -top-2 -right-2 text-amber-400 w-8 h-8 animate-pulse" />
+                  </div>
+              </div>
+          </div>
+          
+          <div className="max-w-md w-full space-y-8">
+              <div className="space-y-4">
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Pierre está analizando cada detalle...</h3>
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner border p-1">
+                        <div 
+                          className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-lg" 
+                          style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%` }}
+                        />
+                    </div>
+                    <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                       <span>Iniciando</span>
+                       <span>Finalizando</span>
+                    </div>
+                  </div>
+              </div>
+              
+              <div className="bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                <p className="text-slate-700 font-bold italic text-lg leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-700">
+                    "{loadingMessages[loadingStep]}"
+                </p>
+              </div>
+              
+              <div className="flex justify-center gap-3 pt-4">
+                  <div className="w-3 h-3 rounded-full bg-primary/20 animate-bounce delay-75" />
+                  <div className="w-3 h-3 rounded-full bg-primary/40 animate-bounce delay-150" />
+                  <div className="w-3 h-3 rounded-full bg-primary/60 animate-bounce delay-300" />
+              </div>
+          </div>
+      </div>
+    );
+  }
+
   if (!result) {
-    if (isLoading) {
-      return (
-        <div className="max-w-xl mx-auto space-y-10 py-12 text-center">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
-              <h3 className="text-xl font-black uppercase tracking-widest text-slate-800">Analizando...</h3>
-            </div>
-          </div>
-          <div className="space-y-3">
-             <div className="flex justify-between items-end"><span className="text-[10px] font-black uppercase">Progreso</span><span className="text-sm font-black">{Math.floor(progress)}%</span></div>
-             <div className="h-4 w-full bg-slate-100 rounded-full p-1 border shadow-inner"><div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} /></div>
-          </div>
-          <div className="p-10 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden italic text-sm">
-            "{jokes[currentJoke]}"
-          </div>
-        </div>
-      );
-    }
     return (
       <div className="text-center py-20 space-y-8">
         <Shield className="w-16 h-16 text-primary mx-auto animate-pulse" />
@@ -495,20 +542,20 @@ export default function CvAnalysis({
       {/* 8. SALARIOS */}
       {result.salarios && (
         <section className="bg-white rounded-[2.5rem] border-2 shadow-xl overflow-hidden">
-            <div className="bg-slate-900 p-8 text-white font-black text-xl flex items-center gap-3"><Banknote className="w-6 h-6 text-primary" /> Proyección Salarial (CAD)</div>
-            <div className="p-12 sm:p-20 grid grid-cols-3 gap-8 max-w-5xl mx-auto items-center">
-                <div className="p-8 rounded-[3rem] bg-slate-50 border-2 text-center shadow-inner">
-                    <p className="text-[11px] font-black text-slate-400 uppercase mb-4">Entry Level</p>
-                    <p className="text-3xl font-black text-slate-800">{result.salarios.entry}</p>
+            <div className="bg-slate-900 p-6 sm:p-8 text-white font-black text-lg sm:text-xl flex items-center gap-3"><Banknote className="w-6 h-6 text-primary" /> Proyección Salarial (CAD)</div>
+            <div className="p-8 sm:p-20 flex flex-col sm:grid sm:grid-cols-3 gap-8 max-w-5xl mx-auto items-center">
+                <div className="w-full p-8 rounded-[2.5rem] sm:rounded-[3rem] bg-slate-50 border-2 text-center shadow-inner">
+                    <p className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase mb-4">Entry Level</p>
+                    <p className="text-2xl sm:text-3xl font-black text-slate-800">{result.salarios.entry}</p>
                 </div>
-                <div className="p-12 rounded-[4rem] bg-primary/5 border-4 border-primary/30 text-center scale-110 shadow-2xl ring-12 ring-primary/5 relative overflow-hidden">
+                <div className="w-full p-10 sm:p-12 rounded-[3.5rem] sm:rounded-[4rem] bg-primary/5 border-4 border-primary/30 text-center sm:scale-110 shadow-2xl ring-8 sm:ring-12 ring-primary/5 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-primary animate-pulse" />
-                    <p className="text-[13px] font-black text-primary uppercase mb-6 tracking-[0.2em]">Target Median</p>
-                    <p className="text-5xl font-black text-primary tracking-tighter drop-shadow-sm">{result.salarios.mid}</p>
+                    <p className="text-[12px] sm:text-[13px] font-black text-primary uppercase mb-6 tracking-[0.2em]">Target Median</p>
+                    <p className="text-4xl sm:text-5xl font-black text-primary tracking-tighter drop-shadow-sm">{result.salarios.mid}</p>
                 </div>
-                <div className="p-8 rounded-[3rem] bg-slate-50 border-2 text-center shadow-inner">
-                    <p className="text-[11px] font-black text-slate-400 uppercase mb-4">Top Senior</p>
-                    <p className="text-3xl font-black text-slate-800">{result.salarios.senior}</p>
+                <div className="w-full p-8 rounded-[2.5rem] sm:rounded-[3rem] bg-slate-50 border-2 text-center shadow-inner">
+                    <p className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase mb-4">Top Senior</p>
+                    <p className="text-2xl sm:text-3xl font-black text-slate-800">{result.salarios.senior}</p>
                 </div>
             </div>
         </section>
@@ -516,31 +563,31 @@ export default function CvAnalysis({
 
       {/* 9. VEREDICTO */}
       {result.conclusionEjecutiva && (
-        <section className="bg-slate-900 text-white rounded-[5rem] p-12 sm:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/10 group">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 blur-[200px] rounded-full -mr-1/2 -mt-1/2 opacity-60" />
-          <div className="relative z-10 text-center space-y-12">
-            <div className="flex justify-center"><div className="px-10 py-3 rounded-full bg-slate-800 text-primary text-xs font-black uppercase tracking-[0.5em] border border-white/10 shadow-3xl">Veredicto Maestro Pierre</div></div>
-            <h4 className="text-3xl sm:text-6xl font-black leading-tight max-w-5xl mx-auto tracking-tighter">
+        <section className="bg-slate-900 text-white rounded-[3rem] sm:rounded-[5rem] p-8 sm:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/10 group">
+          <div className="absolute top-0 right-0 w-full sm:w-[800px] h-[400px] sm:h-[800px] bg-primary/20 blur-[100px] sm:blur-[200px] rounded-full -mr-1/4 sm:-mr-1/2 -mt-1/4 sm:-mt-1/2 opacity-60" />
+          <div className="relative z-10 text-center space-y-8 sm:space-y-12">
+            <div className="flex justify-center"><div className="px-6 py-2 sm:px-10 sm:py-3 rounded-full bg-slate-800 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] border border-white/10 shadow-3xl">Veredicto Maestro Pierre</div></div>
+            <h4 className="text-2xl sm:text-6xl font-black leading-tight max-w-5xl mx-auto tracking-tighter">
                 {result.conclusionEjecutiva.recomendacionMaestra}
             </h4>
-            <div className="grid lg:grid-cols-2 gap-10 text-left max-w-6xl mx-auto pt-10">
-              <div className="p-12 rounded-[3.5rem] bg-white/5 border-l-8 border-l-primary/50 backdrop-blur-xl space-y-8">
-                 <h5 className="text-xs font-black uppercase text-primary tracking-widest">Diagnóstico de Competencia</h5>
-                 <p className="text-xl font-bold leading-relaxed">{result.conclusionEjecutiva.detalleEmpleabilidad}</p>
-                 <div className="flex items-center gap-6 bg-black/40 p-8 rounded-[2rem] border border-white/5">
-                    {result.conclusionEjecutiva.esEmpleableAhora ? <CheckCircle className="text-emerald-400 w-10 h-10" /> : <XCircle className="text-red-400 w-10 h-10" />}
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-10 text-left max-w-6xl mx-auto pt-6 sm:pt-10">
+              <div className="p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] bg-white/5 border-l-8 border-l-primary/50 backdrop-blur-xl space-y-6 sm:space-y-8">
+                 <h5 className="text-[10px] sm:text-xs font-black uppercase text-primary tracking-widest">Diagnóstico de Competencia</h5>
+                 <p className="text-lg sm:text-xl font-bold leading-relaxed">{result.conclusionEjecutiva.detalleEmpleabilidad}</p>
+                 <div className="flex items-center gap-4 sm:gap-6 bg-black/40 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-white/5">
+                    {result.conclusionEjecutiva.esEmpleableAhora ? <CheckCircle className="text-emerald-400 w-8 h-8 sm:w-10 sm:h-10" /> : <XCircle className="text-red-400 w-8 h-8 sm:w-10 sm:h-10" />}
                     <div>
-                        <span className="text-xs font-black text-slate-500 uppercase block mb-1">Status Final</span>
-                        <span className={`text-2xl font-black ${result.conclusionEjecutiva.esEmpleableAhora ? "text-emerald-400" : "text-red-400"}`}>
+                        <span className="text-[10px] font-black text-slate-500 uppercase block mb-1">Status Final</span>
+                        <span className={`text-xl sm:text-2xl font-black ${result.conclusionEjecutiva.esEmpleableAhora ? "text-emerald-400" : "text-red-400"}`}>
                             {result.conclusionEjecutiva.esEmpleableAhora ? "READY TO COMPETE" : "CRITICAL FIX REQUIRED"}
                         </span>
                     </div>
                  </div>
               </div>
-              <div className="p-12 rounded-[3.5rem] bg-white/5 border-l-8 border-l-blue-500/50 backdrop-blur-xl relative overflow-hidden">
-                 <div className="absolute top-0 right-0 p-8 opacity-10"><Languages className="w-24 h-24" /></div>
-                 <h5 className="text-xs font-black uppercase text-blue-400 tracking-widest mb-8">Demanda Offshore</h5>
-                 <p className="text-xl font-black italic relative z-10">"{result.conclusionEjecutiva.demandaDesdeFuera}"</p>
+              <div className="p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] bg-white/5 border-l-8 border-l-blue-500/50 backdrop-blur-xl relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-10"><Languages className="w-16 h-16 sm:w-24 sm:h-24" /></div>
+                 <h5 className="text-[10px] sm:text-xs font-black uppercase text-blue-400 tracking-widest mb-6 sm:mb-8">Demanda Offshore</h5>
+                 <p className="text-lg sm:text-xl font-black italic relative z-10">"{result.conclusionEjecutiva.demandaDesdeFuera}"</p>
               </div>
             </div>
             <div className="pt-16 border-t border-white/10 max-w-4xl mx-auto">
@@ -600,16 +647,16 @@ export default function CvAnalysis({
       {/* 💰 EL GRAN CIERRE ($29) */}
       <div className="text-center pt-24 pb-20 px-4">
         {!isPremium ? (
-          <div className="bg-slate-900 text-white rounded-[5rem] p-12 sm:p-28 shadow-[0_50px_100px_-30px_rgba(0,0,0,0.8)] border border-white/10 ring-12 ring-slate-900/5 relative overflow-hidden group">
+          <div className="bg-slate-900 text-white rounded-[3rem] sm:rounded-[5rem] p-8 sm:p-28 shadow-[0_50px_100px_-30px_rgba(0,0,0,0.8)] border border-white/10 ring-4 sm:ring-12 ring-slate-900/5 relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-            <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-1000" />
+            <div className="absolute -top-40 -right-40 w-full sm:w-[600px] h-full sm:h-[600px] bg-primary/20 blur-[150px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-1000" />
             
-            <div className="relative z-10 max-w-5xl mx-auto space-y-16">
-              <div className="inline-flex gap-4 px-10 py-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.5em] backdrop-blur-md animate-pulse">
+            <div className="relative z-10 max-w-5xl mx-auto space-y-12 sm:space-y-16">
+              <div className="inline-flex gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] backdrop-blur-md animate-pulse">
                 <Sparkles className="w-5 h-5" /> Oferta Versión PRO
               </div>
-              <h4 className="text-4xl sm:text-7xl font-black tracking-tighter leading-[1] drop-shadow-2xl">
-                Sesión Estratégica 1:1 + <span className="text-primary italic">Plan de Empleabilidad</span>
+              <h4 className="text-3xl sm:text-8xl font-black tracking-tighter leading-[1.1] sm:leading-[1] drop-shadow-2xl">
+                ¿Tu futuro al azar o en manos de <span className="text-primary italic">Pierre</span>?
               </h4>
               
               {result.veredictoFinal?.ofertaEstrategica && (
@@ -622,62 +669,62 @@ export default function CvAnalysis({
 
               <div className="grid sm:grid-cols-2 gap-12 text-left bg-white/5 p-12 sm:p-20 rounded-[4rem] border border-white/10 shadow-inner scale-105 backdrop-blur-xl">
                  <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Calendar className="w-10 h-10" /></div>
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Download className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Sesión 1-a-1 Especializada</p>
-                        <p className="text-sm text-slate-400 font-medium">Validación de perfil 1-a-1 para corregir errores que Pierre no puede ver.</p>
+                        <p className="text-2xl font-black tracking-tight">Reporte PDF Maestro</p>
+                        <p className="text-sm text-slate-400 font-medium">Desbloquea la versión descargable de alta fidelidad para presentar a empleadores.</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-6 group/item">
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><FileSpreadsheet className="w-10 h-10" /></div>
+                    <div className="space-y-2">
+                        <p className="text-2xl font-black tracking-tight">Directorio LMIA (Excel)</p>
+                        <p className="text-sm text-slate-400 font-medium">Bases de datos de empresas reales con historial de patrocinio internacional.</p>
                     </div>
                  </div>
                  <div className="flex gap-6 group/item">
                     <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Target className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Plan de Empleabilidad</p>
-                        <p className="text-sm text-slate-400 font-medium">Hoja de ruta personalizada para los próximos 90 días en Canadá.</p>
+                        <p className="text-2xl font-black tracking-tight">Inyección ATS Master</p>
+                        <p className="text-sm text-slate-400 font-medium">Adaptación profunda de tu perfil a las keywords de Job Bank Canada.</p>
                     </div>
                  </div>
                  <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Shield className="w-10 h-10" /></div>
+                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Rocket className="w-10 h-10" /></div>
                     <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Estrategia IMP (Sin LMIA)</p>
-                        <p className="text-sm text-slate-400 font-medium">Búsqueda selectiva de exenciones de LMIA según tu perfil y nacionalidad.</p>
-                    </div>
-                 </div>
-                 <div className="flex gap-6 group/item">
-                    <div className="bg-primary p-6 rounded-3xl text-white shadow-3xl transition-transform group-hover/item:scale-125 group-hover/item:-rotate-12"><Download className="w-10 h-10" /></div>
-                    <div className="space-y-2">
-                        <p className="text-2xl font-black tracking-tight">Reporte Maestro PDF + Excel</p>
-                        <p className="text-sm text-slate-400 font-medium">Todo tu diagnóstico Pierre descargado y listo para ejecutar.</p>
+                        <p className="text-2xl font-black tracking-tight">Acceso Centro Táctico</p>
+                        <p className="text-sm text-slate-400 font-medium">Herramientas de personalización de CV, cover letter y preparación de entrevistas.</p>
                     </div>
                  </div>
               </div>
 
-              <div className="flex flex-col items-center gap-16 pt-8">
-                <div className="flex items-end gap-12 relative">
-                    <div className="flex flex-col opacity-30 select-none pb-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest mb-4">Precio Original</span>
-                        <span className="text-5xl font-black line-through">$51.00</span>
+              <div className="flex flex-col items-center gap-12 sm:gap-16 pt-8">
+                <div className="flex items-center sm:items-end flex-col sm:flex-row gap-6 sm:gap-12 relative">
+                    <div className="flex flex-col opacity-30 select-none items-center sm:items-start pb-0 sm:pb-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest mb-2 sm:mb-4">Precio Original</span>
+                        <span className="text-4xl sm:text-5xl font-black line-through">$51.00</span>
                     </div>
-                    <div className="flex flex-col scale-150 origin-bottom relative">
-                        <div className="absolute -top-12 -right-24 bg-emerald-500 text-white text-[10px] font-black px-6 py-2 rounded-full rotate-12 shadow-3xl animate-bounce border-b-4 border-emerald-700">SOLO HOY: -43%</div>
-                        <span className="text-[12px] font-black text-primary uppercase tracking-[0.5em] mb-4 text-center">Acelerador Pierre</span>
-                        <span className="text-9xl font-black text-white drop-shadow-[0_20px_50px_rgba(var(--primary),0.5)] leading-none">$29</span>
+                    <div className="flex flex-col sm:scale-150 origin-center sm:origin-bottom relative">
+                        <div className="absolute -top-10 sm:-top-12 -right-8 sm:-right-24 bg-emerald-500 text-white text-[9px] sm:text-[10px] font-black px-4 sm:px-6 py-1.5 sm:py-2 rounded-full rotate-12 shadow-3xl animate-bounce border-b-4 border-emerald-700 whitespace-nowrap">SOLO HOY: -43%</div>
+                        <span className="text-[10px] sm:text-[12px] font-black text-primary uppercase tracking-[0.3em] sm:tracking-[0.5em] mb-3 sm:mb-4 text-center">Acelerador Pierre</span>
+                        <span className="text-6xl sm:text-9xl font-black text-white drop-shadow-[0_20px_50px_rgba(var(--primary),0.5)] leading-none">$29</span>
                     </div>
                 </div>
 
                 <div className="w-full max-w-xl">
-                    <Button
-                        size="lg"
-                        className="w-full h-28 text-3xl font-black bg-primary hover:bg-primary/90 text-white shadow-[0_40px_80px_-20px_rgba(var(--primary),0.6)] hover:scale-105 active:scale-95 transition-all rounded-[3rem] group border-b-[12px] border-primary-foreground/20 active:border-b-0"
-                        onClick={() => handleCheckout(2900, "/checkout/success-session", "Sesión 1:1 + Plan de Empleabilidad (Oferta Pierre)")}
-                        disabled={isCheckoutLoading}
-                    >
-                        {isCheckoutLoading ? (
-                            <Loader2 className="w-12 h-12 animate-spin mr-6" />
-                        ) : (
-                            <Rocket className="w-12 h-12 mr-6 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500" />
-                        )}
-                        Comprar Sesión + Plan por $29
-                    </Button>
+                        <Button
+                            size="lg"
+                            className="w-full h-20 sm:h-28 text-xl sm:text-3xl font-black bg-primary hover:bg-primary/90 text-white shadow-[0_40px_80px_-20px_rgba(var(--primary),0.6)] hover:scale-105 active:scale-95 transition-all rounded-[2rem] sm:rounded-[3rem] group border-b-[8px] sm:border-b-[12px] border-primary-foreground/20 active:border-b-0"
+                            onClick={() => handleCheckout(2900, "/cv-tool")}
+                            disabled={isCheckoutLoading}
+                        >
+                            {isCheckoutLoading ? (
+                                <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin mr-4 sm:mr-6" />
+                            ) : (
+                                <Rocket className="w-8 h-8 sm:w-12 sm:h-12 mr-4 sm:mr-6 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500" />
+                            )}
+                            Activar Versión PRO por $29
+                        </Button>
                     <div className="flex justify-center gap-12 pt-12 opacity-40">
                         <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><Shield className="w-5 h-5" /> Seguro</div>
                         <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest"><CheckCircle className="w-5 h-5" /> Instantáneo</div>

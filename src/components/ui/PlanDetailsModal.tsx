@@ -1,9 +1,11 @@
 "use client"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Check, Search, FileText, Video, Rocket } from "lucide-react"
+import { X, Check, Search, FileText, Video, Rocket, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { isOpen: boolean, onClose: () => void, onClaimOffer: () => void }) {
+    const [isLoading, setIsLoading] = useState(false)
     
     if (!isOpen) return null
 
@@ -82,8 +84,36 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Button size="lg" className="w-full text-base h-12" onClick={() => { window.open('https://buy.stripe.com/8x2cN57a22wo463fXe', '_blank'); }}>
-                             Comprar Plan y Asegurar Cupo
+                        <Button 
+                            size="lg" 
+                            className="w-full text-base h-12" 
+                            disabled={isLoading}
+                            onClick={async () => { 
+                                setIsLoading(true);
+                                try {
+                                    const res = await fetch("/api/create-checkout", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            priceOverride: 10900,
+                                            successPath: "/checkout/success-session",
+                                            productNameOverride: "Plan de Empleabilidad Personalizado + Sesión 1:1",
+                                        }),
+                                    });
+                                    const data = await res.json();
+                                    if (data.url) {
+                                        window.location.href = data.url;
+                                    } else {
+                                        alert("Error al procesar el pago.");
+                                        setIsLoading(false);
+                                    }
+                                } catch (e) {
+                                    alert("Error de conexión.");
+                                    setIsLoading(false);
+                                }
+                            }}
+                        >
+                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Comprar Plan y Asegurar Cupo"}
                          </Button>
                          <Button size="lg" variant="outline" className="w-full text-base h-12" onClick={() => { window.open('https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon', '_blank'); }}>
                              Agendar Llamada Estratégica

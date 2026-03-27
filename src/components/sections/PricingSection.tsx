@@ -7,9 +7,39 @@ import { Button } from "@/components/ui/button"
 import PlanDetailsModal from "../ui/PlanDetailsModal"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
 
+import { Loader2 } from "lucide-react"
+
 export default function PricingSection() {
     const { trackEvent } = useLeadTracking();
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+    const [isAloading, setIsAloading] = useState(false)
+    const [isBloading, setIsBloading] = useState(false)
+
+    const handleCheckout = async (amount: number, successUrl: string, productName: string, setLoader: (val: boolean) => void) => {
+        setLoader(true);
+        try {
+            const res = await fetch("/api/create-checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    priceOverride: amount,
+                    successPath: successUrl,
+                    productNameOverride: productName,
+                }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert("Error al procesar el pago.");
+                setLoader(false);
+            }
+        } catch (e) {
+            alert("Error de conexión.");
+            setLoader(false);
+        }
+    };
+
     return (
         <section className="pt-24 pb-8 px-4 bg-background relative overflow-hidden">
             {/* Subtle aesthetic backgrounds */}
@@ -90,12 +120,13 @@ export default function PricingSection() {
 
                         <Button 
                             className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                            disabled={isAloading}
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Acelerador", price: 29 });
-                                window.location.href = "https://buy.stripe.com/8x2cN57a22wo463fXe3gk06";
+                                handleCheckout(2900, "/cv-tool", "Acelerador PRO (Herramientas)", setIsAloading);
                             }}
                         >
-                            Lo quiero ahora
+                            {isAloading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Lo quiero ahora"}
                         </Button>
                     </motion.div>
 
@@ -143,13 +174,20 @@ export default function PricingSection() {
 
                         <Button 
                             className="w-full py-6 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all ring-offset-background group"
+                            disabled={isBloading}
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { plan: "Plan Personalizado", price: 109 });
-                                window.location.href = "https://buy.stripe.com/8x2cN57a22wo463fXe";
+                                handleCheckout(10900, "/checkout/success-session", "Plan de Empleabilidad Personalizado + Sesión 1:1", setIsBloading);
                             }}
                         >
-                            Lo quiero ahora
-                            <Check className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                            {isBloading ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <>
+                                    Lo quiero ahora
+                                    <Check className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                                </>
+                            )}
                         </Button>
                     </motion.div>
                 </div>

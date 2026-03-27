@@ -28,20 +28,20 @@ export default function Navbar() {
                             </span>
                         </Link>
                     </div>
-                    <nav className="flex items-center gap-4">
+                    <nav className="flex items-center gap-2 sm:gap-4">
 
                         <Button 
                             variant="ghost" 
-                            className="inline-flex focus:ring-0 px-2 sm:px-4 text-xs sm:text-sm" 
+                            className="inline-flex focus:ring-0 px-1 sm:px-4 text-[10px] sm:text-sm font-black uppercase tracking-tight" 
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
                                 setIsDetailsModalOpen(true);
                             }}
                         >
-                            <span className="sm:hidden">Agendar 1-a-1</span>
+                            <span className="sm:hidden">Agendar 1:1</span>
                             <span className="hidden sm:inline">AGENDAR Plan Personalizado</span>
                         </Button>
-                        <Button asChild>
+                        <Button asChild size="sm" className="px-2 sm:px-4 text-[10px] sm:text-sm font-black uppercase tracking-tight">
                             <Link href="/cv-tool">Reporte Gratis</Link>
                         </Button>
                     </nav>
