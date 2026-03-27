@@ -18,10 +18,18 @@ function CvToolContent() {
     const [leadId, setLeadId] = useState<string | undefined>();
     const [accessCode, setAccessCode] = useState("LEAD_MAGNET");
 
-    // 1. Detect Stripe Session and Recover Data
+    // 1. Detect Stripe Session or Developer Bypass and Recover Data
     useEffect(() => {
+        const queryCode = searchParams.get("code");
         const savedData = localStorage.getItem("pendingReportData");
         
+        // Developer Bypass: ?code=DEBUG_PRO
+        if (queryCode === "DEBUG_PRO") {
+            setAccessCode("PREMIUM");
+            if (step === "form") setStep("analysis");
+            return;
+        }
+
         if (sessionId && savedData) {
             try {
                 const { result, cvText: savedText, leadId: savedId } = JSON.parse(savedData);
@@ -36,7 +44,7 @@ function CvToolContent() {
                 console.error("Error recovering report data:", e);
             }
         }
-    }, [sessionId]);
+    }, [sessionId, searchParams, step]);
 
     const handleResult = (data: any, text: string, lang: string, code: string, id?: string) => {
         setLeadData(data);
@@ -75,7 +83,7 @@ function CvToolContent() {
 
             {step === "strategy" && (
                 <div className="max-w-5xl mx-auto">
-                    <StrategyResources cvText={cvText} />
+                    <StrategyResources cvText={cvText} resultData={leadData} />
                 </div>
             )}
         </div>

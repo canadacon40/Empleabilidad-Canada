@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe } from "lucide-react"
+import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { consumeStrategyAction, hasStrategyActionsRemaining, getStrategyRemaining } from "@/lib/usage-tracker"
-import { downloadCustomizedCVPDF } from "@/lib/report-utils"
+import { downloadCustomizedCVPDF, downloadFullReportPDF, downloadLMIAExcel } from "@/lib/report-utils"
 
 const tabs = [
     { id: "customize", label: "Personalizar CV", icon: FileText },
@@ -136,13 +136,19 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
             </div>
 
             {isLoading && (
-                <div className="text-center py-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                        {loadingAction === "analyze" && "Analizando el Job Description..."}
-                        {loadingAction === "customize" && "Adaptando tu CV para esta oferta..."}
-                        {loadingAction === "ats-check" && "Verificando compatibilidad ATS..."}
-                    </p>
+                <div className="flex flex-col items-center justify-center py-12 space-y-4 animate-in fade-in zoom-in duration-500">
+                    <div className="relative">
+                        <Loader2 className="w-16 h-16 animate-spin text-primary opacity-20" />
+                        <Sparkles className="w-8 h-8 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                    </div>
+                    <div className="text-center">
+                        <p className="text-lg font-black text-slate-900 tracking-tight leading-none mb-1">
+                            {loadingAction === "analyze" && "Analizando Vacante..."}
+                            {loadingAction === "customize" && "Inyectando Experiencia..."}
+                            {loadingAction === "ats-check" && "Escaneando Algoritmo ATS..."}
+                        </p>
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Pierre está trabajando para ti</p>
+                    </div>
                 </div>
             )}
 
@@ -193,55 +199,77 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
 
             {/* Customize Results */}
             {customizeResult && (
-                <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-foreground flex items-center gap-2">
-                            <Target className="w-4 h-4 text-primary" /> CV Adaptado
-                        </h4>
-                        <div className="flex items-center gap-2">
+                <div className="rounded-[2.5rem] border-2 border-primary/30 bg-primary/5 p-8 sm:p-12 space-y-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -mr-32 -mt-32 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20">
+                                <Target className="w-8 h-8 text-white" />
+                            </div>
+                            <h4 className="text-2xl font-black text-slate-900 tracking-tight">CV Adaptado por Pierre</h4>
+                        </div>
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                             <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="gap-1.5 h-8 text-xs font-bold border-primary/40 hover:bg-primary/10"
+                                size="lg" 
+                                className="flex-1 sm:flex-none h-14 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
                                 onClick={() => onCustomize ? onCustomize(customizeResult) : downloadCustomizedCVPDF(customizeResult)}
                             >
-                                <Palette className="w-3 h-3" />
-                                Descargar con Diseño (PDF/Word)
+                                <Palette className="w-5 h-5" />
+                                DESCARGAR CV PRO
                             </Button>
                             <CopyButton text={customizeResult.fullCvText || ""} />
                         </div>
                     </div>
-                    {customizeResult.matchScore && (
-                        <div className="flex items-center gap-3">
-                            <div className="text-2xl font-bold text-primary">{customizeResult.matchScore}%</div>
-                            <span className="text-sm text-muted-foreground">Match estimado después de la adaptación</span>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
+                        <div className="lg:col-span-4 space-y-6">
+                            <div className="p-6 rounded-3xl bg-white border shadow-sm">
+                                <div className="text-4xl font-black text-primary mb-1 tracking-tighter">{customizeResult.matchScore}%</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Match con la Oferta</div>
+                                <p className="text-xs text-slate-500 mt-4 leading-relaxed font-medium">Pierre ha optimizado las palabras clave y logros para maximizar tu relevancia técnica.</p>
+                            </div>
+
+                            {customizeResult.addedKeywords?.length > 0 && (
+                                <div className="space-y-3">
+                                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Keywords Inyectados</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                        {customizeResult.addedKeywords.map((kw: string, i: number) => (
+                                            <span key={i} className="text-[10px] px-3 py-1.5 rounded-full bg-primary/10 text-primary font-black uppercase tracking-tight border border-primary/20">{kw}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
-                    <div>
-                        <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Resumen Profesional Adaptado</h5>
-                        <p className="text-sm text-foreground bg-background rounded-lg p-3 border border-border/50">{customizeResult.customizedSummary}</p>
-                    </div>
-                    {customizeResult.customizedExperience?.map((exp: { title: string; company: string; period: string; achievements: string[] }, i: number) => (
-                        <div key={i}>
-                            <h5 className="font-semibold text-foreground text-sm">{exp.title} — {exp.company}</h5>
-                            <p className="text-xs text-muted-foreground mb-1">{exp.period}</p>
-                            <ul className="space-y-1">
-                                {exp.achievements?.map((a: string, j: number) => (
-                                    <li key={j} className="text-sm text-foreground flex items-start gap-1.5"><span className="text-primary">•</span>{a}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                    {customizeResult.addedKeywords?.length > 0 && (
-                        <div>
-                            <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Keywords incorporados</h5>
-                            <div className="flex flex-wrap gap-1.5">
-                                {customizeResult.addedKeywords.map((kw: string, i: number) => (
-                                    <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-primary/20 text-primary font-medium">{kw}</span>
+
+                        <div className="lg:col-span-8 space-y-8 bg-white/50 backdrop-blur-sm rounded-[2rem] p-8 border border-white">
+                            <div>
+                                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Resumen de Alto Impacto</h5>
+                                <p className="text-sm font-medium text-slate-700 leading-relaxed italic border-l-4 border-primary/30 pl-6">{customizeResult.customizedSummary}</p>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experiencia Táctica Reescrita</h5>
+                                {customizeResult.customizedExperience?.map((exp: { title: string; company: string; period: string; achievements: string[] }, i: number) => (
+                                    <div key={i} className="space-y-3 p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <h6 className="font-black text-slate-900 leading-none">{exp.title}</h6>
+                                            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">{exp.period}</span>
+                                        </div>
+                                        <p className="text-xs font-bold text-primary italic uppercase tracking-widest">{exp.company}</p>
+                                        <ul className="space-y-2">
+                                            {exp.achievements?.map((a: string, j: number) => (
+                                                <li key={j} className="text-xs text-slate-600 font-medium flex items-start gap-2 leading-relaxed">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary/40 mt-1.5" />
+                                                    {a}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 ))}
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             )}
 
@@ -983,17 +1011,19 @@ function JobBoardTab() {
                                         href={board.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="group p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:shadow-md transition-all flex flex-col justify-between"
+                                        className="group p-6 rounded-[2rem] border-2 border-slate-100 bg-white hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all flex flex-col justify-between relative overflow-hidden"
                                     >
-                                        <div>
-                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-                                                <Icon className="w-5 h-5 text-primary" />
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl rounded-full -mr-12 -mt-12 group-hover:bg-primary/20 transition-colors" />
+                                        <div className="relative z-10">
+                                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-all group-hover:scale-110 shadow-sm border border-slate-100">
+                                                <Icon className="w-7 h-7 text-slate-400 group-hover:text-primary transition-colors" />
                                             </div>
-                                            <h5 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{board.name}</h5>
-                                            <p className="text-xs text-muted-foreground leading-relaxed">{board.description}</p>
+                                            <h5 className="text-lg font-black text-slate-900 mb-2 group-hover:text-primary transition-colors tracking-tight">{board.name}</h5>
+                                            <p className="text-xs font-medium text-slate-500 leading-relaxed group-hover:text-slate-600 transition-colors">{board.description}</p>
                                         </div>
-                                        <div className="mt-4 flex items-center text-[10px] font-bold text-primary uppercase tracking-tighter">
-                                            Acceder al portal 🚀
+                                        <div className="mt-8 pt-4 border-t border-slate-50 flex items-center justify-between relative z-10">
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Visitar Web</span>
+                                            <Rocket className="w-4 h-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                                         </div>
                                     </a>
                                 )
@@ -1016,48 +1046,97 @@ function JobBoardTab() {
 }
 
 // ============= MAIN COMPONENT =============
-export default function StrategyResources({ cvText, onCustomize }: { cvText: string; onCustomize?: (data: any) => void }) {
+export default function StrategyResources({ cvText, onCustomize, resultData }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any }) {
     const [activeTab, setActiveTab] = useState<string>("customize")
 
+    const handleDownloadPDF = () => {
+        if (resultData) downloadFullReportPDF(resultData);
+    };
+
+    const handleDownloadExcel = () => {
+        if (resultData) downloadLMIAExcel(resultData);
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="text-center">
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                    🎯 Herramientas de Estrategia de Aplicación
-                </h3>
-                <p className="text-muted-foreground">
-                    Usa estas herramientas para personalizar cada aplicación directamente desde aquí. Sin necesidad de gestionar prompts ni pagar cientos de dólares en otros servicios.
-                </p>
+        <div className="space-y-10 pb-20">
+            {/* Premium Header */}
+            <div className="relative overflow-hidden rounded-[3rem] bg-slate-900 p-8 sm:p-16 text-white border border-white/10 shadow-3xl group">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] rounded-full -mr-48 -mt-48 opacity-60" />
+                <div className="relative z-10 space-y-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-8">
+                        <div className="space-y-4 text-center sm:text-left">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
+                                <Rocket className="w-4 h-4" /> Arsenal Táctico Activado
+                            </div>
+                            <h3 className="text-3xl sm:text-5xl font-black tracking-tighter leading-none">
+                                Centro de Estrategia <span className="text-primary italic">Pierre PRO</span>
+                            </h3>
+                            <p className="text-slate-400 text-sm sm:text-lg font-medium max-w-xl">
+                                Tu arsenal completo para dominar el mercado canadiense. Personaliza, aplica y gana.
+                            </p>
+                        </div>
+                        
+                        {/* Global Downloads Toolbar */}
+                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center sm:text-right mb-1">Tus Archivos Maestros</p>
+                            <div className="flex gap-2">
+                                <Button 
+                                    variant="outline" 
+                                    className="flex-1 sm:flex-none h-12 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 font-bold gap-2 text-xs"
+                                    onClick={handleDownloadPDF}
+                                >
+                                    <Download className="w-4 h-4 text-primary" /> Reporte PDF
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    className="flex-1 sm:flex-none h-12 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 font-bold gap-2 text-xs"
+                                    onClick={handleDownloadExcel}
+                                >
+                                    <FileSpreadsheet className="w-4 h-4 text-emerald-400" /> Excel LMIA
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-1 p-1 bg-muted/50 rounded-xl">
+            {/* Modern Tabs */}
+            <div className="sticky top-20 z-40 flex overflow-x-auto gap-2 p-2 bg-slate-50/80 backdrop-blur-md border rounded-[2rem] shadow-sm no-scrollbar">
                 {tabs.map((tab) => {
                     const Icon = tab.icon
+                    const isActive = activeTab === tab.id
                     return (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                                ? "bg-background text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground"
+                            className={`flex flex-col sm:flex-row items-center justify-center gap-2 py-4 px-6 rounded-2xl text-[11px] sm:text-sm font-black transition-all shrink-0 uppercase tracking-tight ${isActive
+                                ? "bg-slate-900 text-white shadow-xl scale-105"
+                                : "text-slate-500 hover:bg-slate-100"
                                 }`}
                         >
-                            <Icon className="w-4 h-4" />
-                            <span className="hidden sm:inline">{tab.label}</span>
+                            <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
+                            <span>{tab.label}</span>
                         </button>
                     )
                 })}
             </div>
 
-            {/* Tab Content */}
-            <div>
-                {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={onCustomize} />}
-                {activeTab === "job-boards" && <JobBoardTab />}
-                {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} />}
-                {activeTab === "interview" && <InterviewTab cvText={cvText} />}
-                {activeTab === "scripts" && <ScriptsTab />}
+            {/* Tab Content with Animation */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="bg-white rounded-[3rem] border shadow-2xl shadow-slate-200/50 p-6 sm:p-12">
+                    {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={onCustomize} />}
+                    {activeTab === "job-boards" && <JobBoardTab />}
+                    {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} />}
+                    {activeTab === "interview" && <InterviewTab cvText={cvText} />}
+                    {activeTab === "scripts" && <ScriptsTab />}
+                </div>
+            </div>
+
+            {/* Premium Footer Note */}
+            <div className="text-center opacity-40 py-8">
+                <Shield className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-[10px] font-black uppercase tracking-[0.3em]">CanadaConTrabajo Audit System © 2026</p>
             </div>
         </div>
-    )
+    );
 }
