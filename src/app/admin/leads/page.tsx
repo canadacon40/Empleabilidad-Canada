@@ -40,9 +40,11 @@ export default async function AdminLeadsPage() {
                     </thead>
                     <tbody>
                         {leads.map((lead: any) => {
-                            const strategy = lead.decisions[0]?.strategy;
-                            const level = lead.scores[0]?.level;
+                            const strategy = lead.decisions?.[0]?.strategy;
+                            const level = lead.scores?.[0]?.level;
                             const budget = (lead.formData as any)?.budget || "N/A";
+                            const userName = lead.user?.name || "Anónimo";
+                            const userEmail = lead.user?.email || "Sin Email";
                             
                             // Traffic light logic
                             let statusColor = "bg-slate-100 text-slate-500";
@@ -62,16 +64,16 @@ export default async function AdminLeadsPage() {
                             return (
                                 <tr key={lead.id} className={`border-b transition-colors ${strategy === "DIRECT_CONVERSION" ? "bg-emerald-50/20" : "hover:bg-slate-50"}`}>
                                     <td className="p-4 min-w-[200px]">
-                                        <div className="font-bold text-slate-900">{lead.user.name}</div>
-                                        <div className="text-xs text-slate-500 font-mono">{lead.user.email}</div>
-                                        {lead.formData?.phone && (
-                                             <div className="text-[10px] text-primary font-bold mt-1">📱 {lead.formData.phone}</div>
+                                        <div className="font-bold text-slate-900">{userName}</div>
+                                        <div className="text-xs text-slate-500 font-mono">{userEmail}</div>
+                                        {(lead.formData as any)?.phone && (
+                                             <div className="text-[10px] text-primary font-bold mt-1">📱 {(lead.formData as any).phone}</div>
                                         )}
                                     </td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs">
-                                                {lead.scores[0]?.score || "?"}
+                                                {lead.scores?.[0]?.score || "?"}
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Perfil</p>
@@ -88,7 +90,7 @@ export default async function AdminLeadsPage() {
                                         <div className={`px-3 py-1.5 rounded-full text-[10px] font-black inline-block ${statusColor}`}>
                                             {statusLabel}
                                         </div>
-                                        {lead.decisions[0]?.offer && (
+                                        {lead.decisions?.[0]?.offer && (
                                             <p className="text-[11px] font-bold text-slate-500 mt-1 ml-1 italic">{lead.decisions[0].offer}</p>
                                         )}
                                     </td>
