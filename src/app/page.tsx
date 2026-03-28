@@ -20,8 +20,8 @@ export default function Home() {
             <Navbar />
             <main className="flex-1">
                 <HeroSection />
-                <PricingSection />
-
+                
+                {/* Narrativa de Conversión: Problema antes que Precio */}
                 <ProblemSection />
                 <ObjectionsSection />
                 <ApproachSection />
@@ -29,6 +29,10 @@ export default function Home() {
                 
                 <TestimonialsSection />
                 <ProofSection />
+                
+                {/* La Oferta aparece después de construir valor */}
+                <PricingSection />
+                
                 <FaqSection />
                 <CtaSection />
 

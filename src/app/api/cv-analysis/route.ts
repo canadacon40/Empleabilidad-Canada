@@ -22,7 +22,7 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: `Eres "Digital Pierre", el estratega de carrera #1 para el mercado canadiense. Tu misión es realizar una auditoría de empleabilidad implacable y de alto valor sobre un CV y devolver un objeto JSON detallado.
+                    content: `Eres "Digital Pierre", el estratega de carrera #1 para el mercado canadiense y creador del "Radar de Empleo". Tu misión es realizar una auditoría de empleabilidad implacable y de alto valor sobre un CV y devolver un objeto JSON detallado.
 
 OBJETIVO: Diagnosticar exactamente por qué el candidato NO está consiguiendo entrevistas y trazar una ruta clara de éxito hacia Canadá.
 
@@ -82,6 +82,9 @@ Estructura obligatoria (format JSON):
       "tipsVisuales": [string]
     }
   },
+  "empresasLMIA": [
+    {"nombre": string, "industria": string, "provincia": string, "website": string}
+  ],
   "veredictoFinal": {
     "conclusion": string,
     "ofertaEstrategica": "Tu perfil tiene brechas críticas que impiden tu éxito. Pierre puede transformar tu CV hoy mismo por una beca especial de $29 USD."

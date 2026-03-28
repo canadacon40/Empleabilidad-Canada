@@ -4,7 +4,7 @@ import { useState } from "react"
 import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { consumeStrategyAction, hasStrategyActionsRemaining, getStrategyRemaining } from "@/lib/usage-tracker"
-import { downloadCustomizedCVPDF, downloadFullReportPDF, downloadLMIAExcel } from "@/lib/report-utils"
+import { downloadCustomizedCVPDF, downloadFullReportPDF, downloadLMIAExcel, downloadCustomizedCVWord, downloadInterviewPDF } from "@/lib/report-utils"
 
 const tabs = [
     { id: "customize", label: "Personalizar CV", icon: FileText },
@@ -209,14 +209,23 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
                             </div>
                             <h4 className="text-2xl font-black text-slate-900 tracking-tight">CV Adaptado por Pierre</h4>
                         </div>
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                             <Button 
                                 size="lg" 
                                 className="flex-1 sm:flex-none h-14 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
                                 onClick={() => onCustomize ? onCustomize(customizeResult) : downloadCustomizedCVPDF(customizeResult)}
                             >
-                                <Palette className="w-5 h-5" />
-                                DESCARGAR CV PRO
+                                <Palette className="w-5 h-5 text-blue-200" />
+                                DESCARGAR PDF
+                            </Button>
+                            <Button 
+                                size="lg" 
+                                variant="outline"
+                                className="flex-1 sm:flex-none h-14 rounded-2xl font-black gap-2 border-2 hover:bg-slate-50 transition-all"
+                                onClick={() => downloadCustomizedCVWord(customizeResult)}
+                            >
+                                <FileText className="w-5 h-5 text-primary" />
+                                DESCARGAR WORD
                             </Button>
                             <CopyButton text={customizeResult.fullCvText || ""} />
                         </div>
@@ -464,6 +473,8 @@ function InterviewTab({ cvText }: { cvText: string }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [result, setResult] = useState<any>(null)
     const [expandedQ, setExpandedQ] = useState<string | null>(null)
+    const [visibleTech, setVisibleTech] = useState(3)
+    const [visibleBeh, setVisibleBeh] = useState(3)
 
     const handleGenerate = async () => {
         if (!jobDescription.trim() || jobDescription.trim().length < 30) {
@@ -495,80 +506,93 @@ function InterviewTab({ cvText }: { cvText: string }) {
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
                 <h3 className="font-bold text-foreground mb-1">🎤 Preparación de Entrevista</h3>
                 <p className="text-sm text-muted-foreground">
-                    Esta herramienta predice las preguntas técnicas y de comportamiento más probables para esta oferta, con guías de cómo responder usando la metodología STAR.
+                    Esta herramienta preve las preguntas técnicas y de comportamiento más probables para esta oferta, con guías de cómo responder usando la metodología STAR.
                 </p>
             </div>
 
             {/* STAR Method Explainer */}
-            {/* Metodología STAR en español */}
-            <div className="p-4 bg-muted/30 rounded-xl border border-border">
-                <p className="text-xs font-bold text-foreground mb-3">📖 Metodología STAR — Cómo estructurar tus respuestas:</p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="p-6 rounded-[2rem] border-2 border-slate-100 bg-white shadow-sm">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Metodología STAR — Cómo estructurar tus respuestas:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                        { letter: "S", label: "Situación", labelEn: "Situation", desc: "Describe el contexto o escenario donde ocurrió la experiencia." },
-                        { letter: "T", label: "Tarea", labelEn: "Task", desc: "Explica cuál era tu responsabilidad o el objetivo que debías lograr." },
-                        { letter: "A", label: "Acción", labelEn: "Action", desc: "Detalla las acciones específicas que tomaste para resolver la situación." },
-                        { letter: "R", label: "Resultado", labelEn: "Result", desc: "Comparte el resultado concreto e impacto de tus acciones." },
+                        { letter: "S", label: "Situación", labelEn: "Situation", desc: "Contexto o escenario donde ocurrió." },
+                        { letter: "T", label: "Tarea", labelEn: "Task", desc: "Objetivo o responsabilidad que tenías." },
+                        { letter: "A", label: "Acción", labelEn: "Action", desc: "Acciones específicas que tomaste." },
+                        { letter: "R", label: "Resultado", labelEn: "Result", desc: "Resultado concreto e impacto final." },
                     ].map((s) => (
-                        <div key={s.letter} className="p-3 rounded-xl border border-border bg-background text-center">
-                            <div className="text-xl font-bold text-primary">{s.letter}</div>
-                            <div className="text-xs font-semibold text-foreground">{s.label}</div>
-                            <div className="text-[10px] text-muted-foreground italic">({s.labelEn})</div>
-                            <div className="text-[10px] text-muted-foreground mt-1 leading-tight">{s.desc}</div>
+                        <div key={s.letter} className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 text-center hover:bg-white hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all">
+                            <div className="text-2xl font-black text-primary mb-1">{s.letter}</div>
+                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-tighter">{s.label}</div>
+                            <div className="text-[9px] text-slate-400 mt-1 leading-tight">{s.desc}</div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">📋 Pega la descripción completa del puesto aquí</label>
+            <div className="space-y-4">
+                <label className="text-sm font-bold text-slate-900 block">📋 Job Description de la vacante *</label>
                 <textarea
                     value={jobDescription}
                     onChange={(e) => { setJobDescription(e.target.value); setError("") }}
                     rows={6}
-                    placeholder="Pega la descripción completa del puesto aquí (link o texto de la oferta laboral)..."
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none text-sm"
+                    placeholder="Pega la descripción completa del puesto para predecir las preguntas..."
+                    className="w-full px-5 py-4 rounded-3xl border-2 border-slate-100 bg-slate-50/30 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all resize-none text-sm"
                 />
             </div>
 
             {error && (
-                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
-                    <p className="text-sm text-destructive">{error}</p>
+                <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 active-shake">
+                    <p className="text-sm font-bold text-destructive">{error}</p>
                 </div>
             )}
 
-            <Button size="lg" className="w-full gap-2 py-5" onClick={handleGenerate} disabled={isLoading}>
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
-                {isLoading ? "Generando preguntas..." : "Predecir Preguntas de Entrevista"}
+            <Button 
+                size="lg" 
+                className="w-full h-16 rounded-2xl text-lg font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all gap-4" 
+                onClick={handleGenerate} 
+                disabled={isLoading}
+            >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <MessageSquare className="w-5 h-5" />}
+                {isLoading ? "PROYECTANDO PREGUNTAS..." : "PREDECIR PREGUNTAS DE ENTREVISTA"}
             </Button>
 
             {isLoading && (
-                <div className="text-center py-2">
-                    <p className="text-xs text-muted-foreground">Analizando el rol y generando preguntas... 20-40 segundos.</p>
+                <div className="text-center py-4 bg-primary/5 rounded-2xl border border-primary/10 animate-pulse">
+                    <p className="text-xs font-black text-primary uppercase tracking-widest">Analizando el rol y mapeando tu perfil... 20-40 seg.</p>
                 </div>
             )}
 
             {result && (
-                <div className="space-y-6">
+                <div className="space-y-8 mt-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {/* Header with PDF Download */}
+                    <div className="flex flex-col sm:flex-row justify-between items-center bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl gap-6">
+                        <div className="text-center sm:text-left">
+                            <h4 className="text-white text-xl font-black tracking-tight mb-1">Arsenal de Preparación PRO</h4>
+                            <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">Estrategia Generada Exitosamente</p>
+                        </div>
+                        <Button 
+                            className="h-12 px-6 rounded-xl font-black bg-primary hover:bg-primary/90 text-white gap-3 shadow-xl shadow-primary/20"
+                            onClick={() => downloadInterviewPDF(result)}
+                        >
+                            <Download className="w-4 h-4" /> DESCARGAR GUÍA PDF
+                        </Button>
+                    </div>
+
                     {/* General Tips */}
                     {result.generalTips?.length > 0 && (
-                        <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
-                            <h4 className="font-bold text-foreground text-sm mb-2">💡 Tips generales para esta entrevista</h4>
-                            <ul className="space-y-1">
+                        <div className="p-6 bg-primary/5 rounded-[2.5rem] border-2 border-primary/10 relative overflow-hidden">
+                             <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <Sparkles className="w-8 h-8 text-primary" />
+                            </div>
+                            <h4 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-primary" /> Tips de Reclutador (Canadá)
+                            </h4>
+                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {result.generalTips.map((t: string, i: number) => (
-                                    <li key={i} className="text-sm text-foreground flex items-start gap-1.5"><span className="text-primary">•</span>{t}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Red Flags */}
-                    {result.redFlags?.length > 0 && (
-                        <div className="p-4 bg-destructive/5 rounded-xl border border-destructive/20">
-                            <h4 className="font-bold text-foreground text-sm mb-2">🚫 Evitar en la entrevista</h4>
-                            <ul className="space-y-1">
-                                {result.redFlags.map((f: string, i: number) => (
-                                    <li key={i} className="text-sm text-foreground flex items-start gap-1.5"><span className="text-destructive">✗</span>{f}</li>
+                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-3 leading-relaxed font-medium p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                                        <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
+                                        {t}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -577,80 +601,103 @@ function InterviewTab({ cvText }: { cvText: string }) {
                     {/* Technical Questions */}
                     {result.technicalQuestions?.length > 0 && (
                         <div>
-                            <h4 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-bold">T</span>
-                                Preguntas Técnicas ({result.technicalQuestions.length})
+                            <h4 className="font-black text-slate-900 text-sm uppercase tracking-[0.1em] mb-6 flex items-center gap-3">
+                                <div className="w-2 h-8 bg-primary rounded-full" />
+                                Preguntas Técnicas Detectadas ({result.technicalQuestions.length})
                             </h4>
-                            <div className="space-y-2">
-                                {result.technicalQuestions.map((q: { question: string; whyTheyAsk: string; howToAnswer: string; sampleAnswer: string }, i: number) => {
+                            <div className="space-y-3">
+                                {result.technicalQuestions.slice(0, visibleTech).map((q: any, i: number) => {
                                     const key = `tech-${i}`
                                     const isExpanded = expandedQ === key
                                     return (
-                                        <div key={i} className="rounded-xl border border-border overflow-hidden">
+                                        <div key={i} className="rounded-3xl border-2 border-slate-100 overflow-hidden bg-slate-50/50 hover:border-slate-200 transition-all">
                                             <button
                                                 onClick={() => setExpandedQ(isExpanded ? null : key)}
-                                                className="w-full text-left p-4 flex items-start justify-between gap-3 hover:bg-muted/30 transition-colors"
+                                                className="w-full text-left p-6 flex items-start justify-between gap-4 group"
                                             >
-                                                <div className="flex items-start gap-2">
-                                                    <span className="text-primary font-bold text-sm mt-0.5">{i + 1}.</span>
-                                                    <span className="text-sm font-medium text-foreground">{q.question}</span>
+                                                <div className="flex items-start gap-4">
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs transition-colors ${isExpanded ? 'bg-primary text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                                                        {i + 1}
+                                                    </div>
+                                                    <span className="text-base font-bold text-slate-800 leading-tight pt-1">{q.question}</span>
                                                 </div>
-                                                {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-primary/10 text-primary' : 'bg-slate-200 text-slate-400'}`}>
+                                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                </div>
                                             </button>
                                             {isExpanded && (
-                                                <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+                                                <div className="px-6 pb-6 space-y-6 border-t border-slate-100 bg-white pt-6 animate-in fade-in slide-in-from-top-4">
                                                     <div>
-                                                        <span className="text-xs font-semibold text-muted-foreground uppercase">¿Por qué preguntan esto?</span>
-                                                        <p className="text-sm text-foreground mt-1">{q.whyTheyAsk}</p>
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Psicología de la pregunta:</span>
+                                                        <p className="text-sm text-slate-600 leading-relaxed font-medium">{q.whyTheyAsk}</p>
                                                     </div>
                                                     <div>
-                                                        <span className="text-xs font-semibold text-muted-foreground uppercase">Cómo responder</span>
-                                                        <p className="text-sm text-foreground mt-1">{q.howToAnswer}</p>
+                                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block mb-2">Estrategia Ganadora:</span>
+                                                        <p className="text-sm font-black text-slate-900 leading-relaxed">{q.howToAnswer}</p>
                                                     </div>
-                                                    <div>
-                                                        <span className="text-xs font-semibold text-muted-foreground uppercase">Respuesta modelo</span>
-                                                        <p className="text-sm text-foreground mt-1 bg-muted/30 rounded-lg p-3">{q.sampleAnswer}</p>
+                                                    <div className="p-6 bg-slate-900 rounded-[2rem] border border-white/5 relative overflow-hidden group/box shadow-xl">
+                                                        <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest block mb-3">Model Answer (Draft):</span>
+                                                        <p className="text-base text-white leading-relaxed italic font-medium">"{q.sampleAnswer}"</p>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
                                     )
                                 })}
+                                {result.technicalQuestions.length > visibleTech && (
+                                    <Button 
+                                        variant="ghost" 
+                                        className="w-full py-8 text-primary font-black hover:bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 group"
+                                        onClick={() => setVisibleTech(prev => prev + 5)}
+                                    >
+                                        VER MÁS PREGUNTAS TÉCNICAS (+{Math.min(5, result.technicalQuestions.length - visibleTech)})
+                                        <ChevronDown className="w-4 h-4 ml-2 group-hover:translate-y-1 transition-transform" />
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )}
 
                     {/* Behavioral Questions */}
                     {result.behavioralQuestions?.length > 0 && (
-                        <div>
-                            <h4 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-bold">B</span>
-                                Preguntas de Comportamiento ({result.behavioralQuestions.length})
+                        <div className="pt-6">
+                            <h4 className="font-black text-slate-900 text-sm uppercase tracking-[0.1em] mb-6 flex items-center gap-3">
+                                <div className="w-2 h-8 bg-blue-500 rounded-full" />
+                                Preguntas de Comportamiento (Liderazgo/Soft Skills)
                             </h4>
-                            <div className="space-y-2">
-                                {result.behavioralQuestions.map((q: { question: string; competency: string; starTemplate: { situation: string; task: string; action: string; result: string } }, i: number) => {
+                            <div className="space-y-3">
+                                {result.behavioralQuestions.slice(0, visibleBeh).map((q: any, i: number) => {
                                     const key = `beh-${i}`
                                     const isExpanded = expandedQ === key
                                     return (
-                                        <div key={i} className="rounded-xl border border-border overflow-hidden">
+                                        <div key={i} className="rounded-3xl border-2 border-slate-100 overflow-hidden bg-slate-50/50 hover:border-slate-200 transition-all">
                                             <button
                                                 onClick={() => setExpandedQ(isExpanded ? null : key)}
-                                                className="w-full text-left p-4 flex items-start justify-between gap-3 hover:bg-muted/30 transition-colors"
+                                                className="w-full text-left p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group"
                                             >
                                                 <div className="flex-1">
-                                                    <span className="text-sm font-medium text-foreground">{q.question}</span>
-                                                    <span className="block text-xs text-primary mt-1">Evalúa: {q.competency}</span>
+                                                    <span className="text-base font-bold text-slate-800 leading-tight block">{q.question}</span>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest">
+                                                            Evalúa: {q.competency}
+                                                        </div>
+                                                        <div className="px-2 py-0.5 rounded-md bg-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-widest">
+                                                            Nivel: Senior
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ${isExpanded ? 'bg-primary/10 text-primary' : 'bg-slate-200 text-slate-400'}`}>
+                                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                </div>
                                             </button>
                                             {isExpanded && q.starTemplate && (
-                                                <div className="px-4 pb-4 border-t border-border/50 pt-3">
-                                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">Plantilla STAR — llena con tu experiencia real:</p>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        {Object.entries(q.starTemplate).map(([key, val]) => (
-                                                            <div key={key} className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                                                                <span className="text-xs font-bold text-primary uppercase">{key}:</span>
-                                                                <p className="text-sm text-foreground mt-1">{val}</p>
+                                                <div className="px-6 pb-6 border-t border-slate-100 bg-white pt-6 animate-in fade-in slide-in-from-top-4">
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Inspiración para tu construcción STAR:</p>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {Object.entries(q.starTemplate).map(([sKey, val]: [string, any]) => (
+                                                            <div key={sKey} className="p-5 rounded-2xl bg-slate-50 border-2 border-slate-100 group/star hover:border-primary/30 transition-all">
+                                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2 border-b border-primary/10 pb-1">{sKey}</span>
+                                                                <p className="text-sm text-slate-700 font-medium leading-relaxed">{val}</p>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -659,6 +706,16 @@ function InterviewTab({ cvText }: { cvText: string }) {
                                         </div>
                                     )
                                 })}
+                                {result.behavioralQuestions.length > visibleBeh && (
+                                    <Button 
+                                        variant="ghost" 
+                                        className="w-full py-8 text-primary font-black hover:bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 group"
+                                        onClick={() => setVisibleBeh(prev => prev + 5)}
+                                    >
+                                        VER MÁS SITUACIONES (+{Math.min(5, result.behavioralQuestions.length - visibleBeh)})
+                                        <ChevronDown className="w-4 h-4 ml-2 group-hover:translate-y-1 transition-transform" />
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )}
@@ -969,9 +1026,9 @@ function JobBoardTab() {
             category: "Portales de Gobierno (Provincias)",
             boards: [
                 { name: "Ontario Public Service", description: "Carreras oficiales en el gobierno de Ontario.", url: "https://www.gojobs.gov.on.ca/", icon: Globe },
-                { name: "Québec Emploi", description: "Portal oficial de empleo del gobierno de Québec.", url: "https://www.quebec.ca/emploi/chercher-un-emploi/quebec-emploi", icon: Globe },
+                { name: "Québec Emploi", description: "Portal oficial de empleo del gobierno de Québec.", url: "https://www.quebecemploi.gouv.qc.ca/", icon: Globe },
                 { name: "WorkBC (British Columbia)", description: "Bolsa de trabajo oficial de B.C.", url: "https://www.workbc.ca/", icon: Globe },
-                { name: "Alberta Jobs (Alis)", description: "Portal oficial de empleos y carreras de Alberta.", url: "https://www.alberta.ca/alberta-jobs", icon: Globe },
+                { name: "Alberta Jobs", description: "Portal oficial de empleos y carreras de Alberta.", url: "https://www.alberta.ca/find-a-job", icon: Globe },
                 { name: "SaskJobs (Saskatchewan)", description: "Portal principal de empleo para SK.", url: "https://www.saskjobs.ca/", icon: Globe },
                 { name: "Work in Manitoba", description: "Portal de empleo oficial de la provincia de Manitoba.", url: "https://www.workinmanitoba.ca/", icon: Globe },
                 { name: "NBJobs (New Brunswick)", description: "Portal oficial de empleos de New Brunswick.", url: "https://www.nbjobs.ca/", icon: Globe },
@@ -983,7 +1040,7 @@ function JobBoardTab() {
         {
             category: "Mercado Oculto (Directorio de Empresas)",
             boards: [
-                { name: "Canada Business Registry", description: "Busca empresas por nombre e industria para contacto directo.", url: "https://www.beta.canadabusinessregistries.ca/search", icon: ShieldCheck },
+                { name: "Canada’s Business Registries", description: "Busca empresas por nombre e industria para contacto directo (Mercado Oculto).", url: "https://ised-isde.canada.ca/cbr-rec/", icon: ShieldCheck },
                 { name: "Glassdoor Canada", description: "Investiga salarios y opiniones antes de aplicar.", url: "https://www.glassdoor.ca/", icon: Search },
             ]
         }
@@ -1086,14 +1143,14 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                         <div className="space-y-4 text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row items-center gap-3">
                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
-                                    <Rocket className="w-4 h-4" /> Arsenal Táctico Activado
+                                    <Rocket className="w-4 h-4" /> Sistema de Acceso Activo
                                 </div>
                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
                                     Créditos PRO: <span className="text-white">{getStrategyRemaining()} / 50</span>
                                 </div>
                             </div>
                             <h3 className="text-3xl sm:text-5xl font-black tracking-tighter leading-none">
-                                Centro de Estrategia <span className="text-primary italic">Pierre PRO</span>
+                                Centro de Estrategia <span className="text-primary italic">Mercado Oculto</span>
                             </h3>
                             <p className="text-slate-400 text-sm sm:text-lg font-medium max-w-xl">
                                 Tu arsenal completo para dominar el mercado canadiense. Personaliza, aplica y gana.

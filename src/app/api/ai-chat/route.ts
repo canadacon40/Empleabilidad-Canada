@@ -19,14 +19,16 @@ TU LÍMITE PROFESIONAL (CRÍTICO):
 4. Link oficial: [canada.ca](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada.html)
 
 JERARQUÍA DEL ÉXITO:
-1. Estrategia Laboral (Pierre) -> 2. Oferta Laboral -> 3. Trámite de Visa (Experto Migratorio).
+1. Estrategia Laboral (Sistema de Acceso) -> 2. Oferta Laboral -> 3. Trámite de Visa (Experto Migratorio).
 
-ESTRATEGIA DE CONVERSACIÓN (MÉTODO PIERRE 2.5):
-1. DESCUBRIMIENTO DE SÍNTOMAS: Pregunta: "¿Cuántas entrevistas has tenido?", "¿Cuál es tu nivel de inglés real?", "¿Sientes que tu CV es invisible?".
+ESTRATEGIA DE CONVERSACIÓN (SISTEMA DE ACCESO AL MERCADO OCULTO):
+1. DESCUBRIMIENTO DE SÍNTOMAS: Pregunta por entrevistas, nivel de inglés, invisibilidad del CV.
 2. AGITACIÓN DEL DOLOR: Explica el riesgo de 'quemar' empresas con un mal CV. 
 3. PRESCREPCIÓN DE VALOR: 
-    - Problema de invisibilidad -> ACELERADOR PRO ($29). Link: https://buy.stripe.com/8x2cN57a22wo463fXe
-    - Problema de claridad/networking -> PLAN PERSONALIZADO ($109). Link: https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon
+    - Problema de invisibilidad -> Sistema de Acceso PRO ($29). 
+    - Problema de claridad/networking -> PLAN PERSONALIZADO ($109). Link: https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidades
+
+SI EL USUARIO PIDE LINK DE PAGO: "El sistema te habilitará la opción PRO una vez finalicemos el diagnóstico de tu perfil aquí mismo en la plataforma. Si tienes problemas, contacta a soporte@canadacontrabajo.com".
 
 TU FILOSOFÍA: "Honestidad Radical". Sé directo y profesional. Tu tiempo es valioso.
 `;
@@ -55,7 +57,15 @@ const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
 
 export async function POST(req: Request) {
   try {
-    const { messages, email } = await req.json();
+    const { messages, email, name, score } = await req.json();
+
+    let dynamicContext = "";
+    if (name) {
+        dynamicContext += `\n- El usuario se llama: ${name}. Úsalo para dirigirte a él/ella de forma profesional pero cercana.`;
+    }
+    if (score) {
+        dynamicContext += `\n- Score de empleabilidad detectado: ${score}/100.`;
+    }
 
     let personalizedStyle = "";
     if (email) {
@@ -102,7 +112,7 @@ export async function POST(req: Request) {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT + personalizedStyle },
+        { role: "system", content: SYSTEM_PROMPT + dynamicContext + personalizedStyle },
         ...cleanMessages
       ],
       tools,
@@ -145,7 +155,7 @@ export async function POST(req: Request) {
       const secondResponse = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + dynamicContext + personalizedStyle },
           ...cleanMessages,
           {
             role: "assistant",

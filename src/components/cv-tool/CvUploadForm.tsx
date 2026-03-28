@@ -379,9 +379,8 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                 <Button size="sm" className="w-full mt-4 h-8 text-[11px] font-bold group-hover:bg-primary/90">Desbloquear Tool</Button>
                             </div>
 
-                            {/* Option 2: Plan */}
-                            <div className="rounded-2xl border-2 border-primary bg-primary/5 p-5 flex flex-col group hover:scale-[1.03] transition-all cursor-pointer relative"
-                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon", "_blank")}
+                                        <div className="rounded-2xl border-2 border-primary bg-primary/5 p-5 flex flex-col group hover:scale-[1.03] transition-all cursor-pointer relative"
+                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidades", "_blank")}
                             >
                                 <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-primary text-white text-[8px] font-bold rounded uppercase">Premium</div>
                                 <div className="space-y-1 mb-3">
@@ -396,6 +395,20 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                 <Button size="sm" className="w-full mt-4 h-8 text-[11px] font-bold bg-[#0f172a] hover:bg-slate-800">Acelerador + 1-a-1</Button>
                             </div>
                         </div>
+
+                        {/* Recovery Option */}
+                        {localStorage.getItem("last_report_result") && (
+                            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">¿Ya eras usuario PRO o quieres ver tus resultados anteriores?</p>
+                                <Button 
+                                    variant="link" 
+                                    className="text-primary font-black text-xs uppercase p-0 h-auto"
+                                    onClick={() => window.location.reload()}
+                                >
+                                    Refrescar para ver mis resultados guardados
+                                </Button>
+                            </div>
+                        )}
 
                         <div className="flex flex-col items-center gap-3 pt-4 border-t border-slate-100">
                              {!showPromoInput ? (
@@ -424,6 +437,8 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                                     setTimeout(() => {
                                                         setAlreadyUsedEmail(null);
                                                         localStorage.setItem("pierre_promo_unlocked", "true");
+                                                        // Force bypass if promo is entered
+                                                        window.location.href = window.location.pathname + "?code=" + promoCode;
                                                     }, 1500);
                                                 } else {
                                                     alert("Código inválido. Intenta de nuevo.");

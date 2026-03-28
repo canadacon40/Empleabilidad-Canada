@@ -1,38 +1,67 @@
 "use client"
 
 import Link from "next/link"
-import { Calendar, ArrowRight } from "lucide-react"
+import { ArrowRight, Sparkles, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
 
 export default function CtaSection() {
     return (
         <section className="bg-primary py-24 px-4 sm:px-6 text-primary-foreground relative overflow-hidden">
-            {/* Decorative gradient blob */}
-            <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-            <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-primary-hover/50 blur-3xl" />
+            {/* Massive decorative background element */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none" />
+            
+            <div className="container relative mx-auto max-w-5xl text-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="space-y-8"
+                >
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-4">
+                        <Sparkles className="w-4 h-4 text-white" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Únete a la élite profesional</span>
+                    </div>
 
-            <div className="container relative mx-auto max-w-4xl text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-white mb-6">
-                    ¿Listo para competir de verdad?
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/80 mb-10">
-                    Deja de intentar adivinar por qué no te llaman y de perder tiempo valioso en tu búsqueda. Diagnostica tu CV o déjanos tus datos si aún tienes dudas sobre tu perfil.
-                </p>
+                    <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-white leading-none">
+                        ¿Listo para competir <br className="hidden md:block" /> de verdad en Canadá?
+                    </h2>
+                    
+                    <p className="mx-auto max-w-2xl text-lg md:text-xl text-primary-foreground/70 font-medium leading-relaxed">
+                        Deja de adivinar por qué no te llaman. Hackea el sistema de filtrado ATS y entra al mercado oculto con herramientas de nivel profesional.
+                    </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Button size="lg" className="h-14 w-full sm:w-auto px-8 text-base bg-white text-[#0f172a] hover:bg-gray-100 font-bold shadow-lg" asChild>
-                        <Link href="/cv-tool">
-                            <Calendar className="mr-2 h-5 w-5" />
-                            Subir mi CV ahora
-                        </Link>
-                    </Button>
-                    <Button size="lg" variant="outline" className="h-14 w-full sm:w-auto px-8 text-base bg-white text-[#0f172a] hover:bg-gray-100 font-bold border-0 shadow-lg" asChild>
-                        <Link href="#lead-form">
-                            Verificar viabilidad del perfil
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </Link>
-                    </Button>
-                </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
+                        <Button 
+                            size="lg" 
+                            className="h-20 w-full sm:w-auto px-10 text-xl font-black bg-white text-primary hover:bg-slate-50 rounded-[2rem] shadow-2xl shadow-white/10 hover:scale-[1.02] transition-all group" 
+                            asChild
+                        >
+                            <Link href="/cv-tool">
+                                Diagnosticar Mi CV Gratis
+                                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </Button>
+                        
+                        <Button 
+                            size="lg" 
+                            variant="outline" 
+                            className="h-20 w-full sm:w-auto px-10 text-xl font-black border-2 border-white/20 bg-transparent text-white hover:bg-white/5 rounded-[2rem] backdrop-blur-sm transition-all group" 
+                            asChild
+                        >
+                            <Link href="#lead-form">
+                                <Target className="mr-3 w-6 h-6" />
+                                Analizar Viabilidad
+                            </Link>
+                        </Button>
+                    </div>
+
+                    <div className="mt-16 flex items-center justify-center gap-8 opacity-40">
+                         <div className="text-[10px] font-black uppercase tracking-widest">Acceso Vitalicio</div>
+                         <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                         <div className="text-[10px] font-black uppercase tracking-widest">Soporte 24/7 Pierre</div>
+                    </div>
+                </motion.div>
             </div>
         </section>
     )

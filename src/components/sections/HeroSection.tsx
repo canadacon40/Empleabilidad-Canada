@@ -4,104 +4,123 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ShieldCheck, ArrowRight, Zap, Play } from "lucide-react"
+import { ArrowRight, Zap, Play, Target, ShieldCheck } from "lucide-react"
 
 export default function HeroSection() {
     const [showVideo, setShowVideo] = useState(false)
     return (
-        <section className="relative overflow-hidden bg-background pt-24 pb-16 md:pt-32 md:pb-24">
-            {/* Super subtle background pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <section className="relative overflow-hidden bg-background pt-24 pb-16 md:pt-40 md:pb-32">
+            {/* Ambient Background */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
+            </div>
 
-            <div className="container relative mx-auto max-w-5xl px-4 sm:px-6">
-                <div className="flex flex-col items-center text-center">
-
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
-                        className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-7xl max-w-4xl"
-                    >
-                        ¿Realmente puedes conseguir trabajo en Canadá?
-                    </motion.h1>
-
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.15 }}
-                        className="mt-4 text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"
-                    >
-                        Descúbrelo antes de aplicar.
-                    </motion.h2>
+            <div className="container relative mx-auto max-w-6xl px-4 sm:px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="mt-6 text-lg md:text-xl text-muted-foreground font-medium max-w-2xl px-4"
-                    >
-                        Obtén un diagnóstico claro basado en datos reales <span className="text-foreground font-bold">(no opiniones)</span> y accede al <span className="text-primary font-bold">mercado laboral oculto (70% de vacantes)</span> con nuestra metodología.
-                    </motion.p>
+                    {/* Content Column */}
+                    <div className="lg:col-span-7 text-left">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-widest mb-6 border border-primary/20">
+                                <Target className="w-3 h-3" />
+                                Radar de Empleo
+                            </span>
+                            
+                            <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter text-slate-900 leading-[0.9] mb-8">
+                                Hazte <span className="text-primary relative inline-block">
+                                    Visible
+                                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/20" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                        <path d="M0 5 Q 25 0 50 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="4" />
+                                    </svg>
+                                </span> en el <br className="hidden md:block" />
+                                Mercado Oculto.
+                            </h1>
+                            
+                            <p className="text-lg md:text-2xl text-slate-600 font-medium max-w-xl leading-relaxed mb-12">
+                                El 80% de las vacantes en Canadá <span className="text-slate-900 font-bold underline decoration-primary/30 decoration-4">nunca se publican</span>. Aprende la estrategia para entrar antes que tu competencia.
+                            </p>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
-                        className="mt-12 w-full max-w-lg"
-                    >
-                        <Button size="lg" className="h-24 w-full rounded-2xl text-2xl font-black shadow-2xl shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all group" asChild>
-                            <Link href="/cv-tool">
-                                <Zap className="mr-3 h-7 w-7 fill-current" />
-                                REPORTE DE EMPLEABILIDAD GRATIS
-                                <ArrowRight className="ml-3 h-7 w-7 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </Button>
-                        <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
-                             Sin tarjetas de crédito • Resultados instantáneos
-                        </p>
-                    </motion.div>
-
-                    {/* VSL YouTube Embed with High-Res Poster */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                        className="w-full max-w-md mx-auto mt-20 rounded-3xl overflow-hidden shadow-2xl bg-[#0f172a] border-8 border-background relative group cursor-pointer"
-                        onClick={() => setShowVideo(true)}
-                    >
-                        {!showVideo ? (
-                            <div className="relative aspect-[9/16] w-full overflow-hidden">
-                                {/* High-Res Thumbnail from YouTube */}
-                                <img 
-                                    src="https://img.youtube.com/vi/z7_abW73Dhw/maxresdefault.jpg" 
-                                    alt="Video Preview"
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    onError={(e) => {
-                                        // Fallback to high quality if maxres isn't available
-                                        e.currentTarget.src = "https://img.youtube.com/vi/z7_abW73Dhw/hqdefault.jpg";
-                                    }}
-                                />
-                                {/* Premium Overlay & Play Button */}
-                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                    <div className="w-20 h-20 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-2xl shadow-primary/40 transform transition-all group-hover:scale-115 group-active:scale-95">
-                                        <Play className="w-10 h-10 fill-current ml-1" />
+                            <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                <Button size="lg" className="h-16 px-8 w-full sm:w-auto rounded-2xl text-lg font-black shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all group gap-3" asChild>
+                                    <Link href="/cv-tool">
+                                        <Zap className="w-5 h-5 fill-current" />
+                                        ANALIZAR MI PERFIL GRATIS
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </Button>
+                                <div className="flex items-center gap-3 px-4 py-2">
+                                    <div className="flex -space-x-2">
+                                        {[1, 2, 3].map(i => (
+                                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />
+                                        ))}
                                     </div>
-                                </div>
-                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 whitespace-nowrap">
-                                    <p className="text-white text-xs font-bold tracking-wide uppercase">Ver video de estrategia</p>
+                                    <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest leading-tight">
+                                        +50 profesionales <br/> asesorados en 2026
+                                    </p>
                                 </div>
                             </div>
-                        ) : (
-                            <iframe
-                                className="w-full aspect-[9/16]"
-                                src="https://www.youtube.com/embed/z7_abW73Dhw?rel=0&autoplay=1&modestbranding=1"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                title="Acelerador de Entrevistas VSL"
-                                style={{ border: 'none' }}
-                            ></iframe>
-                        )}
-                    </motion.div>
+
+                            <div className="mt-8 flex flex-wrap gap-6 items-center border-t border-slate-100 pt-8">
+                                <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                    100% Confidencial
+                                </div>
+                                <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                                    <Zap className="w-4 h-4 text-amber-500" />
+                                    Resultados Instantáneos
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* VSL Column */}
+                    <div className="lg:col-span-5">
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="relative group cursor-pointer"
+                            onClick={() => setShowVideo(true)}
+                        >
+                            {/* Decorative Elements */}
+                            <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+                            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-blue-500/20 blur-3xl rounded-full" />
+
+                            <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border-8 border-white bg-slate-900 aspect-[9/16]">
+                                {!showVideo ? (
+                                    <div className="relative h-full w-full">
+                                        <img 
+                                            src="https://img.youtube.com/vi/z7_abW73Dhw/maxresdefault.jpg" 
+                                            alt="Estrategia Pierre"
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60"
+                                            onError={(e) => { e.currentTarget.src = "https://img.youtube.com/vi/z7_abW73Dhw/hqdefault.jpg"; }}
+                                        />
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-gradient-to-t from-slate-900 via-transparent to-transparent">
+                                            <div className="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center shadow-2xl shadow-primary/50 transform transition-all group-hover:scale-110 group-active:scale-95 mb-6">
+                                                <Play className="w-8 h-8 fill-current ml-1" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tight">
+                                                Mira el método para <br/> hackear el mercado <br/> oculto
+                                            </h3>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <iframe
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/z7_abW73Dhw?rel=0&autoplay=1&modestbranding=1"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        title="Acelerador de Entrevistas"
+                                    ></iframe>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
 
                 </div>
             </div>

@@ -1,23 +1,56 @@
 import Link from "next/link"
 
-export default function FooterEn() {
+export default function Footer() {
     return (
-        <footer className="border-t border-border/40 bg-muted/20">
-            <div className="container mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0 px-4 sm:px-6">
-                <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-                    <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                        Creado para profesionales ambiciosos buscando su próximo salto de carrera. No somos un servicio de asesoría legal.
-                    </p>
+        <footer className="bg-slate-900 border-t border-white/5 py-20 px-4 sm:px-6 overflow-hidden relative">
+            <div className="container mx-auto max-w-6xl relative z-10">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-12 border-b border-white/5 pb-12 mb-12">
+                    <div className="max-w-xs">
+                         <div className="flex items-center space-x-2 mb-6">
+                            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-white font-black text-xs">P</div>
+                            <span className="font-black tracking-tighter text-white text-lg uppercase">
+                                Radar de <span className="text-primary">Empleo</span>
+                            </span>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                            Ingeniería de carrera y posicionamiento estratégico para profesionales ambiciosos en Canadá. El fin del "Invisible Market".
+                        </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-12 sm:gap-24">
+                        <div className="space-y-4">
+                            <h4 className="text-white text-[10px] font-black uppercase tracking-widest">Recursos</h4>
+                            <ul className="space-y-3">
+                                <li><Link href="/cv-tool" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Diagnóstico IA</Link></li>
+                                <li><Link href="#faq" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Preguntas Frecuentes</Link></li>
+                            </ul>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="text-white text-[10px] font-black uppercase tracking-widest">Aviso Legal</h4>
+                            <ul className="space-y-3">
+                                <li className="text-[10px] text-slate-500 leading-tight">
+                                    Pierre Employability es un servicio de estrategia laboral. No somos, ni pretendemos ser, consultores de inmigración (RCIC). Para asesoría legal migratoria, consulte a un profesional certificado.
+                                </li>
+                                <li><span className="text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors cursor-pointer">Términos y Privacidad</span></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex gap-4">
-                    <Link href="#faq" className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
-                        Preguntas Frecuentes
-                    </Link>
-                    <Link href="/cv-tool" className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
-                        Acelerador de Entrevistas
-                    </Link>
+
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">
+                        © 2024 Pierre Employability Engine. All Rights Reserved.
+                    </p>
+                    <div className="flex items-center gap-6">
+                         {/* Social Placeholders */}
+                         <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                         <span className="text-slate-700 text-[10px] font-black uppercase tracking-widest">Built for Results.</span>
+                    </div>
                 </div>
             </div>
+            
+            {/* Subtle bottom glow */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         </footer>
     )
 }

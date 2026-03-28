@@ -27,17 +27,18 @@ export default function AiChatbot() {
                 setHasOpenedOnce(true)
                 
                 // Retrieve lead name for personalization
-                const leadName = localStorage.getItem("lead_name") || "Hola"
+                const savedName = localStorage.getItem("lead_name")
+                const greetingName = savedName ? savedName.split(' ')[0] : "Hola"
                 
                 // Initial greeting from Pierre (discovery oriented)
                 if (messages.length === 0) {
                     setMessages([{ 
                         role: "assistant", 
-                        content: `Hola ${leadName}. Soy Pierre. He analizado tu perfil y tengo algunas observaciones estratégicas para que dejemos de 'sobrevivir' y empecemos a 'competir' en Canadá. ¿Quieres que te explique por dónde empezar?` 
+                        content: `Hola ${greetingName}. Soy Pierre. He analizado tu perfil y tengo algunas observaciones estratégicas para que dejemos de 'sobrevivir' y empecemos a 'competir' en Canadá. ¿Quieres que te explique por dónde empezar?` 
                     }])
                 }
             }
-        }, 60000) // 60 seconds (1 minute)
+        }, 45000) // Reduced to 45s for better engagement
         return () => clearTimeout(timer)
     }, [hasOpenedOnce, isOpen, messages.length])
 
@@ -85,8 +86,19 @@ export default function AiChatbot() {
         setInput("")
         setIsLoading(true)
 
-        // Get saved email for personalization
+        // Get saved info for personalization
         const email = localStorage.getItem("lead_email")
+        const name = localStorage.getItem("lead_name")
+        const scoreData = localStorage.getItem("last_report_result")
+        let score = null
+        if (scoreData) {
+            try {
+                const parsed = JSON.parse(scoreData)
+                score = parsed.conclusionEjecutiva?.puntuación || parsed.analisisNOC?.nivel || parsed.score || null
+            } catch (e) {
+                console.error("Error parsing score for chat:", e)
+            }
+        }
 
         try {
             const res = await fetch("/api/ai-chat", {
@@ -94,19 +106,23 @@ export default function AiChatbot() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     messages: newMessages,
-                    email: email
+                    email: email,
+                    name: name,
+                    score: score
                 })
             })
             const data = await res.json()
-            console.log("Chat API response:", data);
             
+            // Artificial delay to feel more human (1.5s to 2.5s)
+            await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000))
+
             if (data.message) {
                 setMessages([...newMessages, data.message])
             } else if (data.error) {
                 console.error("Chat API error:", data.error);
                 setMessages([...newMessages, { 
                     role: "assistant", 
-                    content: data.message?.content || "Pierre está procesando mucha información ahora mismo. ¿Podrías repetirme eso?" 
+                    content: "Pierre está procesando mucha información ahora mismo. ¿Podrías repetirme eso?" 
                 }])
             }
         } catch (error) {

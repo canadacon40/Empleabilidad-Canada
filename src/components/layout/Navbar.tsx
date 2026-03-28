@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import DiscountModal from "@/components/ui/DiscountModal"
 import PlanDetailsModal from "@/components/ui/PlanDetailsModal"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
+import { Sparkles, Layout } from "lucide-react"
 
 export default function Navbar() {
     const { trackEvent } = useLeadTracking();
@@ -18,31 +19,34 @@ export default function Navbar() {
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="container mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
+                <div className="container mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">
                     <div className="flex items-center gap-2">
-                        {/* Logo / Brand Name */}
-                        <Link href="/" className="flex items-center space-x-2">
-                            <span className="font-semibold tracking-tight text-primary sm:text-lg">
-                                Acelerador de <span className="font-light">Entrevistas</span>
+                        <Link href="/" className="flex items-center space-x-2 group">
+                            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black group-hover:scale-110 transition-transform">P</div>
+                            <span className="font-black tracking-tighter text-slate-900 text-lg sm:text-xl uppercase">
+                                Radar de <span className="text-primary">Empleo</span>
                             </span>
                         </Link>
                     </div>
+                    
                     <nav className="flex items-center gap-2 sm:gap-4">
-
                         <Button 
                             variant="ghost" 
-                            className="inline-flex focus:ring-0 px-1 sm:px-4 text-[10px] sm:text-sm font-black uppercase tracking-tight" 
+                            className="hidden md:flex h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
                                 setIsDetailsModalOpen(true);
                             }}
                         >
-                            <span className="sm:hidden">Agendar 1:1</span>
-                            <span className="hidden sm:inline">AGENDAR Plan Personalizado</span>
+                            Agendar 1-a-1
                         </Button>
-                        <Button asChild size="sm" className="px-2 sm:px-4 text-[10px] sm:text-sm font-black uppercase tracking-tight">
-                            <Link href="/cv-tool">Reporte Gratis</Link>
+                        
+                        <Button asChild size="lg" className="h-10 sm:h-12 px-4 sm:px-8 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
+                            <Link href="/cv-tool" className="flex items-center gap-2">
+                                <Sparkles className="w-3 h-3 hidden sm:block" />
+                                Reporte Gratis
+                            </Link>
                         </Button>
                     </nav>
                 </div>

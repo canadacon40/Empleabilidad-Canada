@@ -5,7 +5,7 @@ export function generateReportHTML(result: any): string {
     <html lang="es">
     <head>
         <meta charset="utf-8">
-        <title>Reporte de Empleabilidad Pierre 2.5 - CanadaConTrabajo</title>
+        <title>Reporte de Empleabilidad - Sistema de Acceso al Mercado Oculto</title>
         <style>
             body { font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5; padding: 40px; background: #fff; }
             .header { text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 30px; margin-bottom: 40px; }
@@ -44,8 +44,8 @@ export function generateReportHTML(result: any): string {
     <body>
         <div class="header">
             <div class="logo">CanadaConTrabajo.com</div>
-            <div class="title">Estrategia Táctica de Empleabilidad</div>
-            <div class="version">Diagnostic Engine Pierre v2.5</div>
+            <div class="title">Estrategia de Acceso al Mercado Oculto</div>
+            <div class="version">Estrategia PRO - CanadaConTrabajo</div>
         </div>
 
         <div class="section">
@@ -184,14 +184,17 @@ export function downloadFullReportPDF(result: any) {
 
 export async function downloadLMIAExcel(result: any) {
     const empresas = result.empresasLMIA?.lista || result.empresasLMIA || [];
-    if (!empresas.length) return
+    if (!empresas.length) {
+        alert("En este momento no se encontraron empresas con patrocinios activos para tu sector específico. Pierre recomienda ampliar la búsqueda a roles puente.");
+        return;
+    }
     const XLSX = await import("xlsx")
     const data = empresas.map((e: any, i: number) => ({
         "#": i + 1,
-        "Empresa": e.nombre,
-        "Provincia": e.provincia,
-        "Industria": e.industria,
-        "Sitio Web": e.website,
+        "Empresa": e.nombre || "Empresa por Contactar",
+        "Provincia": e.provincia || "Diversas",
+        "Industria": e.industria || "Sector Relacionado",
+        "Sitio Web": e.website || "Consultar en Google",
     }))
     const ws = XLSX.utils.json_to_sheet(data)
     const wb = XLSX.utils.book_new()
@@ -267,7 +270,176 @@ export function generateCustomizedCVHTML(data: any) {
 }
 
 export function downloadCustomizedCVPDF(data: any) {
+    if (!data || !data.customizedExperience || data.customizedExperience.length === 0) {
+        alert("Información insuficiente para generar el PDF. Por favor, asegúrate de haber completado el análisis.");
+        return;
+    }
     const printContent = generateCustomizedCVHTML(data);
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+    }
+}
+
+export async function downloadCustomizedCVWord(data: any) {
+    if (!data || !data.customizedExperience || data.customizedExperience.length === 0) {
+        alert("Información insuficiente para generar el CV. Por favor, asegúrate de haber completado el análisis.");
+        return;
+    }
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } = await import("docx");
+
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: [
+                new Paragraph({
+                    text: data.name || "Professional Candidate",
+                    heading: HeadingLevel.HEADING_1,
+                    alignment: AlignmentType.CENTER,
+                }),
+                new Paragraph({
+                    text: "Optimized for Canadian Professional Standards",
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 200 },
+                }),
+                new Paragraph({
+                    text: "PROFESSIONAL SUMMARY",
+                    heading: HeadingLevel.HEADING_2,
+                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                }),
+                new Paragraph({
+                    children: [new TextRun(data.customizedSummary)],
+                    spacing: { before: 120, after: 200 },
+                }),
+                new Paragraph({
+                    text: "PROFESSIONAL EXPERIENCE",
+                    heading: HeadingLevel.HEADING_2,
+                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                }),
+                ...data.customizedExperience.map((exp: any) => [
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: exp.title, bold: true }),
+                            new TextRun({ text: `\t${exp.period}`, bold: true }),
+                        ],
+                        tabStops: [{ type: "right", position: 9000, leader: "none" }],
+                        spacing: { before: 200 },
+                    }),
+                    new Paragraph({
+                        children: [new TextRun({ text: exp.company, italics: true })],
+                        spacing: { after: 120 },
+                    }),
+                    ...exp.achievements.map((a: string) => 
+                        new Paragraph({
+                            text: a,
+                            bullet: { level: 0 },
+                        })
+                    ),
+                ]).flat(),
+                new Paragraph({
+                    text: "CORE COMPETENCIES",
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200 },
+                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                }),
+                new Paragraph({
+                    text: (data.addedKeywords || []).join(", "),
+                    spacing: { before: 120 },
+                }),
+            ],
+        }],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const filename = `CV_Canadian_Format_${data.name?.replace(/\s+/g, '_') || 'Professional'}.docx`;
+
+    // Native Browser Download - Avoids file-saver interop issues
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
+export function generateInterviewHTML(result: any) {
+    return `<!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.5; padding: 40px; background: #fff; }
+            .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; }
+            .title { font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 5px; }
+            .subtitle { font-size: 14px; color: #64748b; font-weight: 600; }
+            .section { margin-bottom: 30px; page-break-inside: avoid; }
+            .section-title { font-size: 16px; font-weight: 900; background: #f8fafc; padding: 10px; border-left: 5px solid #2563eb; margin-bottom: 15px; text-transform: uppercase; }
+            .q-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+            .q-text { font-weight: 800; font-size: 14px; color: #0f172a; margin-bottom: 10px; }
+            .a-label { font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; display: block; margin-top: 8px; }
+            .a-text { font-size: 12px; color: #334155; }
+            .star-grid { display: grid; grid-template-columns: 100px 1fr; gap: 10px; margin-top: 10px; }
+            .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="title">Predicción Estratégica de Entrevista</div>
+            <div class="subtitle">Preparación PRO - CanadaConTrabajo.com</div>
+        </div>
+
+        ${result.technicalQuestions?.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Preguntas Técnicas Detectadas</div>
+                ${result.technicalQuestions.map((q: any, i: number) => `
+                    <div class="q-card">
+                        <div class="q-text">${i + 1}. ${q.question}</div>
+                        <span class="a-label">Estrategia de Respuesta:</span>
+                        <div class="a-text">${q.howToAnswer}</div>
+                        <span class="a-label">Respuesta Modelo:</span>
+                        <div class="a-text" style="background: #f8fafc; padding: 10px; border-radius: 6px; margin-top: 5px; font-style: italic;">"${q.sampleAnswer}"</div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : ''}
+
+        ${result.behavioralQuestions?.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Preguntas de Comportamiento (Método STAR)</div>
+                ${result.behavioralQuestions.map((q: any, i: number) => `
+                    <div class="q-card">
+                        <div class="q-text">${i + 1}. ${q.question}</div>
+                        <span class="a-label">Competencia Evaluada: ${q.competency}</span>
+                        <div class="star-grid">
+                            <span class="a-label">Situación:</span> <div class="a-text">${q.starTemplate?.situation}</div>
+                            <span class="a-label">Tarea:</span> <div class="a-text">${q.starTemplate?.task}</div>
+                            <span class="a-label">Acción:</span> <div class="a-text">${q.starTemplate?.action}</div>
+                            <span class="a-label">Resultado:</span> <div class="a-text">${q.starTemplate?.result}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : ''}
+
+        <div class="footer">
+            <p>© 2026 CanadaConTrabajo.com - Sistema de Acceso al Mercado Oculto</p>
+        </div>
+    </body>
+    </html>`;
+}
+
+export function downloadInterviewPDF(result: any) {
+    if (!result || (!result.technicalQuestions?.length && !result.behavioralQuestions?.length)) {
+        alert("No hay preguntas generadas para descargar.");
+        return;
+    }
+    const printContent = generateInterviewHTML(result);
     const printWindow = window.open("", "_blank");
     if (printWindow) {
         printWindow.document.write(printContent);
