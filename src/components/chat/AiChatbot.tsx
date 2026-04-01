@@ -49,8 +49,9 @@ export default function AiChatbot() {
             const { message } = event.detail || {};
             if (message) {
                 setMessages((prev) => [...prev, { role: "assistant", content: message }]);
-                // DO NOT auto-open full window anymore
-                setShowBubble(true);
+                // Auto-open on personalized greeting to act as a real sales agent
+                setIsOpen(true);
+                setShowBubble(false);
                 setHasOpenedOnce(true);
             }
         };

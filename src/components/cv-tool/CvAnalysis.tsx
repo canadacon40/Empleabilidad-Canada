@@ -193,6 +193,21 @@ export default function CvAnalysis({
         return;
       }
       setResult(data.result);
+
+      // --- PHASE 1: Pierre AI Agent Proactive Greeting ---
+      setTimeout(() => {
+        const score = data.result.conclusionEjecutiva?.puntuación || 0;
+        const noc = data.result.analisisNOC?.título || "tu perfil";
+        const name = localStorage.getItem("lead_name")?.split(' ')[0] || "amigo";
+        
+        const event = new CustomEvent("pierreChatGreeting", {
+            detail: {
+                message: `¡${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}%. Tienes un potencial enorme, pero veo brechas críticas que te frenarán en Canadá. ¿Quieres que te diga cómo cerrarlas hoy mismo?`
+            }
+        });
+        window.dispatchEvent(event);
+      }, 2000);
+      
     } catch (err) {
       setError("Error de conexión. Intenta de nuevo.");
     } finally {
