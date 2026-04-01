@@ -235,7 +235,7 @@ ${(cv.languages || []).join("\n")}
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Cabecera del Motor */}
+            {/* Cabecera del Motor - EQUIPO DE AGENTES */}
             <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
                     <Rocket className="w-48 h-48 rotate-12" />
@@ -243,16 +243,36 @@ ${(cv.languages || []).join("\n")}
                 <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-primary/30">Motor Premium</span>
+                            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-primary/30">Mando Central de IA</span>
                         </div>
                         <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                            Empleabilidad PRO <Rocket className="w-6 h-6 text-primary" />
+                            Equipo Pierre PRO <Rocket className="w-6 h-6 text-primary" />
                         </h2>
                         <p className="text-slate-400 mt-2 font-medium max-w-xl">
-                            Transforma tu perfil al formato Canadiense, descubre tu código NOC oficial, y valida científicamente tus probabilidades antes de aplicar.
+                            Tienes **9 Agentes de IA especializados** trabajando en tu perfil. Desde el rediseño narrativo hasta el análisis de brecha en tiempo real.
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* BARRA DE AGENTES ACTIVOS */}
+            <div className="flex flex-wrap gap-4 overflow-x-auto pb-2">
+                {[
+                    { name: "Pierre Architect", role: "NOC Expert", active: step === "intro" || step === "redesign" },
+                    { name: "Pierre Matchmaker", role: "Gap Analyst", active: step === "match" },
+                    { name: "Pierre Storyteller", role: "CV Writing", active: redesignResult },
+                    { name: "Pierre Scout", role: "Lead Quality", active: true }
+                ].map((agent, i) => (
+                    <div key={i} className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all ${agent.active ? "bg-primary/5 border-primary/20" : "bg-slate-50 border-slate-200 opacity-50"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] ${agent.active ? "bg-primary text-white" : "bg-slate-300 text-slate-600"}`}>
+                            {agent.name.split(" ")[1][0]}
+                        </div>
+                        <div>
+                            <div className="text-[10px] font-black uppercase tracking-tighter text-slate-400 leading-none">{agent.role}</div>
+                            <div className="text-xs font-bold text-slate-800">{agent.name}</div>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {error && (
