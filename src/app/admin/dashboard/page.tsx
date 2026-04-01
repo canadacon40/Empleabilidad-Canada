@@ -358,6 +358,18 @@ export default function AdminDashboard() {
                         {isUpdating ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         Guardar Gestión
                      </button>
+                     
+                     {/* WhatsApp Button */}
+                     <a 
+                        href={`https://wa.me/${selectedLead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedLead.name}, soy del equipo de Pierre. Vi tu reporte de empleabilidad para Canadá como ${selectedLead.noc} y me gustaría ayudarte con los siguientes pasos...`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-14 px-6 bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-2 hover:bg-emerald-600 shadow-xl shadow-emerald-500/20 transition-all text-[11px] font-black uppercase tracking-widest"
+                     >
+                        <MessageSquare className="w-5 h-5" />
+                        WhatsApp
+                     </a>
+
                      <a 
                         href={`mailto:${selectedLead.email}?subject=Seguimiento a tu Reporte de Empleabilidad - Pierre&body=Hola ${selectedLead.name}, revisamos tu reporte de Pierre y nos gustaría ayudarte con tu perfil de ${selectedLead.noc}...`}
                         className="h-14 w-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-900 hover:bg-slate-50 transition-all shadow-sm group"

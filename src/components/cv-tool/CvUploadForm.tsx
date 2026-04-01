@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { FileText, User, Mail, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert } from "lucide-react"
+import { FileText, User, Mail, Phone, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sendGTMEvent } from "@next/third-parties/google"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
@@ -24,6 +24,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     // New Lead Capture Fields
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
     const [status, setStatus] = useState("")
     const [province, setProvince] = useState("")
     const [urgency, setUrgency] = useState("")
@@ -60,6 +61,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         const missing = []
         if (!name.trim()) missing.push("name")
         if (!email.trim()) missing.push("email")
+        if (!phone.trim()) missing.push("phone")
         if (!status) missing.push("status")
         if (status.startsWith("inside") && !province) missing.push("province")
         if (!urgency) missing.push("urgency")
@@ -106,6 +108,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         const leadData = { 
             name: name.trim(), 
             email: email.trim(), 
+            phone: phone.trim(),
             status, 
             province, 
             urgency, 
@@ -247,6 +250,19 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                             ⚠️ {error}
                         </p>
                     )}
+                </div>
+                {/* Phone */}
+                <div className={`space-y-2 transition-all ${highlightFields.includes('phone') ? 'animate-shake' : ''}`}>
+                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('phone') ? 'text-destructive' : ''}`}>
+                        <Phone className="w-4 h-4 text-primary" /> Teléfono de contacto {highlightFields.includes('phone') && <span className="text-destructive font-bold">*</span>}
+                    </label>
+                    <input 
+                        type="tel" 
+                        value={phone} 
+                        onChange={(e) => {setPhone(e.target.value); setError("")}} 
+                        placeholder="Ej: +1 (123) 456-7890" 
+                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('phone') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`} 
+                    />
                 </div>
             </div>
 
