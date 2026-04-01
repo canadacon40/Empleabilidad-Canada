@@ -39,11 +39,16 @@ import {
   Zap,
   ArrowUpRight,
   ShieldCheck,
+  FileText,
+  Search,
+  CheckCircle2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import GaugeChart from "./GaugeChart";
 import JdMatcher from "./JdMatcher";
 import UserManual from "./UserManual";
+import ExecutiveDiagnostic from "./ExecutiveDiagnostic";
+import EmployabilityEnginePro from "./EmployabilityEnginePro";
 import { Button } from "@/components/ui/button";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { downloadFullReportPDF, downloadLMIAExcel, downloadStyledCVPdf } from "@/lib/report-utils";
@@ -397,7 +402,9 @@ export default function CvAnalysis({
     );
   };
 
-  const isPremium = accessCode === "PREMIUM";
+  const searchParams = useSearchParams();
+  const isDebugPro = searchParams.get("debug") === "pro";
+  const isPremium = accessCode === "PREMIUM" || isDebugPro;
 
   if (error) {
     return (
@@ -689,100 +696,114 @@ export default function CvAnalysis({
         </div>
       )}
 
-      {/* 6. VEREDICTO MAESTRO / CTA */}
-      <section className="bg-white text-slate-900 rounded-[3rem] sm:rounded-[4rem] p-8 sm:p-20 relative overflow-hidden border-2 border-primary group mx-4 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
-        <div className="relative z-10 flex flex-col items-center text-center space-y-10">
-          <div className="space-y-4">
-            <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-tight">Estrategia Ganadora</h3>
-            <p className="text-slate-600 text-lg max-w-2xl font-medium leading-relaxed italic mx-auto">
-              "{getConclusionText()}"
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-6 w-full max-w-lg">
-             <Button 
-                size="lg"
-                className="h-20 sm:h-24 w-full rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 text-white hover:bg-primary transition-all text-sm sm:text-xl font-black shadow-2xl group flex flex-col items-center justify-center px-4"
-                onClick={() => handleCheckout(2900, "/cv-tool/success", "Radar de Empleo PRO")}
-                disabled={isCheckoutLoading}
-             >
-                <div className="flex items-center gap-2 sm:gap-4 mb-0.5 sm:mb-1">
-                  {isCheckoutLoading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" /> : <Rocket className="w-5 h-5 sm:w-6 sm:h-6" />}
-                  <span className="whitespace-nowrap">OBTENER MI REPORTE PRO</span>
-                </div>
-                <span className="text-[8px] sm:text-[10px] opacity-60 font-medium uppercase tracking-widest">Acceso Instantáneo • $29.00 USD</span>
-             </Button>
-
-             <button 
-                onClick={() => setShowCodeInput(!showCodeInput)}
-                className="text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-[0.3em] transition-colors"
-             >
-                ¿Tienes un código de beca o convenio?
-             </button>
-
-             <AnimatePresence>
-                {showCodeInput && (
-                   <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="flex gap-2"
-                   >
-                     <input 
-                        type="text" 
-                        placeholder="CÓDIGO AQUÍ" 
-                        className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all shadow-inner"
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                     />
-                     <Button 
-                        onClick={async () => {
-                          setIsVerifyingCode(true);
-                          setCodeError("");
-                          try {
-                            const res = await initUsagePromoCode(promoCode);
-                            if (res.success) {
-                              onUnlockPremium?.(promoCode);
-                            } else {
-                              setCodeError(res.message);
-                            }
-                          } catch (e) {
-                            setCodeError("Código inválido o expirado.");
-                          } finally {
-                            setIsVerifyingCode(false);
-                          }
-                        }}
-                        disabled={isVerifyingCode || !promoCode}
-                        className="rounded-2xl h-14 px-8 font-black bg-slate-900 text-white hover:bg-primary"
-                     >
-                        {isVerifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : "VALIDAR"}
-                     </Button>
-                   </motion.div>
-                )}
-             </AnimatePresence>
-             {codeError && <p className="text-rose-600 text-[10px] font-black uppercase text-center mt-2">{codeError}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full border-t border-slate-100 pt-12">
-             <div className="space-y-2">
-                <Layout className="w-5 h-5 text-primary mx-auto" />
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Optimización ATS</p>
-             </div>
-             <div className="space-y-2">
-                <FileSpreadsheet className="w-5 h-5 text-primary mx-auto" />
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Directorio LMIA</p>
-             </div>
-             <div className="space-y-2">
-                <GraduationCap className="w-5 h-5 text-primary mx-auto" />
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Masterclass CV</p>
-             </div>
-             <div className="space-y-2">
-                <Key className="w-5 h-5 text-primary mx-auto" />
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Calculadora CLB</p>
-             </div>
-          </div>
+      {/* 6. PRO ENGINE (Solo si es Premium o Debug) */}
+      {(isPremium) && (
+        <div id="pro-tools" className="max-w-6xl mx-auto px-4 mt-12 pt-12 border-t-4 border-primary/20">
+            <div className="bg-primary/10 p-4 rounded-2xl mb-8 text-center border border-primary/20">
+                <p className="text-primary font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                    <Zap className="w-4 h-4 fill-primary" /> MODO PREMIUM ACTIVADO {isDebugPro && "(ADMIN DEBUG)"}
+                </p>
+            </div>
+            <EmployabilityEnginePro cvText={cvText} />
         </div>
-      </section>
+      )}
+
+      {/* 7. VEREDICTO MAESTRO / CTA */}
+      {!isPremium && (
+        <section className="bg-white text-slate-900 rounded-[3rem] sm:rounded-[4rem] p-8 sm:p-20 relative overflow-hidden border-2 border-primary group mx-4 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
+          <div className="relative z-10 flex flex-col items-center text-center space-y-10">
+            <div className="space-y-4">
+              <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-tight">Estrategia Ganadora</h3>
+              <p className="text-slate-600 text-lg max-w-2xl font-medium leading-relaxed italic mx-auto">
+                "{getConclusionText()}"
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-6 w-full max-w-lg">
+              <Button 
+                  size="lg"
+                  className="h-20 sm:h-24 w-full rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 text-white hover:bg-primary transition-all text-sm sm:text-xl font-black shadow-2xl group flex flex-col items-center justify-center px-4"
+                  onClick={() => handleCheckout(2900, "/cv-tool/success", "Radar de Empleo PRO")}
+                  disabled={isCheckoutLoading}
+              >
+                  <div className="flex items-center gap-2 sm:gap-4 mb-0.5 sm:mb-1">
+                    {isCheckoutLoading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" /> : <Rocket className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    <span className="whitespace-nowrap">OBTENER MI REPORTE PRO</span>
+                  </div>
+                  <span className="text-[8px] sm:text-[10px] opacity-60 font-medium uppercase tracking-widest">Acceso Instantáneo • $29.00 USD</span>
+              </Button>
+
+              <button 
+                  onClick={() => setShowCodeInput(!showCodeInput)}
+                  className="text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-[0.3em] transition-colors"
+              >
+                  ¿Tienes un código de beca o convenio?
+              </button>
+
+              <AnimatePresence>
+                  {showCodeInput && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex gap-2"
+                    >
+                      <input 
+                          type="text" 
+                          placeholder="CÓDIGO AQUÍ" 
+                          className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all shadow-inner"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      />
+                      <Button 
+                          onClick={async () => {
+                            setIsVerifyingCode(true);
+                            setCodeError("");
+                            try {
+                              const res = await initUsagePromoCode(promoCode);
+                              if (res.success) {
+                                onUnlockPremium?.(promoCode);
+                              } else {
+                                setCodeError(res.message);
+                              }
+                            } catch (e) {
+                              setCodeError("Código inválido o expirado.");
+                            } finally {
+                              setIsVerifyingCode(false);
+                            }
+                          }}
+                          disabled={isVerifyingCode || !promoCode}
+                          className="rounded-2xl h-14 px-8 font-black bg-slate-900 text-white hover:bg-primary"
+                      >
+                          {isVerifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : "VALIDAR"}
+                      </Button>
+                    </motion.div>
+                  )}
+              </AnimatePresence>
+              {codeError && <p className="text-rose-600 text-[10px] font-black uppercase text-center mt-2">{codeError}</p>}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full border-t border-slate-100 pt-12">
+              <div className="space-y-2">
+                  <Layout className="w-5 h-5 text-primary mx-auto" />
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Optimización ATS</p>
+              </div>
+              <div className="space-y-2">
+                  <FileSpreadsheet className="w-5 h-5 text-primary mx-auto" />
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Directorio LMIA</p>
+              </div>
+              <div className="space-y-2">
+                  <GraduationCap className="w-5 h-5 text-primary mx-auto" />
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Masterclass CV</p>
+              </div>
+              <div className="space-y-2">
+                  <Key className="w-5 h-5 text-primary mx-auto" />
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Calculadora CLB</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <footer className="text-center py-10 opacity-40">
           <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em]">Pierre Employability Engine v2.8 • Executive Report • Google Cloud AI</p>
