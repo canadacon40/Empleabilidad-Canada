@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
             phone: (lead.formData as any)?.phone || "Sin teléfono",
             noc: (lead.formData as any)?.noc || "N/A",
             score: lead.scores[0]?.level || "PND",
+            status: lead.status || "NEW",
+            internalNotes: (lead.formData as any)?.internalNotes || "",
             date: lead.createdAt,
             summary: lead.scores[0]?.summary || ""
         }));
