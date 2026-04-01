@@ -81,6 +81,18 @@ export default function CvAnalysis({
   const [redesignedCv, setRedesignedCv] = useState<any>(null);
   const [targetLanguage, setTargetLanguage] = useState("En");
   const [cvVersions, setCvVersions] = useState<any[]>([]);
+  const [showProFeatures, setShowProFeatures] = useState(false);
+
+  useEffect(() => {
+    // 🛡️ MODO TEST: Permitir al dueño probar las funciones PRO mediante URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('debug') === 'pro' || params.get('session_id')) {
+      setShowProFeatures(true);
+      if (params.get('debug') === 'pro') {
+         console.log("🛠️ MODO DESARROLLADOR ACTIVO: Funciones PRO desbloqueadas");
+      }
+    }
+  }, []);
 
   useEffect(() => {
      if (typeof window !== "undefined") {
