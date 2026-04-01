@@ -55,7 +55,7 @@ export default function TestimonialsSection() {
                                 </div>
                             ))}
                         </div>
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">+500 Profesionales Ayudados</span>
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-relaxed">7 de cada 10 empleos se llenan por referencia</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 mb-6">
                         De Invisibles a Indispensables.

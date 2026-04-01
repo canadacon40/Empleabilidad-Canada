@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { FileText, User, Mail, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight } from "lucide-react"
+import { FileText, User, Mail, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sendGTMEvent } from "@next/third-parties/google"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
@@ -28,6 +28,9 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     const [province, setProvince] = useState("")
     const [urgency, setUrgency] = useState("")
     const [budget, setBudget] = useState("")
+    const [linkedinUrl, setLinkedinUrl] = useState("")
+    const [networking, setNetworking] = useState("")
+    const [workPermit, setWorkPermit] = useState("")
     
     const [showWelcome, setShowWelcome] = useState(true)
     const [showCvWarning, setShowCvWarning] = useState(false)
@@ -61,6 +64,8 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         if (status.startsWith("inside") && !province) missing.push("province")
         if (!urgency) missing.push("urgency")
         if (!budget) missing.push("budget")
+        if (!networking) missing.push("networking")
+        if (!workPermit) missing.push("workPermit")
 
         if (missing.length > 0) {
             setHighlightFields(missing)
@@ -106,6 +111,9 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             urgency, 
             budget,
             language,
+            linkedinUrl: linkedinUrl.trim(),
+            networking,
+            workPermit,
             cvText: cvText.trim(),
             date: new Date().toISOString(),
             source: "Free CV Tool"
@@ -324,6 +332,54 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                         <option value="50+">Más de $50 USD</option>
                     </select>
                 </div>
+
+                {/* LinkedIn (Opcional) */}
+                <div className="space-y-2">
+                    <label className="text-sm font-semibold flex items-center gap-2">
+                        <Key className="w-4 h-4 text-primary" /> URL de LinkedIn (Opcional)
+                    </label>
+                    <input 
+                        type="url" 
+                        value={linkedinUrl} 
+                        onChange={(e) => setLinkedinUrl(e.target.value)} 
+                        placeholder="https://linkedin.com/in/tuperfil" 
+                        className="w-full px-4 py-3 rounded-xl border border-border bg-background transition-all" 
+                    />
+                </div>
+
+                {/* Networking Selector */}
+                <div className={`space-y-2 transition-all ${highlightFields.includes('networking') ? 'animate-shake' : ''}`}>
+                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('networking') ? 'text-destructive' : ''}`}>
+                        <Users2 className="w-4 h-4 text-primary" /> ¿Tienes red de contactos en Canadá? {highlightFields.includes('networking') && <span className="text-destructive font-bold">*</span>}
+                    </label>
+                    <select 
+                        value={networking} 
+                        onChange={(e) => {setNetworking(e.target.value); setError("")}} 
+                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('networking') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
+                    >
+                        <option value="">Selecciona tu situación de red...</option>
+                        <option value="none">No tengo ningún contacto (Inexistente)</option>
+                        <option value="medium">Tengo algunos conocidos o amigos en LinkedIn (Media)</option>
+                        <option value="strong">Tengo colegas y red activa en mi industria (Sólida)</option>
+                    </select>
+                </div>
+
+                {/* Work Permit Selector */}
+                <div className={`space-y-2 transition-all ${highlightFields.includes('workPermit') ? 'animate-shake' : ''}`}>
+                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('workPermit') ? 'text-destructive' : ''}`}>
+                        <ShieldAlert className="w-4 h-4 text-primary" /> ¿Cuentas con permiso de trabajo? {highlightFields.includes('workPermit') && <span className="text-destructive font-bold">*</span>}
+                    </label>
+                    <select 
+                        value={workPermit} 
+                        onChange={(e) => {setWorkPermit(e.target.value); setError("")}} 
+                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('workPermit') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
+                    >
+                        <option value="">Selecciona tu estatus migratorio...</option>
+                        <option value="none">No tengo permiso (Requiero sponsorship/LMIA)</option>
+                        <option value="in_progress">En trámite / eTA / Visa Turista</option>
+                        <option value="valid">Tengo permiso abierto vigente (WP/PR/Citizenship)</option>
+                    </select>
+                </div>
             </div>
 
             {/* Manual Text Input ONLY */}
@@ -365,7 +421,20 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {/* Option 1: Tool */}
                             <div className="rounded-2xl border border-border bg-muted/30 p-5 flex flex-col group hover:border-primary/50 transition-all cursor-pointer"
-                                onClick={() => window.open("https://buy.stripe.com/8x2cN57a22wo463fXe3gk06", "_blank")}
+                                onClick={async () => {
+                                    const res = await fetch("/api/create-checkout", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            priceOverride: 2900,
+                                            successPath: "/cv-tool",
+                                            productNameOverride: "Radar de Empleo PRO",
+                                        }),
+                                    });
+                                    const data = await res.json();
+                                    if (data.url) window.location.href = data.url;
+                                    else alert("Error al conectar con Stripe.");
+                                }}
                             >
                                 <div className="space-y-1 mb-3">
                                     <h4 className="text-sm font-bold">Acelerador de Entrevistas</h4>
@@ -376,11 +445,11 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                     <span className="text-[10px] text-muted-foreground">USD</span>
                                     <s className="text-[10px] text-muted-foreground/50 font-normal">$51</s>
                                 </div>
-                                <Button size="sm" className="w-full mt-4 h-8 text-[11px] font-bold group-hover:bg-primary/90">Desbloquear Tool</Button>
+                                <Button size="sm" className="w-full mt-4 h-8 text-[11px] font-bold group-hover:bg-primary/90">Desbloquear Kit</Button>
                             </div>
 
                                         <div className="rounded-2xl border-2 border-primary bg-primary/5 p-5 flex flex-col group hover:scale-[1.03] transition-all cursor-pointer relative"
-                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidades", "_blank")}
+                                onClick={() => window.open("https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon", "_blank")}
                             >
                                 <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-primary text-white text-[8px] font-bold rounded uppercase">Premium</div>
                                 <div className="space-y-1 mb-3">
@@ -476,15 +545,62 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                 </div>
             )}
 
-            <Button 
-                size="lg" 
-                className={`w-full text-xl py-9 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-all ${(!!alreadyUsedEmail && !email.toLowerCase().includes("test")) ? 'opacity-50 grayscale pointer-events-none' : ''}`} 
-                onClick={handleSubmit} 
-                disabled={!cvText.trim() || !name || !email || !status || !urgency || !budget || (!!alreadyUsedEmail && !email.toLowerCase().includes("test"))}
-            >
-                <Sparkles className="mr-3 h-6 w-6 fill-current" />
-                GENERAR MI REPORTE AHORA 🚀
-            </Button>
+            <div className="space-y-4">
+                <Button 
+                    size="lg" 
+                    className={`w-full text-xl py-9 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-all ${(!!alreadyUsedEmail && !email.toLowerCase().includes("test")) ? 'opacity-50 grayscale pointer-events-none' : ''}`} 
+                    onClick={handleSubmit} 
+                    disabled={!cvText.trim() || !name || !email || !status || !urgency || !budget || (!!alreadyUsedEmail && !email.toLowerCase().includes("test"))}
+                >
+                    <Sparkles className="mr-3 h-6 w-6 fill-current" />
+                    GENERAR MI REPORTE AHORA 🚀
+                </Button>
+
+                {!alreadyUsedEmail && (
+                    <div className="text-center">
+                        {!showPromoInput ? (
+                            <button 
+                                onClick={() => setShowPromoInput(true)}
+                                className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-primary transition-colors"
+                            >
+                                ¿Tienes un código de beca o acceso PRO?
+                            </button>
+                        ) : (
+                            <div className="max-w-xs mx-auto space-y-2 animate-in slide-in-from-top-2 duration-300">
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text"
+                                        value={promoCode}
+                                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                        placeholder="CÓDIGO DE ACCESO..."
+                                        className="flex-1 px-3 py-2 rounded-lg border border-primary/30 bg-primary/5 text-[10px] font-bold uppercase"
+                                    />
+                                    <Button 
+                                        size="sm" 
+                                        className="h-9 px-4 text-[10px] font-black uppercase"
+                                        onClick={() => {
+                                            if (promoCode === "PIERRE-PRO-2026" || promoCode === "DEBUG_PRO" || promoCode === "BECA10") {
+                                                setIsPromoSuccess(true);
+                                                setTimeout(() => {
+                                                    localStorage.setItem("pierre_promo_unlocked", "true");
+                                                    window.location.href = window.location.pathname + "?code=" + promoCode;
+                                                }, 1000);
+                                            } else {
+                                                alert("Código inválido.");
+                                            }
+                                        }}
+                                    >
+                                        Validar
+                                    </Button>
+                                </div>
+                                {isPromoSuccess && (
+                                    <p className="text-[9px] text-emerald-600 font-bold animate-pulse uppercase">¡Acceso concedido! Redirigiendo...</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

@@ -12,7 +12,7 @@ export default function CalendlyEmbed() {
     return (
         <div
             className="calendly-inline-widget"
-            data-url="https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidades"
+            data-url="https://calendly.com/canadacon40-2023/cita-1-exploremos-tu-perfil-y-sus-oportunidade-clon"
             style={{ minWidth: "320px", height: "700px" }}
         />
     )

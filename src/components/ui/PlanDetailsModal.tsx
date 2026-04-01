@@ -27,7 +27,10 @@ export default function PlanDetailsModal({ isOpen, onClose, onClaimOffer }: { is
                     
                     <div className="mb-4">
                         <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">Plan de Empleabilidad Personalizado</h2>
-                        <p className="text-primary font-semibold text-lg mb-4">$109 USD <span className="text-muted-foreground text-sm font-normal ml-2">(Oferta especial por tiempo limitado)</span></p>
+                        <p className="text-primary font-bold text-xl mb-4">
+                            $109 USD <s className="text-muted-foreground text-sm ml-2 font-normal">$149</s>
+                            <span className="text-muted-foreground text-xs font-normal ml-3 block sm:inline">(Oferta especial por tiempo limitado)</span>
+                        </p>
                         
                         <div className="bg-orange-100/50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900 rounded-lg p-4 mb-4">
                             <h4 className="font-bold text-orange-800 dark:text-orange-400 mb-1 text-sm">⚠️ ¿Vienes de un video en TikTok buscando asesoría?</h4>

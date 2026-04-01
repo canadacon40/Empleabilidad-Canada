@@ -90,6 +90,22 @@ export function initUsagePremium(sessionId: string): UsageData {
     return data
 }
 
+export function initUsagePromoCode(sessionId: string): UsageData {
+    const data: UsageData = {
+        sessionId,
+        email: "promo_user",
+        usesRemaining: 5,
+        totalUsed: 0,
+        strategyActionsRemaining: 10, // 10 credits limitation as requested
+        strategyActionsUsed: 0,
+        chatMessagesRemaining: 15,
+        onboardingCompleted: true,
+        history: [],
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    return data
+}
+
 export function consumeUse(action: string): { allowed: boolean; remaining: number } {
     const data = getUsage()
     if (!data) return { allowed: false, remaining: 0 }

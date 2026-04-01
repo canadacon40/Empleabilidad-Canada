@@ -449,3 +449,182 @@ export function downloadInterviewPDF(result: any) {
         }, 500);
     }
 }
+
+export function generateManualHTML() {
+    return `<!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6; padding: 40px; background: #fff; max-width: 850px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; }
+            .title { font-size: 32px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 5px; }
+            .subtitle { font-size: 14px; font-weight: 600; color: #2563eb; letter-spacing: 2px; text-transform: uppercase; }
+            .intro { font-size: 14px; color: #475569; text-align: center; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+            .step { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 40px; padding: 25px; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; }
+            .step-number { background: #2563eb; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; flex-shrink: 0; margin-top: 5px; }
+            .step-content h3 { margin: 0 0 10px 0; font-size: 18px; font-weight: 900; color: #0f172a; }
+            .step-content p { margin: 0 0 10px 0; font-size: 13px; color: #475569; }
+            .highlight-box { background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb; font-size: 12px; margin-top: 15px; }
+            .highlight-box strong { color: #1e40af; }
+            .score-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+            .score-table th, .score-table td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+            .score-table th { background: #f1f5f9; font-weight: 800; color: #0f172a; }
+            .score-table .t-90 { color: #16a34a; font-weight: 800; }
+            .score-table .t-80 { color: #ca8a04; font-weight: 800; }
+            .score-table .t-75 { color: #ea580c; font-weight: 800; }
+            .score-table .t-low { color: #dc2626; font-weight: 800; }
+            .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="title">Manual de Uso PRO</div>
+            <div class="subtitle">Motor de Empleabilidad - CanadaConTrabajo</div>
+        </div>
+        
+        <p class="intro">Este manual explica cómo operar correctamente la sección PRO de Plataforma Pierre para estructurar tu CV, iterar con ofertas laborales (JD) y aumentar tus métricas de empleabilidad exponencialmente.</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Cómo interpretar tu Salida de CV Canadiense</h3>
+                <p>La herramienta <strong>Transformar CV a formato canadiense</strong> produce un documento en un formato ATS optimizado. Esto significa que tu perfil se ha ajustado para el sistema norteamericano identificando tu Primary NOC (National Occupational Classification) y proponiendo posibles Roles.</p>
+                <p>Al leer tu nuevo CV, notarás la falta de información irrelevante (edad, foto, lugar de nacimiento) y observarás cómo tus funciones pasaron a ser "Logros medibles". Úsalo como tu "CV Base". Puedes elegir si deseas este documento original en Inglés o Francés de acuerdo a tu provincia destino.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>El Motor de JD Matching (Iteración Constante)</h3>
+                <p>Una vez que tienes tu CV Base, no apliques todavía a ningún trabajo. Para cada postulacion que quieras hacer, copia la publicación de LinkedIn, Indeed o JobBank y utilízala en la herramienta <strong>JD Matcher</strong>.</p>
+                <p>Esta herramienta compara microscópicamente tu currículum contra los requisitos exactos de la posición en tres ejes: <strong>Skills, Experiencia y Keywords ATS</strong>.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Cómo Leer tu Match Score</h3>
+                <p>El porcentaje final te otorga una visión matemática de tu potencial frente al ATS. Si tu porcentaje es bajo, no desperdicies la oportunidad enviando un CV ciego. Usa la siguiente métrica para tu toma de decisión:</p>
+                <table class="score-table">
+                    <tr><th>Score Promedio</th><th>Significado</th><th>Acción a tomar</th></tr>
+                    <tr><td class="t-90">90% o más</td><td>Strong alignment (Alineación fuerte)</td><td><strong>APPLY:</strong> Envía tu solicitud de la forma más prioritaria.</td></tr>
+                    <tr><td class="t-80">80% - 89%</td><td>Competitive (Competitivo)</td><td><strong>APPLY WITH IMPROVEMENTS:</strong> Ajusta un par de palabras clave con Pierre y aplica.</td></tr>
+                    <tr><td class="t-75">75% - 79%</td><td>Partial (Alineación parcial)</td><td><strong>PRECAUCIÓN:</strong> Tu experiencia puede no ser vista. Hay varias brechas técnicas.</td></tr>
+                    <tr><td class="t-low">Menor al 75%</td><td>Weak (Débil)</td><td><strong>DO NOT APPLY:</strong> Tu CV será bloqueado instantáneamente por el algoritmo.</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Gap Analysis y Múltiples Versiones de CV</h3>
+                <p>Cuando la herramienta señale qué Gaps o carencias tienes, éstas se desglosarán meticulosamente en: Experiencia, Habilidades, Certificaciones o nivel de CLB (idioma). Tu trabajo es actuar sobre esta data. Pierre te da un botón especial para "Generar CV Ajustado a este JD".</p>
+                <p><strong>El Manejo de Versiones:</strong> Gracias a esto, podrás mantener un registro en pantalla de tu "CV Base" (el que generaste en el nivel 1) junto a distintos "CVs Personalizados" por JD. Nunca sobre-escribiremos tu trabajo. Así puedes exportar un CV único para cada postulación puntual.</p>
+                <div class="highlight-box">
+                    <strong>🎯 CONSEJO PRO:</strong> Repite el JD Matcher varias veces. No pares de iterar hasta alcanzar 90%+
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 CanadaConTrabajo.com - Tu Inteligencia de Mercado Oculto - Documento PRO Exclusivo</p>
+        </div>
+    </body>
+    </html>`;
+}
+
+export function downloadUserManualPDF() {
+    const printContent = generateManualHTML();
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+    }
+}
+
+export function downloadStyledCVPdf(text: string, style: 'Classic' | 'Executive' | 'Modern', language: string) {
+    let font = "serif";
+    let color = "#000";
+    let accent = "#000";
+    let titleAlign = "left";
+    let headingStyle = "border-bottom: 2px solid #000; padding-bottom: 5px;";
+
+    if (style === 'Classic') {
+        font = "'Times New Roman', Times, serif";
+        color = "#111";
+        accent = "#333";
+        titleAlign = "center";
+        headingStyle = "border-bottom: 1px solid #333; margin-top: 15px; padding-bottom: 2px; text-transform: uppercase;";
+    } else if (style === 'Executive') {
+        font = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+        color = "#1e293b";
+        accent = "#0f172a";
+        titleAlign = "center";
+        headingStyle = "border-bottom: 2px solid #cbd5e1; margin-top: 20px; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;";
+    } else if (style === 'Modern') {
+        font = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        color = "#334155";
+        accent = "#2563eb";
+        titleAlign = "left";
+        headingStyle = "color: #2563eb; border-bottom: 2px solid #bfdbfe; margin-top: 20px; padding-bottom: 4px;";
+    }
+
+    const formattedHtml = text
+        .replace(/### (.*)/g, `<h4 style="margin-bottom: 5px; font-size: 14px; color: ${color};">$1</h4>`)
+        .replace(/## (.*)/g, `<h3 style="${headingStyle} font-size: 16px; margin-bottom: 10px;">$1</h3>`)
+        .replace(/# (.*)/g, `<h1 style="text-align: ${titleAlign}; font-size: 24px; color: ${accent}; margin-bottom: 15px;">$1</h1>`)
+        .replace(/\*\*(.*?)\*\*/g, `<strong>$1</strong>`)
+        .replace(/\*(.*?)\*/g, `<em>$1</em>`)
+        .replace(/- (.*)/g, `<li style="margin-bottom: 4px;">$1</li>`)
+        .replace(/(<li[\s\S]*<\/li>)/, `<ul style="margin-top: 5px; margin-bottom: 10px; padding-left: 20px;">$1</ul>`);
+
+    const html = `<!DOCTYPE html>
+    <html lang="${language === 'En' ? 'en' : 'fr'}">
+    <head>
+        <meta charset="utf-8">
+        <title>CV - ${style}</title>
+        <style>
+            @page { margin: 15mm; size: letter; }
+            body { 
+                font-family: ${font}; 
+                color: ${color}; 
+                line-height: 1.5; 
+                font-size: 11px; 
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background: white;
+            }
+            p { margin: 0 0 10px 0; }
+            ul { margin: 5px 0 15px 20px; padding: 0; }
+            li { margin-bottom: 4px; }
+            @media print {
+                body { padding: 0; }
+            }
+        </style>
+    </head>
+    <body>
+        ${formattedHtml}
+        <script>
+            window.onload = function() {
+                window.print();
+                setTimeout(function(){ window.close(); }, 1000);
+            }
+        </script>
+    </body>
+    </html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) {
+        win.focus();
+    }
+}

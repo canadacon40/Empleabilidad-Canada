@@ -4,9 +4,11 @@ import { useState } from "react"
 import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { consumeStrategyAction, hasStrategyActionsRemaining, getStrategyRemaining } from "@/lib/usage-tracker"
-import { downloadCustomizedCVPDF, downloadFullReportPDF, downloadLMIAExcel, downloadCustomizedCVWord, downloadInterviewPDF } from "@/lib/report-utils"
+import { downloadCustomizedCVPDF, downloadFullReportPDF, downloadLMIAExcel, downloadCustomizedCVWord, downloadInterviewPDF, downloadUserManualPDF } from "@/lib/report-utils"
+import EmployabilityEnginePro from "./EmployabilityEnginePro"
 
 const tabs = [
+    { id: "engine-pro", label: "Motor PRO (Nuevo)", icon: Rocket },
     { id: "customize", label: "Personalizar CV", icon: FileText },
     { id: "job-boards", label: "Canales de Empleo", icon: Search },
     { id: "cover-letter", label: "Cover Letter", icon: Mail },
@@ -1123,7 +1125,7 @@ function UsageBanner() {
 
 // ============= MAIN COMPONENT =============
 export default function StrategyResources({ cvText, onCustomize, resultData }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any }) {
-    const [activeTab, setActiveTab] = useState<string>("customize")
+    const [activeTab, setActiveTab] = useState<string>("engine-pro")
 
     const handleDownloadPDF = () => {
         if (resultData) downloadFullReportPDF(resultData);
@@ -1160,7 +1162,14 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                         {/* Global Downloads Toolbar */}
                         <div className="flex flex-col gap-3 w-full sm:w-auto">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center sm:text-right mb-1">Tus Archivos Maestros</p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2 justify-end">
+                                <Button 
+                                    variant="outline" 
+                                    className="flex-1 sm:flex-none h-12 rounded-xl bg-primary border-primary text-white hover:bg-primary/90 font-bold gap-2 text-xs"
+                                    onClick={() => downloadUserManualPDF()}
+                                >
+                                    <FileText className="w-4 h-4 text-white" /> Manual de Uso
+                                </Button>
                                 <Button 
                                     variant="outline" 
                                     className="flex-1 sm:flex-none h-12 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 font-bold gap-2 text-xs"
@@ -1208,6 +1217,7 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
             {/* Tab Content with Animation */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="bg-white rounded-[3rem] border shadow-2xl shadow-slate-200/50 p-6 sm:p-12">
+                    {activeTab === "engine-pro" && <EmployabilityEnginePro cvText={cvText} />}
                     {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={onCustomize} />}
                     {activeTab === "job-boards" && <JobBoardTab />}
                     {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} />}

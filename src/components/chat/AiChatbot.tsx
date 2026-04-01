@@ -13,6 +13,7 @@ interface Message {
 export default function AiChatbot() {
     const [isOpen, setIsOpen] = useState(false)
     const [showBubble, setShowBubble] = useState(false)
+    const [shouldHide, setShouldHide] = useState(false)
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -34,7 +35,7 @@ export default function AiChatbot() {
                 if (messages.length === 0) {
                     setMessages([{ 
                         role: "assistant", 
-                        content: `Hola ${greetingName}. Soy Pierre. He analizado tu perfil y tengo algunas observaciones estratégicas para que dejemos de 'sobrevivir' y empecemos a 'competir' en Canadá. ¿Quieres que te explique por dónde empezar?` 
+                        content: `¡Hola! Soy Pierre. ¿Tienes curiosidad por saber cómo te ve el mercado laboral canadiense? Si subes tu CV, puedo hacerte un diagnóstico táctico en segundos y decirte qué NOC te corresponde. ¿Empezamos?` 
                     }])
                 }
             }
@@ -54,8 +55,18 @@ export default function AiChatbot() {
             }
         };
 
+        const handleScroll = () => {
+            // Hide if near bottom to avoid overlapping checkout buttons
+            const isNearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 800;
+            setShouldHide(isNearBottom);
+        };
+
+        window.addEventListener("scroll", handleScroll);
         window.addEventListener("pierreChatGreeting", handleGreeting);
-        return () => window.removeEventListener("pierreChatGreeting", handleGreeting);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("pierreChatGreeting", handleGreeting);
+        }
     }, []);
 
     // Scroll to bottom
@@ -169,8 +180,10 @@ export default function AiChatbot() {
         });
     }
 
+    if (shouldHide && !isOpen) return null;
+
     return (
-        <div className="fixed bottom-6 right-6 z-[200] font-sans">
+        <div className="fixed bottom-6 right-6 z-[200] font-sans transition-opacity duration-500">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

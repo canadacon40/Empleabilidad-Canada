@@ -21,11 +21,11 @@ export default function Navbar() {
         <>
             <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
                 <div className="container mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">
-                    <div className="flex items-center gap-2">
-                        <Link href="/" className="flex items-center space-x-2 group">
-                            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black group-hover:scale-110 transition-transform">P</div>
-                            <span className="font-black tracking-tighter text-slate-900 text-lg sm:text-xl uppercase">
-                                Radar de <span className="text-primary">Empleo</span>
+                    <div className="flex items-center">
+                        <Link href="/" className="flex items-center group">
+                            <span className="font-black tracking-tighter text-slate-900 text-lg sm:text-xl uppercase flex flex-col sm:flex-row sm:gap-1 leading-[0.8] sm:leading-none">
+                                <span>Radar de</span>
+                                <span className="text-primary italic">Empleo</span>
                             </span>
                         </Link>
                     </div>
@@ -33,7 +33,7 @@ export default function Navbar() {
                     <nav className="flex items-center gap-2 sm:gap-4">
                         <Button 
                             variant="ghost" 
-                            className="hidden md:flex h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
+                            className="flex h-10 px-2 sm:px-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
                                 setIsDetailsModalOpen(true);
