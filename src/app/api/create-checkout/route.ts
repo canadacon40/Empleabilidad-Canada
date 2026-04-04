@@ -21,7 +21,7 @@ const AMBASSADOR_DISCOUNT = 0.10; // 10% off
 
 export async function POST(request: NextRequest) {
     try {
-        const { priceOverride, ambassadorCode, successPath, productNameOverride } = await request.json().catch(() => ({}));
+        const { priceOverride, ambassadorCode, successPath, productNameOverride, customerEmail } = await request.json().catch(() => ({}));
         
         const _k = ["sk_live_51SNcp4", "GYvqeNeY5HmiOO", "WOqHEn41cEqzyn8", "ifqWxS7OxXN8Alh", "ELJmJODdoSgxU8ZI", "80brBqTSJqhtOByi", "yZb76C00rPSkqLSl"].join("");
         const key = process.env.STRIPE_SECRET_KEY || _k;
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
                 "success_url": `${appUrl}${successPath || "/cv-tool"}?session_id={CHECKOUT_SESSION_ID}`,
                 "cancel_url": `${appUrl}${successPath || "/#pricing"}`,
                 "metadata[product]": "cv-tool",
+                ...(customerEmail ? { "customer_email": customerEmail } : {}),
             }).toString(),
         });
 

@@ -29,6 +29,59 @@ Para imitar a los creadores de mayor impacto, retención y autoridad (Ventas Hig
 - **Pausas de Autoridad:** Marcar `[Pausa dramática para enfatizar]` en el guion después de sentenciar una verdad muy fuerte. Aporta estatus y seriedad.
 - **La Venta Elevada (Filtro de Estatus):** El "Caballo de Troya" (CTA) debe sonar exclusivo, no necesitado. El CTA filtra a la audiencia: ("Si quieres conformarte, usa Indeed. Si vas en serio en Canadá, usa mi Radar de Empleo. Link en perfil.").
 
+## Framework: Contenido Corto para Atraer Clientes Premium (Basado en Experiencia Real de Pierre)
+
+> **Principio Core:** Los consejos superficiales y el contenido educativo genérico **NO** atraen clientes que quieran pagarte caro. Cada video debe ser una herramienta estratégica de filtrado y conversión.
+
+### Las 8 Claves del Sistema:
+
+**1. Objetivo de cada video = Abrir Conversaciones Calificadas**
+- No publicas para hacerte viral. Publicas para **filtrar clientes correctos**.
+- El gancho NO es para viralidad — es un **filtro de calificación**. Debe atraer solo a quien tiene el problema que tú resuelves y repeler al resto.
+- La idea es que **trasciendas la pantalla**: que aparezcas en la vida diaria de tu cliente. Cuando se enfrente al problema que tú presentas, debe recordarte a ti como la solución. Ahí te conviertes en **autoridad**.
+
+**2. Elige un Problema de Alto Valor que Sepas Resolver**
+- No hables de problemas genéricos. Habla del problema específico por el cual alguien pagaría dinero real para resolverlo.
+- Ejemplo: "Tu CV está siendo descartado por el ATS en 2 segundos" > "Consejos para mejorar tu CV".
+
+**3. Elige un Mercado Nicho con Dolor Monetizable**
+- La solución a ese dolor + ese mercado = Tu promesa de valor = Tu oferta.
+- Todo tu contenido debe orbitar alrededor de esta oferta. No divagues.
+
+**4. Prueba Variando Estilos, Formatos y Perspectivas**
+- Experimenta con diferentes ángulos del mismo problema del cliente.
+- Pregúntate siempre: *"¿Qué le hace tomar acción? ¿Qué le hace querer comprarme?"*
+- Cuando encuentres los **videos ganadores** (los que generan DMs, comentarios de interés, ventas), ya tienes datos reales. **Construye desde ahí.**
+
+**5. Ve Profundo en Conocimiento — Demuestra Experiencia Real**
+- No compartas tips superficiales de Google. Comparte conocimiento profundo basado en **tu experiencia real**.
+- Usa frases como: *"Esto es lo que hago porque de eso vivo"*, *"Esto es lo que le dije a mi cliente que..."*
+- **Comparte historias de éxito reales.** Esto es lo que separa a un creador de contenido de un vendedor de humo.
+
+**6. Documenta Todo tu Crecimiento y el de tus Clientes**
+- Si cierras un cliente, documenta cada día lo que están logrando.
+- Documenta tu propio crecimiento en redes.
+- **Esto aumenta la credibilidad exponencialmente.** La prueba social en tiempo real es la mejor venta.
+
+**7. Volumen Niega la Suerte**
+- La "calidad" de un video = cuando genera ventas. Y esa calidad **la determina tu audiencia, no tú.**
+- Al principio: enfócate en publicar MUCHO contenido. No te paralices buscando perfección.
+- **Herramienta clave: Transmisiones en VIVO de TikTok.** Haz 1-2 lives enfocados en proporcionar valor y vender sin vender. Los lives venden un montón.
+
+**8. Cierra tus Primeros 10 Clientes con un Embudo Simple**
+- NO pongas un link directo en TikTok (no funciona bien).
+- SÍ ten un **proceso de ventas mínimo factible**: un camino fácil para que el cliente hable contigo y te compre.
+- Elimina la fricción. Que sea fácil llegar a ti.
+- Primero domina TikTok → luego Instagram → luego otras plataformas.
+
+### Cómo Aplicar Este Framework en los Guiones:
+- **Gancho:** Siempre debe FILTRAR, no solo atraer. Piensa: "¿Este gancho atraería a alguien dispuesto a pagar?"
+- **Cuerpo:** Demuestra conocimiento profundo basado en experiencia. Usa historias reales, datos reales, resultados reales de clientes.
+- **CTA:** Nunca suenes necesitado. Suena exclusivo. Abre una conversación, no empujes un link.
+- **Perspectiva:** Varía el ángulo del mismo problema central. Un video ataca la creencia, otro muestra el resultado, otro documenta el proceso.
+
+---
+
 ## Formato de Salida Obligatorio:
 Siempre que se solicite un guion para TikTok, debes presentarlo de la siguiente manera:
 

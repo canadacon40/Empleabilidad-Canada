@@ -258,15 +258,18 @@ ${(cv.languages || []).join("\n")}
             {/* BARRA DE AGENTES ACTIVOS */}
             <div className="flex flex-wrap gap-4 overflow-x-auto pb-2">
                 {[
-                    { name: "Pierre Architect", role: "NOC Expert", active: step === "intro" || step === "redesign" },
-                    { name: "Pierre Matchmaker", role: "Gap Analyst", active: step === "match" },
-                    { name: "Pierre Storyteller", role: "CV Writing", active: redesignResult },
-                    { name: "Pierre Scout", role: "Lead Quality", active: true }
+                    { name: "Rediseñador de CV", role: "Formato Canadiense", active: step === "intro" || step === "redesign", style: "" },
+                    { name: "Analizador de Brecha", role: "Gap Analysis", active: step === "match", style: "hue-rotate-30" },
+                    { name: "Escritor Narrativo", role: "Storytelling ATS", active: !!redesignResult, style: "hue-rotate-60" },
+                    { name: "Detector de NOC", role: "Clasificación Oficial", active: true, style: "sepia" }
                 ].map((agent, i) => (
                     <div key={i} className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all ${agent.active ? "bg-primary/5 border-primary/20" : "bg-slate-50 border-slate-200 opacity-50"}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] ${agent.active ? "bg-primary text-white" : "bg-slate-300 text-slate-600"}`}>
-                            {agent.name.split(" ")[1][0]}
-                        </div>
+                        <img 
+                            src="/images/pierre-avatar.png" 
+                            alt={agent.name} 
+                            className={`w-8 h-8 rounded-full object-cover border-2 ${agent.active ? "border-primary shadow-lg shadow-primary/20" : "border-slate-300 grayscale"}`}
+                            style={agent.active && agent.style ? { filter: agent.style } : undefined}
+                        />
                         <div>
                             <div className="text-[10px] font-black uppercase tracking-tighter text-slate-400 leading-none">{agent.role}</div>
                             <div className="text-xs font-bold text-slate-800">{agent.name}</div>

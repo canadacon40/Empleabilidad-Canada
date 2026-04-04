@@ -106,7 +106,7 @@ export default function AiChatbot() {
         if (scoreData) {
             try {
                 const parsed = JSON.parse(scoreData)
-                score = parsed.conclusionEjecutiva?.puntuación || parsed.analisisNOC?.nivel || parsed.score || null
+                score = parsed.puntaje?.final || parsed.puntaje?.base || parsed.conclusionEjecutiva?.puntuación || parsed.score || null
             } catch (e) {
                 console.error("Error parsing score for chat:", e)
             }

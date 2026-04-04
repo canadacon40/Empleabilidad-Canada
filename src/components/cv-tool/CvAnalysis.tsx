@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   CheckCircle,
@@ -47,7 +48,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import GaugeChart from "./GaugeChart";
 import JdMatcher from "./JdMatcher";
 import UserManual from "./UserManual";
-import ExecutiveDiagnostic from "./ExecutiveDiagnostic";
 import EmployabilityEnginePro from "./EmployabilityEnginePro";
 import { Button } from "@/components/ui/button";
 import { sendGTMEvent } from "@next/third-parties/google";
@@ -180,6 +180,9 @@ export default function CvAnalysis({
     setLoadingStep(0);
     setHasGreeted(false);
     setError("");
+    
+    console.log("🚀 Iniciando análisis de CV en Pierre Engine...");
+    
     try {
       const res = await fetch("/api/cv-analysis", {
         method: "POST",
@@ -192,29 +195,56 @@ export default function CvAnalysis({
           workPermitStatus: leadData?.workPermit
         }),
       });
-      const data = await res.json();
+
+      let data;
+      const contentType = res.headers.get("content-type");
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const textError = await res.text();
+        console.error("❌ Error de respuesta no-JSON:", textError.substring(0, 300));
+        throw new Error(`Respuesta inválida del servidor (${res.status}). Revisa la consola.`);
+      }
+
       if (!res.ok) {
-        setError(data.error || "Ocurrió un error inesperado.");
+        console.error("❌ Error de API (Status " + res.status + "):", data);
+        setError(data.error || `Error del servidor (${res.status}). Revisa tu configuración.`);
         return;
       }
+
+      console.log("✅ Análisis completado con éxito!");
       setResult(data.result);
+      
+      // Save result for Pierre chatbot context
+      try {
+        localStorage.setItem("last_report_result", JSON.stringify(data.result));
+      } catch (e) {
+        console.warn("Could not save report result to localStorage:", e);
+      }
 
       // --- PHASE 1: Pierre AI Agent Proactive Greeting ---
       setTimeout(() => {
-        const score = data.result.conclusionEjecutiva?.puntuación || 0;
-        const noc = data.result.analisisNOC?.título || "tu perfil";
+        const score = data.result.puntaje?.final || data.result.puntaje?.base || 0;
+        const noc = data.result.analisisNOC?.titulo || data.result.analisisNOC?.título || "tu perfil";
         const name = localStorage.getItem("lead_name")?.split(' ')[0] || "amigo";
         
         const event = new CustomEvent("pierreChatGreeting", {
             detail: {
-                message: `¡${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}%. Tienes un potencial enorme, pero veo brechas críticas que te frenarán en Canadá. ¿Quieres que te diga cómo cerrarlas hoy mismo?`
+                message: `¡${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}/100. Tienes un potencial enorme, pero veo brechas críticas que te frenarán en Canadá. ¿Quieres que te diga cómo cerrarlas hoy mismo?`
             }
         });
         window.dispatchEvent(event);
       }, 2000);
       
-    } catch (err) {
-      setError("Error de conexión. Intenta de nuevo.");
+    } catch (err: any) {
+      console.error("🚨 Error crítico en handleAnalyze:", err);
+      // Solo mostrar "Error de conexión" si el fetch falló físicamente (network error)
+      if (err.message && err.message.includes("fetch")) {
+        setError("Error de red. Asegúrate de que el servidor esté corriendo.");
+      } else {
+        setError(err.message || "Error inesperado en el motor de análisis.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -261,6 +291,7 @@ export default function CvAnalysis({
     }
 
     try {
+      const leadEmail = localStorage.getItem("lead_email") || "";
       const res = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -268,6 +299,7 @@ export default function CvAnalysis({
           priceOverride: amount,
           successPath: successUrl,
           productNameOverride: productName,
+          customerEmail: leadEmail,
         }),
       });
       const data = await res.json();
@@ -705,6 +737,35 @@ export default function CvAnalysis({
                 </p>
             </div>
             <EmployabilityEnginePro cvText={cvText} />
+            
+            {/* User Manual PRO */}
+            <div className="mt-12">
+              <UserManual />
+            </div>
+
+            {/* CTA: Abrir Centro Táctico Completo */}
+            <div className="mt-12 bg-slate-900 rounded-[3rem] p-8 sm:p-12 text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
+                <div className="relative z-10 space-y-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary border border-primary/30">
+                        <Sparkles className="w-3 h-3" /> 6 Herramientas Premium
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        Centro Táctico <span className="text-primary italic">Completo</span>
+                    </h3>
+                    <p className="text-slate-400 text-sm font-medium max-w-lg mx-auto leading-relaxed">
+                        Personaliza tu CV por oferta, genera Cover Letters, prepárate para entrevistas con metodología STAR, y accede a scripts de networking profesional.
+                    </p>
+                    <Button 
+                        size="lg"
+                        className="h-16 px-12 rounded-2xl bg-primary text-white font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                        onClick={onAnalysisComplete}
+                    >
+                        <Rocket className="w-5 h-5 mr-3" />
+                        ABRIR CENTRO TÁCTICO
+                    </Button>
+                </div>
+            </div>
         </div>
       )}
 
@@ -760,11 +821,11 @@ export default function CvAnalysis({
                             setIsVerifyingCode(true);
                             setCodeError("");
                             try {
-                              const res = await initUsagePromoCode(promoCode);
-                              if (res.success) {
+                              const res: any = await initUsagePromoCode(promoCode);
+                              if (res && (res.success || res.id)) {
                                 onUnlockPremium?.(promoCode);
                               } else {
-                                setCodeError(res.message);
+                                setCodeError(res?.message || "Código inválido o expirado.");
                               }
                             } catch (e) {
                               setCodeError("Código inválido o expirado.");
