@@ -29,21 +29,21 @@ export default function Navbar() {
                         </Link>
                     </div>
                     
-                    <nav className="flex items-center gap-2 sm:gap-3">
+                    <nav className="flex items-center gap-1 sm:gap-3">
                         <Button 
                             variant="ghost" 
-                            className="hidden sm:flex h-10 px-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
+                            className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
                                 setIsDetailsModalOpen(true);
                             }}
                         >
-                            Agendar 1-a-1
+                            Asesoría 1-1
                         </Button>
 
                         <Button 
                             variant="ghost" 
-                            className="flex h-10 px-4 text-[10px] font-black uppercase tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl" 
+                            className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl" 
                             asChild
                         >
                             <Link href="/login">
@@ -51,7 +51,7 @@ export default function Navbar() {
                             </Link>
                         </Button>
                         
-                        <Button asChild size="lg" className="h-10 sm:h-12 px-5 sm:px-8 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
+                        <Button asChild size="sm" className="h-9 sm:h-12 px-3 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
                             <Link href="/cv-tool" className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 hidden sm:block" />
                                 Reporte Gratis

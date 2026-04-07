@@ -9,6 +9,14 @@ import { downloadFullReportPDF, downloadUserManualPDF, downloadLMIAExcel, downlo
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import EmployabilityEnginePro from "./EmployabilityEnginePro"
+import ProPurchaseModal from "@/components/ui/ProPurchaseModal"
+
+interface UserProfile {
+    email: string;
+    isPro: boolean;
+    isTrial: boolean;
+    credits: number;
+}
 
 const tabs = [
     { id: "engine-pro", label: "Motor Pierre PRO", icon: Rocket },
@@ -50,10 +58,7 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
             setError("Pega el Job Description completo (mínimo 30 caracteres).")
             return
         }
-        if (!hasStrategyActionsRemaining()) {
-            setError(`Has agotado tus acciones de estrategia. Contacta soporte para más accesos.`)
-            return
-        }
+        
         setIsLoading(true)
         setError("")
         setLoadingAction(action)
@@ -64,11 +69,21 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
                 body: JSON.stringify({ cvText, jobDescription, action }),
             })
             const data = await res.json()
+            
+            if (res.status === 403) {
+                // Insufficient credits, let the parent handle the modal
+                if (onCustomize) onCustomize({ type: "insufficient_credits" });
+                return;
+            }
+
             if (!res.ok) { setError(data.error); return }
-            consumeStrategyAction(`customize_${action}`)
+            
             if (action === "analyze") setAnalyzeResult(data.result)
             if (action === "customize") setCustomizeResult(data.result)
             if (action === "ats-check") setAtsResult(data.result)
+            
+            // Refresh parent credits
+            if (onCustomize) onCustomize({ type: "refresh_credits" });
         } catch { setError("Error de conexión. Intenta de nuevo.") }
         finally { setIsLoading(false); setLoadingAction("") }
     }
@@ -349,7 +364,7 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
 }
 
 // ============= INTERVIEW TAB =============
-function InterviewTab({ cvText }: { cvText: string }) {
+function InterviewTab({ cvText, onAction, onCreditLimit }: { cvText: string; onAction?: () => void; onCreditLimit?: () => void }) {
     const [editableCvText, setEditableCvText] = useState(cvText)
     const [jobDescription, setJobDescription] = useState("")
     const [category, setCategory] = useState("mixed")
@@ -372,9 +387,7 @@ function InterviewTab({ cvText }: { cvText: string }) {
             setError("Pega el Job Description completo.")
             return
         }
-        if (!hasStrategyActionsRemaining()) {
-            setError("Agotado."); return
-        }
+        
         setIsLoading(true)
         setError("")
         try {
@@ -388,9 +401,15 @@ function InterviewTab({ cvText }: { cvText: string }) {
                 }),
             })
             const data = await res.json()
+
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+
             if (!res.ok) { setError(data.error); return }
             
-            consumeStrategyAction("interview_prep")
+            if (onAction) onAction();
 
             if (isMore && result) {
                 // APPEND logic
@@ -1028,22 +1047,33 @@ function JobBoardTab({ initialProvince }: { initialProvince?: string }) {
     )
 }
 
-function UsageBanner() {
-    const remaining = getStrategyRemaining();
-    if (remaining > 10) return null;
+function UsageBanner({ credits, isTrial, onUpgrade }: { credits: number, isTrial: boolean, onUpgrade: () => void }) {
+    if (!isTrial) return null;
+
+    const isOutOfCredits = credits <= 0;
 
     return (
         <div className="max-w-7xl mx-auto mb-12">
-            <div className="p-8 rounded-[2.5rem] bg-orange-50 border-2 border-orange-200 flex flex-col sm:flex-row items-center gap-6 shadow-sm">
-                <div className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
+            <div className={`p-8 rounded-[2.5rem] border-2 flex flex-col sm:flex-row items-center gap-6 shadow-sm transition-all ${isOutOfCredits ? 'bg-red-50 border-red-200' : 'bg-orange-50 border-orange-200'}`}>
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 shadow-lg ${isOutOfCredits ? 'bg-red-500 shadow-red-500/20' : 'bg-orange-500 shadow-orange-500/20'}`}>
                     <Shield className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
-                    <h4 className="text-orange-950 font-black uppercase text-xs tracking-widest mb-1">¡Acciones Limitadas PRO!</h4>
-                    <p className="text-orange-900/80 text-base font-bold leading-tight">
-                        Te quedan <span className="text-orange-600 underline font-black">{remaining}</span> aplicaciones estratégicas. Selecciona tus vacantes con sabiduría técnica.
+                    <h4 className={`font-black uppercase text-xs tracking-widest mb-1 ${isOutOfCredits ? 'text-red-950' : 'text-orange-950'}`}>
+                        {isOutOfCredits ? '¡Beca Agotada!' : '¡Acciones Limitadas de Beca!'}
+                    </h4>
+                    <p className={`text-base font-bold leading-tight ${isOutOfCredits ? 'text-red-900/80' : 'text-orange-900/80'}`}>
+                        {isOutOfCredits 
+                            ? 'Has alcanzado el límite de Pierre (10 acciones). Para continuar con el soporte premium de IA, mejora tu cuenta.'
+                            : `Te quedan ${credits} aplicaciones estratégicas. Selecciona tus vacantes con sabiduría técnica.`}
                     </p>
                 </div>
+                <Button 
+                    className={`h-12 px-8 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all ${isOutOfCredits ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20' : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20'}`}
+                    onClick={onUpgrade}
+                >
+                    Mejorar a PRO <Sparkles className="ml-2 w-4 h-4" />
+                </Button>
             </div>
         </div>
     );
@@ -1053,12 +1083,31 @@ function UsageBanner() {
 export default function StrategyResources({ cvText, onCustomize, resultData }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any }) {
     const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState<string>("engine-pro");
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [isProModalOpen, setIsProModalOpen] = useState(false);
+
+    // Fetch live credits/profile
+    const fetchProfile = async () => {
+        try {
+            const res = await fetch("/api/auth/me");
+            const data = await res.json();
+            if (data.user) setProfile(data.user);
+        } catch (e) {
+            console.error("Error fetching profile credits:", e);
+        }
+    };
 
     // Signal dashboard entry for root layout on mount
     useEffect(() => {
         const event = new CustomEvent("pierre-dashboard-enter");
         window.dispatchEvent(event);
+        fetchProfile();
     }, []);
+
+    // Refresh credits when tab changes or major actions occur
+    useEffect(() => {
+        fetchProfile();
+    }, [activeTab]);
 
     const handleLogout = () => {
         signOut({ callbackUrl: "/" });
@@ -1094,8 +1143,12 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                 <div className="flex items-center gap-2 sm:gap-4 relative z-10">
                     <div className="hidden lg:flex items-center gap-6 px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 mr-4">
                          <div className="text-right">
-                             <div className="text-primary text-[8px] font-black uppercase tracking-widest">Créditos de Aplicación</div>
-                             <div className="text-white text-xs font-bold font-mono tracking-widest">{getStrategyRemaining()} / 50</div>
+                             <div className="text-primary text-[8px] font-black uppercase tracking-widest">
+                                {profile?.isTrial ? "Créditos de Beca" : "Acceso Estratégico"}
+                             </div>
+                             <div className="text-white text-xs font-bold font-mono tracking-widest">
+                                {profile?.isTrial ? `${profile.credits} / 10` : "ILIMITADO"}
+                             </div>
                          </div>
                          <div className="w-px h-6 bg-white/10" />
                          <Button variant="ghost" className="h-10 px-4 rounded-xl border border-white/10 hover:bg-white/5 text-white gap-2 font-black text-[10px] uppercase group" onClick={() => downloadUserManualPDF()}>
@@ -1172,15 +1225,23 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                 {/* Main Dashboard Content - SCROLLABLE INTERNAL ONLY */}
                 <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative overscroll-contain">
                     <div className="max-w-[1400px] mx-auto p-4 sm:p-10 pb-32 sm:pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        <UsageBanner />
+                        <UsageBanner 
+                            credits={profile?.credits ?? 0} 
+                            isTrial={profile?.isTrial ?? false} 
+                            onUpgrade={() => setIsProModalOpen(true)}
+                        />
                         
                         <div className="bg-white rounded-[1.5rem] sm:rounded-[3.5rem] border-2 border-slate-100 shadow-[0_40px_100px_-30px_rgba(var(--primary-rgb),0.05)] p-4 sm:p-14 relative overflow-hidden min-h-[500px]">
                             <div className="absolute top-0 left-0 w-full h-1 sm:h-1.5 bg-primary/20" />
-                            {activeTab === "engine-pro" && <EmployabilityEnginePro cvText={cvText} />}
-                            {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={onCustomize} />}
+                            {activeTab === "engine-pro" && <EmployabilityEnginePro cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
+                            {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={(data) => {
+                                if (data?.type === "refresh_credits") fetchProfile();
+                                if (data?.type === "insufficient_credits") setIsProModalOpen(true);
+                                if (onCustomize) onCustomize(data);
+                            }} />}
                             {activeTab === "job-boards" && <JobBoardTab initialProvince={resultData?.province} />}
-                            {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} />}
-                            {activeTab === "interview" && <InterviewTab cvText={cvText} />}
+                            {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
+                            {activeTab === "interview" && <InterviewTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
                             {activeTab === "scripts" && <ScriptsTab />}
                         </div>
 
@@ -1191,6 +1252,13 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                     </div>
                 </main>
             </div>
+
+            <ProPurchaseModal 
+                isOpen={isProModalOpen}
+                onClose={() => setIsProModalOpen(false)}
+                onContinueToCheckout={() => window.open("/upsell", "_blank")}
+                onGoToFreeReport={() => setActiveTab("job-boards")}
+            />
         </div>
     );
 }

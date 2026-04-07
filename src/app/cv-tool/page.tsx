@@ -83,7 +83,6 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
             setLeadData(DUMMY_LEAD_DATA);
             setCvText(DUMMY_CV_TEXT);
             setAccessCode("PREMIUM");
-            import("@/lib/usage-tracker").then(mod => mod.initUsagePremium("DEBUG_PRO"));
             setStep("strategy"); // JUMP STRAIGHT TO DASHBOARD
             if (onDashboardEnter) onDashboardEnter();
             return;

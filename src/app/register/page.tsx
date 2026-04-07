@@ -15,6 +15,7 @@ function RegistrationForm() {
     name: "",
     email: "",
     password: "",
+    becaCode: "",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -160,6 +161,28 @@ function RegistrationForm() {
                 </div>
               </div>
             </div>
+
+            {/* Beca Code Field */}
+            {!sessionId && !isAsesoria && (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest ml-4">¿Tienes un Código de Beca?</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.becaCode}
+                    onChange={(e) => setFormData(prev => ({ ...prev, becaCode: e.target.value.toUpperCase() }))}
+                    placeholder="INGRESAR CÓDIGO"
+                    className="w-full h-14 bg-slate-950 border-4 border-amber-400/20 rounded-2xl px-6 text-white placeholder:text-slate-800 focus:outline-none focus:border-amber-400 transition-all font-black text-sm uppercase tracking-widest"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center border border-white/5 pointer-events-none">
+                     <Sparkles className="w-4 h-4 text-amber-400" />
+                  </div>
+                </div>
+                <p className="text-[9px] text-slate-500 font-bold px-4 leading-tight italic">
+                  Si ya compraste el plan de $29, usa el correo con el que hiciste el pago y deja este campo vacío.
+                </p>
+              </div>
+            )}
 
             {/* Password Field */}
             <div className="space-y-2">

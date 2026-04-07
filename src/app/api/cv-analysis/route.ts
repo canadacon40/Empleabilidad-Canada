@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { auth } from "@/auth";
+import { consumeCredit } from "@/lib/credits";
 
 export const dynamic = 'force-dynamic';
 
@@ -101,6 +103,18 @@ export async function POST(req: Request) {
 
         if (!cvText) {
             return NextResponse.json({ error: 'No CV text provided' }, { status: 400 });
+        }
+
+        // --- CREDIT ENFORCEMENT ---
+        const session = await auth();
+        if (session?.user?.email) {
+            const creditCheck = await consumeCredit(session.user.email);
+            if (!creditCheck.success) {
+                return NextResponse.json({ 
+                    error: 'Créditos Insuficientes', 
+                    details: 'Has superado el límite de 10 interacciones de tu beca. Actualiza a PRO para acceso ilimitado.' 
+                }, { status: 403 });
+            }
         }
 
         const completion = await openai.chat.completions.create({

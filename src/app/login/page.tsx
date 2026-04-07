@@ -137,15 +137,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-white/5 text-center">
-            <p className="text-slate-500 text-xs font-medium mb-4">¿Aún no tienes cuenta PRO?</p>
-            <button 
-              onClick={() => router.push("/register")}
-              className="text-amber-400 text-[10px] font-black uppercase tracking-widest hover:text-amber-300 transition-colors"
-            >
-              Crear mi Cuenta de Estrategia
-            </button>
-          </div>
         </div>
 
         <footer className="mt-12 text-center opacity-30">

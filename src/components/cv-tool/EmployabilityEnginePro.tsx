@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { downloadStyledCVPdf, downloadCustomizedCVWord } from "@/lib/report-utils"
 import UserManual from "./UserManual"
 
-export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
+export default function EmployabilityEnginePro({ cvText, onAction, onCreditLimit }: { cvText: string; onAction?: () => void; onCreditLimit?: () => void }) {
     const [step, setStep] = useState<"intro" | "redesign" | "match" | "customize">("intro")
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
@@ -36,9 +36,17 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
                 body: JSON.stringify({ cvText: localCvText, language })
             })
             const data = await res.json()
+            
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+
             if (!res.ok) throw new Error(data.error || "No se pudo rediseñar el CV")
+            
             setRedesignResult(data.result)
             setStep("redesign")
+            if (onAction) onAction();
         } catch (e: any) {
             setError(e.message)
         } finally {
@@ -65,8 +73,16 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
                 body: JSON.stringify({ cvText: baseCvText, jdText })
             })
             const data = await res.json()
+
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+
             if (!res.ok) throw new Error(data.error || "No se pudo realizar el Match")
+            
             setMatchResult(data.result)
+            if (onAction) onAction();
         } catch (e: any) {
             setError(e.message)
         } finally {
@@ -89,7 +105,15 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
                 body: JSON.stringify({ cvText: baseCvText, jobDescription: jdText, action: "customize" })
             })
             const data = await res.json()
+
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+
             if (!res.ok) throw new Error(data.error || "No se pudo personalizar el CV")
+            
+            if (onAction) onAction();
             
             const customized = data.result;
             if (redesignResult?.redesignedCv && typeof redesignResult.redesignedCv !== 'string') {

@@ -80,17 +80,25 @@ export default function AiChatbot() {
     const handleSend = async () => {
         if (!input.trim() || isLoading) return
 
-        // --- NEW: Check usage limits ---
-        const { consumeChatMessage } = await import("@/lib/usage-tracker");
-        const usage = consumeChatMessage();
+        // --- NEW: Simplified local limit for non-registered users ---
+        const lastReset = localStorage.getItem("pierre_chat_reset") || "0";
+        const now = Date.now();
+        let sessionCount = parseInt(localStorage.getItem("pierre_chat_count") || "0");
         
-        if (!usage.allowed) {
+        // Reset every 24h
+        if (now - parseInt(lastReset) > 86400000) {
+            sessionCount = 0;
+            localStorage.setItem("pierre_chat_reset", now.toString());
+        }
+
+        if (sessionCount >= 20) {
             setMessages([...messages, { 
                 role: "assistant", 
                 content: "Has alcanzado el límite de mensajes gratuitos por hoy. Pierre está disponible para sesiones 1-a-1 si necesitas una asesoría profunda. ¡Éxito!" 
             }])
             return
         }
+        localStorage.setItem("pierre_chat_count", (sessionCount + 1).toString());
 
         const userMsg: Message = { role: "user", content: input.trim() }
         const newMessages = [...messages, userMsg]

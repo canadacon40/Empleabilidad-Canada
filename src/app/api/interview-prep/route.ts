@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { auth } from "@/auth";
+import { consumeCredit } from "@/lib/credits";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -11,6 +13,20 @@ export async function POST(req: Request) {
 
         if (!cvText || !jobDescription) {
             return NextResponse.json({ error: "Falta el CV o el Job Description" }, { status: 400 });
+        }
+
+        // --- CREDIT ENFORCEMENT ---
+        const session = await auth();
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'Sesión expirada o no autorizada.' }, { status: 401 });
+        }
+
+        const creditCheck = await consumeCredit(session.user.email);
+        if (!creditCheck.success) {
+            return NextResponse.json({ 
+                error: 'Créditos Insuficientes', 
+                details: 'Has superado el límite de 10 interacciones de tu beca. Actualiza a PRO para acceso ilimitado.' 
+            }, { status: 403 });
         }
 
         const systemPrompt = `Eres un Senior Hiring Manager en una multinacional canadiense y experto en reclutamiento quirúrgico.

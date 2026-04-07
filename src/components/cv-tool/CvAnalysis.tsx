@@ -56,7 +56,6 @@ import EmployabilityEnginePro from "./EmployabilityEnginePro";
 import { Button } from "@/components/ui/button";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { downloadFullReportPDF, downloadLMIAExcel, downloadStyledCVPdf } from "@/lib/report-utils";
-import { initUsagePremium, initUsagePromoCode } from "@/lib/usage-tracker";
 
 interface CvAnalysisProps {
   cvText: string;
@@ -790,7 +789,11 @@ export default function CvAnalysis({
 
             <div className="h-px bg-slate-200 w-full mb-16 opacity-30" />
 
-            <EmployabilityEnginePro cvText={cvText} />
+            <EmployabilityEnginePro 
+              cvText={cvText} 
+              onAction={() => {/* Optional: refresh local state if needed */}} 
+              onCreditLimit={() => {/* Optional: handle limit in free view */}}
+            />
 
             {/* CTA: Abrir Centro Táctico Completo - HIGH POLISH REDESIGN */}
             <div className="mt-20 bg-slate-950 rounded-[3.5rem] p-10 sm:p-16 text-center relative overflow-hidden border border-white/10 shadow-[0_20px_100px_rgba(0,0,0,0.8)]">
@@ -892,11 +895,20 @@ export default function CvAnalysis({
                             setIsVerifyingCode(true);
                             setCodeError("");
                             try {
-                              const res: any = await initUsagePromoCode(promoCode);
-                              if (res && (res.success || res.id)) {
+                              const res = await fetch("/api/auth/register", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ 
+                                   email: localStorage.getItem("lead_email"),
+                                   promoCode: promoCode,
+                                   isChecking: true // New flag to just check validity
+                                })
+                              });
+                              const data = await res.json();
+                              if (res.ok && data.valid) {
                                 onUnlockPremium?.(promoCode);
                               } else {
-                                setCodeError(res?.message || "Código inválido o expirado.");
+                                setCodeError(data.error || "Código inválido o expirado.");
                               }
                             } catch (e) {
                               setCodeError("Código inválido o expirado.");

@@ -10,9 +10,20 @@ export async function POST(req: Request) {
   })
 
   try {
-    const { name, email, password } = await req.json()
+    const { email, password, sessionId, promoCode, isChecking, name, becaCode } = await req.json();
 
-    if (!email || !password) {
+    if (isChecking) {
+        if (!promoCode) return NextResponse.json({ error: "Código requerido" }, { status: 400 });
+        await client.connect();
+        const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1', [promoCode.toUpperCase()]);
+        const promo = promoRes.rows[0];
+        if (!promo || !promo.isActive || (promo.expiresAt && new Date(promo.expiresAt) < new Date())) {
+            return NextResponse.json({ valid: false, error: "Código inválido o expirado" }, { status: 400 });
+        }
+        return NextResponse.json({ valid: true });
+    }
+
+    if (!email || (!password && !sessionId && !promoCode)) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
@@ -27,24 +38,58 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Ya existe un usuario con este correo. Inicia sesión directamente." }, { status: 400 })
     }
 
-    // 2. Hash the password
+    // 2. Gate Verification: If no Beca Code, check if user was a Lead (Free tool user)
+    // In a full production system, we'd also verify the Stripe session here.
+    let isTrial = false;
+    let initialCredits = 0;
+
+    if (becaCode) {
+        const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1 AND "isActive" = true', [becaCode.toUpperCase()])
+        const promo = promoRes.rows[0]
+        
+        if (!promo) {
+            return NextResponse.json({ error: "Código de beca inválido" }, { status: 403 })
+        }
+        
+        if (promo.currentUses >= promo.maxUses) {
+            return NextResponse.json({ error: "Este código de beca ya ha superado su límite de usos" }, { status: 403 })
+        }
+        
+        isTrial = true;
+        initialCredits = 10; // Trial users get 10 interactions
+        
+        // Increment promo usage
+        await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
+    } else if (existingUser) {
+        // Assume upgrading from Lead (Free tool) or Stripe redirect
+        // For production, we would ideally verify Stripe session here for absolute security.
+        isTrial = false;
+        initialCredits = 999; // Effectively unlimited for PRO buyers
+    } else {
+        // Block unauthorized public registration
+        return NextResponse.json({ 
+            error: "Acceso restringido. Para registrarte debes haber generado un reporte previo o contar con un código de beca." 
+        }, { status: 403 })
+    }
+
+    // 3. Hash the password
     const hashedPassword = await bcrypt.hash(password, 10)
 
     if (existingUser) {
-      // 3a. Upgrade existing lead to a full account
+      // 4a. Upgrade existing lead to a full account
       await client.query(
-        'UPDATE "User" SET name = $1, password = $2, "isPro" = $3 WHERE id = $4',
-        [name || existingUser.name, hashedPassword, true, existingUser.id]
+        'UPDATE "User" SET name = $1, password = $2, "isPro" = $3, "isTrial" = $4, credits = $5 WHERE id = $6',
+        [name || existingUser.name, hashedPassword, !isTrial, isTrial, initialCredits, existingUser.id]
       )
-      return NextResponse.json({ success: true, user: { email: normalizedEmail } })
+      return NextResponse.json({ success: true, user: { email: normalizedEmail, isTrial } })
     } else {
-      // 3b. Create new user
+      // 4b. Create new user (Only if Beca Code was used, since otherwise it would have hit the 'else' gate above)
       const newId = uuidv4()
       await client.query(
-        'INSERT INTO "User" (id, email, name, password, "isPro", "createdAt") VALUES ($1, $2, $3, $4, $5, NOW())',
-        [newId, normalizedEmail, name || "Anonymous", hashedPassword, true]
+        'INSERT INTO "User" (id, email, name, password, "isPro", "isTrial", credits, "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
+        [newId, normalizedEmail, name || "Anonymous", hashedPassword, !isTrial, isTrial, initialCredits]
       )
-      return NextResponse.json({ success: true, user: { email: normalizedEmail } })
+      return NextResponse.json({ success: true, user: { email: normalizedEmail, isTrial } })
     }
   } catch (error: any) {
     console.error("PIERRE_AUTH_RAW_SQL_FAILURE:", error)

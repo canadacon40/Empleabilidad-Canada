@@ -13,9 +13,11 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   password  String?
-  isPro     Boolean  @default(false)
-  events    Event[]
-  leads     Lead[]
+  isPro            Boolean   @default(false)
+  isTrial          Boolean   @default(false)
+  credits          Int       @default(0)
+  events           Event[]
+  leads            Lead[]
 }
 
 model Lead {
