@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Rocket, FileText, ArrowRight, Loader2, PlayCircle, Search, Target, CheckCircle2, AlertTriangle, ShieldAlert, AlertCircle, Copy, Check } from "lucide-react"
+import { Rocket, FileText, ArrowRight, Loader2, PlayCircle, Search, Target, CheckCircle2, AlertTriangle, ShieldAlert, AlertCircle, Copy, Check, Download, FileEdit, BookOpen, Layout, Sparkles, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { downloadStyledCVPdf, downloadCustomizedCVWord } from "@/lib/report-utils"
+import UserManual from "./UserManual"
 
 export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
-    const [step, setStep] = useState<"intro" | "redesign" | "match">("intro")
+    const [step, setStep] = useState<"intro" | "redesign" | "match" | "customize">("intro")
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     
@@ -13,9 +15,12 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
     const [localCvText, setLocalCvText] = useState(cvText || "")
     const [redesignResult, setRedesignResult] = useState<any>(null)
     
-    // Match State
+    // Match State & Navigation
+    const [activeTab, setActiveTab] = useState<"manual" | "base" | "radar" | "attack">("manual")
+    const [cvStyle, setCvStyle] = useState<'Classic' | 'Elegant' | 'Modern'>('Elegant')
     const [jdText, setJdText] = useState("")
     const [matchResult, setMatchResult] = useState<any>(null)
+    const [customizedCv, setCustomizedCv] = useState<any>(null)
 
     const handleRedesign = async () => {
         if (!localCvText) {
@@ -48,9 +53,12 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
         }
         setIsLoading(true)
         setError("")
+        setStep("match")
         try {
-            // Utiliza el CV rediseñado si existe, de lo contrario usa el original o el local
-            const baseCvText = redesignResult?.redesignedCv || localCvText || cvText
+            const baseCvText = redesignResult?.redesignedCv ? 
+                (typeof redesignResult.redesignedCv === 'string' ? redesignResult.redesignedCv : JSON.stringify(redesignResult.redesignedCv)) : 
+                localCvText || cvText
+                
             const res = await fetch("/api/jd-match", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -59,7 +67,6 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || "No se pudo realizar el Match")
             setMatchResult(data.result)
-            setStep("match")
         } catch (e: any) {
             setError(e.message)
         } finally {
@@ -67,553 +74,476 @@ export default function EmployabilityEnginePro({ cvText }: { cvText: string }) {
         }
     }
 
-    const [copied, setCopied] = useState(false)
-    const copyToClipboard = () => {
-        if (!redesignResult?.redesignedCv) return
-        const cv = redesignResult.redesignedCv
-        if (typeof cv === 'string') {
-            navigator.clipboard.writeText(cv)
-        } else {
-            const text = `
-${cv.personalInfo?.fullName || ""}
-${(cv.personalInfo?.contactDetails || []).join(" | ")}
+    const handleCustomize = async () => {
+        setIsLoading(true)
+        setError("")
+        setStep("match")
+        try {
+            const baseCvText = redesignResult?.redesignedCv ? 
+                (typeof redesignResult.redesignedCv === 'string' ? redesignResult.redesignedCv : JSON.stringify(redesignResult.redesignedCv)) : 
+                localCvText || cvText
 
-SUMMARY
-${cv.professionalSummary || ""}
+            const res = await fetch("/api/cv-customize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cvText: baseCvText, jobDescription: jdText, action: "customize" })
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "No se pudo personalizar el CV")
+            
+            const customized = data.result;
+            if (redesignResult?.redesignedCv && typeof redesignResult.redesignedCv !== 'string') {
+                customized.personalInfo = redesignResult.redesignedCv.personalInfo;
+                customized.languages = redesignResult.redesignedCv.languages;
+            }
 
-CORE COMPETENCIES
-${(cv.coreCompetencies || []).join(" • ")}
-
-EXPERIENCE
-${(cv.workExperience || []).map((e: any) => `${e.jobTitle}\n${e.companyAndLocation} | ${e.dates}\n${(e.achievements || []).map((a: string) => `- ${a}`).join("\n")}`).join("\n\n")}
-
-EDUCATION
-${(cv.education || []).map((e: any) => `${e.degree} | ${e.institutionAndLocation} | ${e.year}`).join("\n")}
-
-CERTIFICATIONS
-${(cv.certifications || []).join("\n")}
-
-LANGUAGES
-${(cv.languages || []).join("\n")}
-            `.trim()
-            navigator.clipboard.writeText(text)
+            setCustomizedCv(customized)
+            setActiveTab("attack")
+        } catch (e: any) {
+            setError(e.message)
+        } finally {
+            setIsLoading(false)
         }
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
     }
 
-    const downloadCVPdf = () => {
-        if (!redesignResult?.redesignedCv) return;
-        const printWindow = window.open("", "_blank");
-        if (printWindow) {
-            const cv = redesignResult.redesignedCv;
-            
-            // Si es un string (versión antigua), usar texto plano
-            if (typeof cv === 'string') {
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>CV Optimizado - Formato Canadiense</title>
-                            <style>
-                                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px; }
-                                h1, h2, h3 { color: #111; }
-                                pre { white-space: pre-wrap; font-family: inherit; margin: 0; }
-                                .header { margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-                                .noc-badge { background: #f0f9ff; color: #0284c7; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 10px; }
-                                @media print { body { padding: 0; max-width: 100%; } }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="header">
-                                ${redesignResult.noc ? `<div class="noc-badge">NOC: ${redesignResult.noc.codigo} - ${redesignResult.noc.titulo}</div>` : ''}
-                            </div>
-                            <pre>${cv}</pre>
-                            <script>
-                                setTimeout(() => { window.print(); window.close(); }, 500);
-                            </script>
-                        </body>
-                    </html>
-                `);
-            } else {
-                // Nuevo formato JSON estructurado
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>CV Optimizado - Formato Canadiense</title>
-                            <style>
-                                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #0f172a; max-width: 850px; margin: 0 auto; padding: 40px; }
-                                .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
-                                h1 { font-size: 26px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0; font-weight: 900; }
-                                .contact-details { font-size: 12px; color: #334155; }
-                                .section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid #cbd5e1; margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px; color: #1e293b; }
-                                .summary { font-size: 12px; text-align: justify; margin-bottom: 20px; }
-                                .competencies { font-size: 12px; margin-bottom: 20px; color: #334155; }
-                                .job-entry { margin-bottom: 20px; }
-                                .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-                                .job-title { font-weight: bold; font-size: 13px; color: #0f172a; }
-                                .job-company { font-style: italic; font-size: 12px; color: #475569; }
-                                .job-dates { font-size: 12px; color: #0f172a; font-weight: 700; }
-                                .job-achievements { margin: 0; padding-left: 20px; font-size: 12px; color: #334155; }
-                                .job-achievements li { margin-bottom: 4px; }
-                                .ed-entry { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
-                                .list-simple { font-size: 12px; margin: 0; padding-left: 20px; color: #334155; }
-                                .noc-badge { background: #f0f9ff; color: #0284c7; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 10px; display: inline-block; margin-bottom: 20px; }
-                                @media print { body { padding: 0; max-width: 100%; } }
-                            </style>
-                        </head>
-                        <body>
-                            ${redesignResult.noc ? `<div class="noc-badge">NOC: ${redesignResult.noc.codigo} - ${redesignResult.noc.titulo}</div>` : ''}
-                            
-                            <div class="header">
-                                <h1>${cv.personalInfo?.fullName || "Borrador de CV"}</h1>
-                                <div class="contact-details">
-                                    ${(cv.personalInfo?.contactDetails || []).join(" &nbsp;|&nbsp; ")}
-                                </div>
-                            </div>
-    
-                            ${cv.professionalSummary ? `
-                                <div class="section-title">Professional Summary</div>
-                                <div class="summary">${cv.professionalSummary}</div>
-                            ` : ''}
-    
-                            ${cv.coreCompetencies?.length > 0 ? `
-                                <div class="section-title">Core Competencies</div>
-                                <div class="competencies">
-                                    ${cv.coreCompetencies.join(" &nbsp;&bull;&nbsp; ")}
-                                </div>
-                            ` : ''}
-    
-                            ${cv.workExperience?.length > 0 ? `
-                                <div class="section-title">Professional Experience</div>
-                                ${cv.workExperience.map((exp: any) => `
-                                    <div class="job-entry">
-                                        <div class="job-header">
-                                            <div><span class="job-title">${exp.jobTitle}</span> <span class="job-company">| ${exp.companyAndLocation}</span></div>
-                                            <div class="job-dates">${exp.dates}</div>
-                                        </div>
-                                        <ul class="job-achievements">
-                                            ${(exp.achievements || []).map((a: string) => `<li>${a}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                `).join('')}
-                            ` : ''}
-    
-                            ${cv.education?.length > 0 ? `
-                                <div class="section-title">Education</div>
-                                ${cv.education.map((ed: any) => `
-                                    <div class="ed-entry">
-                                        <div><strong>${ed.degree}</strong> | ${ed.institutionAndLocation}</div>
-                                        <div>${ed.year}</div>
-                                    </div>
-                                `).join('')}
-                            ` : ''}
-    
-                            ${cv.certifications?.length > 0 ? `
-                                 <div class="section-title">Certifications</div>
-                                 <ul class="list-simple">
-                                    ${cv.certifications.map((c: string) => `<li>${c}</li>`).join('')}
-                                 </ul>
-                            ` : ''}
-    
-                            ${cv.languages?.length > 0 ? `
-                                 <div class="section-title">Languages</div>
-                                 <ul class="list-simple">
-                                    ${cv.languages.map((l: string) => `<li>${l}</li>`).join('')}
-                                 </ul>
-                            ` : ''}
-    
-                            <script>
-                                setTimeout(() => { window.print(); window.close(); }, 500);
-                            </script>
-                        </body>
-                    </html>
-                `);
-            }
-            printWindow.document.close();
-        }
-    };
-
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Cabecera del Motor - EQUIPO DE AGENTES */}
-            <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Rocket className="w-48 h-48 rotate-12" />
-                </div>
-                <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-primary/30">Mando Central de IA</span>
-                        </div>
-                        <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                            Equipo Pierre PRO <Rocket className="w-6 h-6 text-primary" />
-                        </h2>
-                        <p className="text-slate-400 mt-2 font-medium max-w-xl">
-                            Tienes **9 Agentes de IA especializados** trabajando en tu perfil. Desde el rediseño narrativo hasta el análisis de brecha en tiempo real.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Redundant Master Header Removed to fit Dashboard Mode */}
 
-            {/* BARRA DE AGENTES ACTIVOS */}
-            <div className="flex flex-wrap gap-4 overflow-x-auto pb-2">
-                {[
-                    { name: "Rediseñador de CV", role: "Formato Canadiense", active: step === "intro" || step === "redesign", style: "" },
-                    { name: "Analizador de Brecha", role: "Gap Analysis", active: step === "match", style: "hue-rotate-30" },
-                    { name: "Escritor Narrativo", role: "Storytelling ATS", active: !!redesignResult, style: "hue-rotate-60" },
-                    { name: "Detector de NOC", role: "Clasificación Oficial", active: true, style: "sepia" }
-                ].map((agent, i) => (
-                    <div key={i} className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all ${agent.active ? "bg-primary/5 border-primary/20" : "bg-slate-50 border-slate-200 opacity-50"}`}>
-                        <img 
-                            src="/images/pierre-avatar.png" 
-                            alt={agent.name} 
-                            className={`w-8 h-8 rounded-full object-cover border-2 ${agent.active ? "border-primary shadow-lg shadow-primary/20" : "border-slate-300 grayscale"}`}
-                            style={agent.active && agent.style ? { filter: agent.style } : undefined}
-                        />
-                        <div>
-                            <div className="text-[10px] font-black uppercase tracking-tighter text-slate-400 leading-none">{agent.role}</div>
-                            <div className="text-xs font-bold text-slate-800">{agent.name}</div>
-                        </div>
-                    </div>
-                ))}
+            {/* TACTICAL WIZARD NAVIGATION - COMPACT DASHBOARD STYLE */}
+            <div className="relative z-20">
+                <div className="bg-slate-900 border-2 border-white/5 p-1 rounded-2xl sm:rounded-3xl shadow-xl grid grid-cols-2 sm:flex sm:flex-nowrap gap-1">
+                    {[
+                        { id: "manual", label: "ESTRATEGIA", icon: BookOpen },
+                        { id: "base", label: "REDISEÑO", icon: Layout },
+                        { id: "radar", label: "RADAR MATCH", icon: Search },
+                        { id: "attack", label: "ATAQUE", icon: Target }
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`flex items-center justify-center gap-2 py-2.5 px-2 sm:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 font-black text-[8px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.15em] uppercase relative group 
+                                ${activeTab === tab.id 
+                                    ? "bg-white text-slate-950 shadow-lg z-10" 
+                                    : "bg-transparent text-slate-300 hover:bg-white/10 hover:text-white"}`}
+                        >
+                            <tab.icon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${activeTab === tab.id ? "text-amber-500" : "text-slate-300 group-hover:text-white transition-colors"}`} />
+                            <span className="sm:inline">{tab.label}</span>
+                            {(tab.id === "base" && redesignResult) || (tab.id === "radar" && matchResult) || (tab.id === "attack" && customizedCv) ? (
+                                <div className={`absolute top-1.5 right-2 w-1 h-1 rounded-full ${activeTab === tab.id ? "bg-amber-500" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"}`} />
+                            ) : null}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {error && (
-                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive font-medium flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 shrink-0" />
+                <div className="p-6 bg-red-50 border-2 border-red-100 rounded-3xl text-red-600 text-xs font-black uppercase tracking-widest flex items-center gap-4 animate-in shake duration-500 max-w-4xl mx-auto">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                        <AlertCircle className="w-5 h-5" />
+                    </div>
                     <p>{error}</p>
                 </div>
             )}
 
-            {/* FLOW STEPS */}
-            <div className="grid grid-cols-1 gap-8">
-                
-                {/* PASO 1: REDISEÑO CV */}
-                <div className="bg-white border rounded-[2rem] p-8 shadow-sm">
-                    <h3 className="text-xl font-bold flex items-center gap-3 mb-6">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white text-sm">1</span> 
-                        Arquitectura Canadiense & Detección de NOC
-                    </h3>
-                    
-                    {!redesignResult && !isLoading && step === "intro" && (
-                        <div className="space-y-6">
-                            {!localCvText && (
-                                <div className="space-y-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-                                    <div className="flex items-center gap-2 text-amber-800 font-bold">
-                                        <AlertTriangle className="w-5 h-5" />
-                                        ¡Necesitamos tu CV!
-                                    </div>
-                                    <p className="text-sm text-amber-700">Parece que accediste mediante código o enlace directo. Por favor, pega el texto de tu currículum original aquí para poder rediseñarlo.</p>
-                                    <textarea 
-                                        className="w-full h-32 rounded-xl border p-4 text-sm"
-                                        placeholder="Pega el texto de tu CV aquí..."
-                                        value={localCvText}
-                                        onChange={(e) => setLocalCvText(e.target.value)}
-                                    />
-                                </div>
-                            )}
-
-                            <p className="text-muted-foreground">¿Quieres transformar tu CV a formato canadiense optimizado (ATS)? Selecciona el idioma objetivo:</p>
-                            <div className="flex flex-wrap gap-4">
-                                <Button 
-                                    size="lg" 
-                                    variant={language === "English" ? "default" : "outline"}
-                                    onClick={() => setLanguage("English")}
-                                    className="rounded-xl h-14 px-8"
-                                >
-                                    Inglés Profesional
-                                </Button>
-                                <Button 
-                                    size="lg" 
-                                    variant={language === "French" ? "default" : "outline"}
-                                    onClick={() => setLanguage("French")}
-                                    className="rounded-xl h-14 px-8"
-                                >
-                                    Francés (Quebec)
-                                </Button>
-                            </div>
-                            <Button size="lg" className="w-full sm:w-auto h-16 rounded-2xl px-10 text-lg font-black mt-4" onClick={handleRedesign}>
-                                EJECUTAR REDISEÑO AHORA
-                                <Rocket className="w-5 h-5 ml-2" />
+            <div className="grid grid-cols-1 gap-8 mt-2 max-w-7xl mx-auto">
+                {/* TAB 1: MANUAL */}
+                {activeTab === "manual" && (
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <UserManual />
+                        <div className="mt-16 flex justify-center pb-12">
+                             <Button size="lg" onClick={() => setActiveTab("base")} className="rounded-[2.5rem] sm:h-24 h-16 sm:px-20 px-8 font-black sm:text-xl text-sm gap-4 sm:gap-6 shadow-2xl shadow-amber-500/30 bg-amber-500 text-slate-950 hover:scale-105 active:scale-95 transition-all group uppercase tracking-widest leading-none">
+                                ENTENDIDO, INICIAR REDISEÑO QUIRÚRGICO
+                                <ArrowRight className="w-5 h-5 sm:w-8 sm:h-8 group-hover:translate-x-2 transition-transform" />
                             </Button>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {isLoading && step === "intro" && (
-                        <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
-                            <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                            <p className="font-bold text-lg text-slate-800">Reescribiendo estructura y buscando tu NOC oficial...</p>
-                            <p className="text-xs text-muted-foreground uppercase tracking-widest">Esto puede tomar hasta 30 segundos.</p>
-                        </div>
-                    )}
-
-                    {redesignResult && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            {/* NOC Info */}
-                            {redesignResult.noc && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-slate-50 border rounded-2xl p-6">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Target className="w-5 h-5 text-primary" />
-                                            <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs">CÓDIGO NOC DETECTADO</h4>
-                                        </div>
-                                        <div className="text-3xl font-black text-slate-900 mt-2">{redesignResult.noc.codigo}</div>
-                                        <div className="font-bold text-primary mb-2">{redesignResult.noc.titulo}</div>
-                                        <p className="text-sm text-slate-600 leading-relaxed font-medium mt-4 border-t pt-4">
-                                            {redesignResult.noc.explicacion}
-                                        </p>
-                                        <div className="mt-4 inline-flex items-center gap-2 bg-white px-3 py-1 rounded-full border text-xs font-bold text-slate-700">
-                                            Compatibilidad: <span className="text-primary">{redesignResult.noc.compatibilidad}</span>
-                                        </div>
+                {/* TAB 2: BASE NOC */}
+                {activeTab === "base" && (
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] sm:rounded-[4rem] p-6 sm:p-16 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.05)] relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50" />
+                            
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-slate-50 relative z-10 gap-4 sm:gap-6 text-center sm:text-left">
+                                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[2rem] bg-slate-950 flex items-center justify-center shadow-xl">
+                                        <Layout className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" />
+                                    </div>
+                                     <div>
+                                        <h3 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight uppercase italic">Fase 1: Rediseño Estructura Canadiense</h3>
+                                        <p className="text-slate-500 text-[10px] sm:text-base font-bold uppercase tracking-widest opacity-60">Pierre reconstruye tu perfil bajo la técnica de Ingeniería Quirúrgica.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {!redesignResult && !isLoading ? (
+                                <div className="space-y-6 sm:space-y-10 relative z-10">
+                                    <div className="space-y-3 sm:space-y-4">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">📋 Texto de tu CV Actual</label>
+                                        <textarea 
+                                            className="w-full h-60 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-slate-100 p-6 sm:p-10 text-sm sm:text-base font-medium focus:ring-8 focus:ring-primary/5 focus:border-primary/40 transition-all resize-none shadow-sm bg-slate-50/30"
+                                            placeholder="Pega aquí el texto completo de tu currículum..."
+                                            value={localCvText}
+                                            onChange={(e) => setLocalCvText(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+                                        <button 
+                                            onClick={() => setLanguage("English")}
+                                            className={`h-16 sm:h-20 rounded-2xl sm:rounded-3xl border-2 font-black transition-all flex items-center justify-between px-4 sm:px-8 text-[10px] sm:text-xs uppercase tracking-widest ${language === "English" ? "bg-slate-950 border-slate-950 text-white shadow-2xl scale-[1.01]" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"}`}
+                                        >
+                                            <div className="flex items-center gap-2 sm:gap-4">
+                                                <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500 ${language === "English" ? "animate-pulse" : "opacity-30"}`} />
+                                                ENGLISH (ROC/FEDERAL)
+                                            </div>
+                                            {language === "English" && <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />}
+                                        </button>
+                                        <button 
+                                            onClick={() => setLanguage("French")}
+                                            className={`h-16 sm:h-20 rounded-2xl sm:rounded-3xl border-2 font-black transition-all flex items-center justify-between px-4 sm:px-8 text-[10px] sm:text-xs uppercase tracking-widest ${language === "French" ? "bg-slate-950 border-slate-950 text-white shadow-2xl scale-[1.01]" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"}`}
+                                        >
+                                            <div className="flex items-center gap-2 sm:gap-4">
+                                                <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500 ${language === "French" ? "animate-pulse" : "opacity-30"}`} />
+                                                FRANÇAIS (QUÉBEC/FRANCO)
+                                            </div>
+                                            {language === "French" && <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />}
+                                        </button>
                                     </div>
 
-                                    {redesignResult.rolesCompatibles && (
-                                        <div className="bg-slate-50 border rounded-2xl p-6">
-                                            <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs mb-4">Roles de Alta Probabilidad</h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {redesignResult.rolesCompatibles.map((r: string, i: number) => (
-                                                    <span key={i} className="bg-white border text-slate-700 text-xs px-3 py-1.5 rounded-lg font-semibold shadow-sm">{r}</span>
-                                                ))}
+                                     <Button size="lg" className="w-full sm:h-24 h-16 rounded-[1.5rem] sm:rounded-[3rem] font-black bg-amber-500 text-slate-950 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-amber-500/30 text-xs sm:text-xl uppercase tracking-tighter" onClick={handleRedesign}>
+                                        REDISEÑAR ESTRUCTURA CANADIENSE <Rocket className="w-4 h-4 sm:w-8 sm:h-8 ml-3 sm:ml-4 animate-bounce" />
+                                    </Button>
+                                </div>
+                            ) : isLoading && step === "intro" ? (
+                                <div className="py-32 text-center space-y-10 animate-in fade-in duration-1000">
+                                    <div className="relative mx-auto w-32 h-32">
+                                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping" />
+                                        <div className="relative w-full h-full bg-white border-4 border-slate-100 rounded-full flex items-center justify-center shadow-xl">
+                                            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="font-black text-4xl text-slate-950 tracking-tighter">Pierre está Analizando...</p>
+                                        <p className="text-slate-500 font-medium text-lg max-w-md mx-auto">Calculando equivalencias NOC y reestructurando logros basados en impacto.</p>
+                                    </div>
+                                </div>
+                            ) : redesignResult ? (
+                                <div className="space-y-12 animate-in zoom-in-95 duration-1000 relative z-10">
+                                    {redesignResult.noc && (
+                                        <div className="bg-white border-2 border-slate-100 rounded-[3rem] p-10 relative overflow-hidden shadow-xl shadow-slate-100 group border-l-[12px] border-l-primary">
+                                            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                                                <Target className="w-48 h-48" />
+                                            </div>
+                                            <div className="relative z-10">
+                                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] block mb-4">INTELIGENCIA NOC DETECTADA</span>
+                                                <div className="flex flex-col sm:flex-row items-baseline gap-4 mb-6">
+                                                    <div className="text-7xl font-black text-slate-950 tracking-tighter leading-none">{redesignResult.noc.codigo}</div>
+                                                    <div className="text-2xl font-black text-slate-700 tracking-tight">{redesignResult.noc.titulo}</div>
+                                                </div>
+                                                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 italic text-lg text-slate-600 font-medium leading-relaxed">
+                                                    "{redesignResult.noc.explicacion}"
+                                                </div>
                                             </div>
                                         </div>
                                     )}
-                                </div>
-                            )}
-
-                            {/* Redesigned CV */}
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="font-bold text-slate-800">Borrador de CV Optimizado (ATS Ready)</h4>
-                                    <div className="flex gap-2">
-                                        <Button variant="outline" size="sm" onClick={downloadCVPdf}>
-                                            <FileText className="w-4 h-4 mr-2" />
-                                            Descargar PDF
-                                        </Button>
-                                        <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                                            {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                                            Copiar Texto
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {typeof redesignResult.redesignedCv === 'string' ? (
-                                    <div className="bg-slate-900 text-slate-300 p-6 rounded-2xl max-h-96 overflow-y-auto font-mono text-sm leading-relaxed border border-slate-800">
-                                        <pre className="whitespace-pre-wrap">{redesignResult.redesignedCv}</pre>
-                                    </div>
-                                ) : (
-                                    <div className="bg-white text-slate-900 w-full rounded-xl shadow-xl border border-slate-200 p-8 max-h-[600px] overflow-y-auto mb-8 font-sans">
-                                        <div className="border-b-2 border-slate-900 pb-4 mb-6 text-center">
-                                            <h1 className="text-2xl font-black uppercase tracking-tight mb-2 text-slate-900">
-                                                {redesignResult.redesignedCv.personalInfo?.fullName || "Borrador de CV"}
-                                            </h1>
-                                            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
-                                                {(redesignResult.redesignedCv.personalInfo?.contactDetails || []).map((detail: string, idx: number) => (
-                                                    <span key={idx}>{detail} {idx < (redesignResult.redesignedCv.personalInfo?.contactDetails.length || 0) - 1 && "|"}</span>
-                                                ))}
+                                    
+                                     <div className="space-y-4">
+                                        <div className="flex items-center justify-between px-6">
+                                            <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Bóveda de Contenido Técnico</h5>
+                                            <button onClick={() => setRedesignResult(null)} className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest border-b-2 border-primary/20 pb-0.5">Reiniciar Fase 1</button>
+                                        </div>
+                                        <div className="bg-slate-950 rounded-[3rem] p-8 sm:p-12 overflow-auto max-h-[600px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border-2 border-white/5 relative group">
+                                            <pre className="text-sm text-slate-300 font-mono font-medium whitespace-pre-wrap leading-loose">{typeof redesignResult.redesignedCv === 'string' ? redesignResult.redesignedCv : JSON.stringify(redesignResult.redesignedCv, null, 2)}</pre>
+                                            <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md text-white border border-white/10 text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest">
+                                                Versión {language.toUpperCase()}
                                             </div>
                                         </div>
-                                        
-                                        {redesignResult.redesignedCv.professionalSummary && (
-                                            <div className="mb-6">
-                                                <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-2">Professional Summary</h3>
-                                                <p className="text-sm text-slate-700 text-justify leading-relaxed">{redesignResult.redesignedCv.professionalSummary}</p>
-                                            </div>
-                                        )}
 
-                                        {redesignResult.redesignedCv.coreCompetencies?.length > 0 && (
-                                            <div className="mb-6">
-                                                <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-2">Core Competencies</h3>
-                                                <div className="text-sm text-slate-700 font-medium flex flex-wrap gap-2">
-                                                    {redesignResult.redesignedCv.coreCompetencies.map((c: string, idx: number) => (
-                                                        <span key={idx} className="bg-slate-100 px-2 py-1 rounded text-slate-800">{c}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {redesignResult.redesignedCv.workExperience?.length > 0 && (
-                                            <div className="mb-6">
-                                                <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-3">Professional Experience</h3>
-                                                <div className="space-y-4">
-                                                    {redesignResult.redesignedCv.workExperience.map((exp: any, idx: number) => (
-                                                        <div key={idx}>
-                                                            <div className="flex justify-between items-baseline mb-1">
-                                                                <div>
-                                                                    <span className="font-bold text-slate-900 text-sm">{exp.jobTitle}</span>
-                                                                    <span className="text-slate-500 text-sm italic ml-1">| {exp.companyAndLocation}</span>
-                                                                </div>
-                                                                <div className="text-xs font-bold text-slate-800">{exp.dates}</div>
-                                                            </div>
-                                                            <ul className="list-disc pl-4 space-y-1">
-                                                                {(exp.achievements || []).map((ach: string, aIdx: number) => (
-                                                                    <li key={aIdx} className="text-sm text-slate-700 leading-relaxed">{ach}</li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {redesignResult.redesignedCv.education?.length > 0 && (
-                                            <div className="mb-6">
-                                                <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-3">Education</h3>
-                                                <div className="space-y-2">
-                                                    {redesignResult.redesignedCv.education.map((ed: any, idx: number) => (
-                                                        <div key={idx} className="flex justify-between text-sm">
-                                                            <div><span className="font-bold text-slate-900">{ed.degree}</span> | <span className="text-slate-700">{ed.institutionAndLocation}</span></div>
-                                                            <div className="text-slate-600 font-medium">{ed.year}</div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {redesignResult.redesignedCv.certifications?.length > 0 && (
-                                                <div>
-                                                    <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-2">Certifications</h3>
-                                                    <ul className="list-disc pl-4 space-y-1">
-                                                        {redesignResult.redesignedCv.certifications.map((cert: string, idx: number) => (
-                                                            <li key={idx} className="text-sm text-slate-700">{cert}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
-
-                                            {redesignResult.redesignedCv.languages?.length > 0 && (
-                                                <div>
-                                                    <h3 className="text-xs uppercase tracking-widest font-black border-b border-slate-200 pb-1 mb-2">Languages</h3>
-                                                    <ul className="list-disc pl-4 space-y-1">
-                                                        {redesignResult.redesignedCv.languages.map((lang: string, idx: number) => (
-                                                            <li key={idx} className="text-sm text-slate-700">{lang}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
+                                        {/* 🎨 STYLE SELECTOR FOR BASE CV */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-8">
+                                            {(['Classic', 'Elegant', 'Modern'] as const).map((style) => (
+                                                <button 
+                                                    key={style} 
+                                                    onClick={() => setCvStyle(style)} 
+                                                    className={`p-4 sm:p-6 rounded-2xl border-2 transition-all text-left relative group ${cvStyle === style ? "border-slate-950 bg-slate-950 text-white shadow-xl" : "border-slate-100 bg-white text-slate-400 hover:border-slate-300"}`}
+                                                >
+                                                    <div className="font-black text-[10px] sm:text-xs uppercase tracking-tight mb-1">{style === 'Classic' ? 'Clásico' : style === 'Elegant' ? 'Elegante' : 'Moderno'}</div>
+                                                    <div className={`text-[8px] sm:text-[10px] font-medium leading-tight ${cvStyle === style ? 'text-white/60' : 'text-slate-300'}`}>
+                                                        {style === 'Classic' ? 'Soberano y Tradicional' : style === 'Elegant' ? 'Élite y Minimalista' : 'Limpio y Vanguardista'}
+                                                    </div>
+                                                    {cvStyle === style && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-400" />}
+                                                </button>
+                                            ))}
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
 
-                {/* PASO 2: JD MATCH & GAP ANALYSIS */}
-                {(step === "redesign" || step === "match") && (
-                    <div className="bg-white border rounded-[2rem] p-8 shadow-sm">
-                        <h3 className="text-xl font-bold flex items-center gap-3 mb-6">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white text-sm">2</span> 
-                            Radar de Fuego: Análisis de Brecha (JD Match)
-                        </h3>
-
-                        {!matchResult && !isLoading && step === "redesign" && (
-                            <div className="space-y-6">
-                                <p className="text-muted-foreground">Pega la descripción completa de una oferta (Job Description). Te diré exactamente si debes aplicar, y si no, qué te falta exactamente.</p>
-                                <textarea 
-                                    className="w-full h-48 rounded-2xl border-2 border-slate-100 p-4 focus:ring-4 focus:ring-primary/10 transition-all resize-none font-medium"
-                                    placeholder="Job Description Completo..."
-                                    value={jdText}
-                                    onChange={e => setJdText(e.target.value)}
-                                />
-                                <Button size="lg" className="w-full sm:w-auto h-16 rounded-2xl px-10 text-lg font-black" onClick={handleMatch}>
-                                    EJECUTAR GAP ANALYSIS
-                                    <Search className="w-5 h-5 ml-2" />
-                                </Button>
-                            </div>
-                        )}
-
-                        {isLoading && step === "redesign" && (
-                            <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
-                                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                                <p className="font-bold text-lg text-slate-800">Analizando requerimientos ocultos y calculando Score Real...</p>
-                            </div>
-                        )}
-
-                        {matchResult && (
-                            <div className="space-y-10 animate-in fade-in duration-500">
-                                {/* Score & Verdict */}
-                                <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="flex flex-col items-center justify-center min-w-[200px] p-6 rounded-2xl bg-slate-50 border">
-                                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Score de Match</span>
-                                        <div className={`text-6xl font-black ${
-                                            matchResult.score >= 90 ? "text-emerald-500" :
-                                            matchResult.score >= 80 ? "text-blue-500" :
-                                            matchResult.score >= 75 ? "text-amber-500" : "text-red-500"
-                                        }`}>
-                                            {matchResult.score}
-                                            <span className="text-2xl text-slate-400 font-bold ml-1">%</span>
+                                        {/* 📥 NEW DOWNLOAD ZONE FOR REDESIGN RESULTS */}
+                                        <div className="flex flex-col md:grid md:grid-cols-2 gap-4 mt-6">
+                                            <Button 
+                                                onClick={() => downloadStyledCVPdf(redesignResult, cvStyle, language === "English" ? "En" : "Fr")} 
+                                                className="min-h-[5rem] h-auto py-4 rounded-3xl bg-slate-100 text-slate-950 hover:bg-white hover:scale-[1.02] active:scale-[0.98] font-black gap-4 text-xs tracking-widest transition-all shadow-xl group/btn uppercase"
+                                            >
+                                                <Download className="w-5 h-5 text-amber-500 group-hover/btn:scale-125 transition-transform shrink-0" /> <span className="leading-tight">DESCARGAR PDF PREMIUM</span>
+                                            </Button>
+                                            <Button 
+                                                variant="outline" 
+                                                onClick={() => downloadCustomizedCVWord(redesignResult.redesignedCv)} 
+                                                className="min-h-[5rem] h-auto py-4 rounded-3xl border-2 border-slate-100 bg-white text-slate-950 hover:bg-slate-50 hover:border-slate-300 hover:scale-[1.02] active:scale-[0.98] font-black gap-4 text-xs tracking-widest transition-all shadow-xl uppercase"
+                                            >
+                                                <FileText className="w-5 h-5 text-blue-500 shrink-0" /> <span className="leading-tight">DESCARGAR WORD (.DOCX)</span>
+                                            </Button>
                                         </div>
-                                        <div className="text-sm font-bold text-slate-600 uppercase tracking-tight mt-2">{matchResult.interpretacion}</div>
                                     </div>
                                     
-                                    <div className="flex-1 space-y-4 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 relative overflow-hidden">
-                                        <div className="flex items-center gap-2">
-                                            <ShieldAlert className="w-5 h-5 text-primary" />
-                                            <h4 className="font-black text-white/50 uppercase tracking-widest text-xs">Veredicto Oficial</h4>
-                                        </div>
-                                        <p className="text-lg font-medium leading-relaxed">"{matchResult.verdict}"</p>
-                                        <div className="inline-flex mt-2 bg-black/30 border border-white/10 px-4 py-2 rounded-lg font-bold text-primary">
-                                            DECISIÓN FINAL: {matchResult.decision}
-                                        </div>
+                                     <div className="flex justify-center pt-8">
+                                        <Button size="lg" onClick={() => setActiveTab("radar")} className="sm:h-24 h-16 rounded-[3rem] sm:px-24 px-8 font-black gap-4 sm:gap-6 shadow-[0_30px_60px_-10px_rgba(15,23,42,0.3)] bg-slate-950 text-white hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.2em] sm:text-xl text-xs group w-full sm:w-auto">
+                                            BASE LISTA, IR AL RADAR <ArrowRight className="w-5 h-5 sm:w-8 sm:h-8 group-hover:translate-x-2 transition-transform text-amber-400" />
+                                        </Button>
                                     </div>
                                 </div>
+                            ) : null}
+                        </div>
+                    </div>
+                )}
 
-                                {/* Gap Analysis */}
-                                {matchResult.gaps && matchResult.gaps.length > 0 && (
+                {/* TAB 3: RADAR MATCH (Solid High Contrast) */}
+                {activeTab === "radar" && (
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="bg-white border-2 border-slate-100 rounded-[2rem] sm:rounded-[4rem] p-6 sm:p-16 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.05)] relative">
+                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-12 pb-8 border-b-2 border-slate-50 gap-6">
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[2rem] bg-amber-500 flex items-center justify-center shadow-xl shadow-amber-500/20 shrink-0">
+                                        <Search className="w-6 h-6 sm:w-8 sm:h-8 text-slate-950" />
+                                    </div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 text-sm uppercase tracking-[0.1em] mb-4 flex items-center gap-3">
-                                            <div className="w-2 h-6 bg-red-400 rounded-full" />
-                                            Análisis de Brecha (Qué te falta para llegar al 90%)
-                                        </h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {matchResult.gaps.map((g: any, i: number) => (
-                                                <div key={i} className={`p-5 rounded-2xl border ${
-                                                    g.impacto === 'Crítico' ? 'bg-red-50 border-red-100' :
-                                                    g.impacto === 'Alto' ? 'bg-amber-50 border-amber-100' : 'bg-slate-50 border-slate-100'
-                                                }`}>
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <span className="font-black text-slate-800 uppercase text-xs">{g.tipo}</span>
-                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
-                                                            g.impacto === 'Crítico' ? 'bg-red-200 text-red-800' :
-                                                            g.impacto === 'Alto' ? 'bg-amber-200 text-amber-800' : 'bg-slate-200 text-slate-600'
-                                                        }`}>
-                                                            Impacto {g.impacto}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-sm font-medium text-slate-700 leading-relaxed"><strong className="text-slate-900">Ausente:</strong> {g.falta_exactamente}</p>
-                                                    <div className="mt-4 p-3 bg-white/60 rounded-xl">
-                                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Estrategia Puente</p>
-                                                        <p className="text-sm font-medium text-slate-800">{g.como_solucionarlo}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <h3 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight">Fase 2: Radar de Éxito (JD Match)</h3>
+                                        <p className="text-slate-500 text-xs sm:text-base font-medium">Análisis de compatibilidad algorítmica contra la vacante real.</p>
                                     </div>
-                                )}
-
-                                {/* Keywords */}
-                                {matchResult.keywordsFaltantes && matchResult.keywordsFaltantes.length > 0 && (
-                                    <div className="border-t pt-6">
-                                        <h4 className="font-black text-slate-900 text-xs uppercase tracking-[0.1em] mb-3">KEYWORDS TÉCNICOS AUSENTES EN TU CV</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {matchResult.keywordsFaltantes.map((kw: string, i: number) => (
-                                                <span key={i} className="bg-red-50 text-red-600 border border-red-100 text-xs px-2.5 py-1 rounded-md font-semibold font-mono">
-                                                    {kw}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="flex justify-end pt-4 border-t">
-                                     <Button variant="outline" onClick={() => setStep("redesign")}>PROBAR OTRA OFERTA</Button>
                                 </div>
                             </div>
-                        )}
+                            
+                            {!matchResult && !isLoading ? (
+                                <div className="space-y-10">
+                                    <div className="bg-amber-50 border-2 border-amber-100 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] flex items-start gap-4 sm:gap-6 relative overflow-hidden group">
+                                        {/* ... */}
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-200 rounded-full flex items-center justify-center shrink-0">
+                                            <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-900" />
+                                        </div>
+                                        <p className="text-amber-900 text-sm sm:text-lg font-bold leading-relaxed max-w-2xl">
+                                            Pega la descripción completa del puesto. Pierre buscará brechas de experiencia (Gaps) que debemos ocultar o fortalecer.
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">🎯 Job Description de la Vacante</label>
+                                        <textarea 
+                                            className="w-full h-64 sm:h-80 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-slate-100 p-6 sm:p-10 font-medium focus:ring-8 focus:ring-amber-500/5 focus:border-amber-500/40 transition-all resize-none shadow-sm bg-slate-50/30 text-base sm:text-lg"
+                                            placeholder="Copia y pega la oferta de LinkedIn, Indeed o portal oficial..."
+                                            value={jdText}
+                                            onChange={(e) => setJdText(e.target.value)}
+                                        />
+                                    </div>
+
+                                      <Button size="lg" className="w-full min-h-[5rem] sm:h-24 h-auto py-6 sm:py-0 rounded-[1.5rem] sm:rounded-[3rem] font-black bg-slate-950 text-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl text-sm sm:text-xl uppercase tracking-widest gap-4 px-8" onClick={handleMatch}>
+                                        <span className="leading-tight">EJECUTAR RADAR DE MATCH</span> <Search className="w-5 h-5 sm:w-7 sm:h-7 text-amber-400 shrink-0" />
+                                    </Button>
+                                </div>
+                            ) : isLoading && step === "match" && !customizedCv ? (
+                                <div className="py-32 text-center space-y-10 animate-pulse">
+                                    <div className="relative mx-auto w-32 h-32">
+                                        <div className="absolute inset-0 bg-amber-500/10 rounded-full animate-ping" />
+                                        <div className="relative w-full h-full bg-white border-4 border-slate-100 rounded-full flex items-center justify-center shadow-xl">
+                                            <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="font-black text-2xl sm:text-4xl text-slate-950 tracking-tighter">Prediciendo Score ATS...</p>
+                                        <p className="text-slate-500 font-medium text-sm sm:text-lg max-w-md mx-auto px-4">Pierre está identificando palabras clave faltantes y analizando jerarquía técnica.</p>
+                                    </div>
+                                </div>
+                            ) : matchResult ? (
+                                <div className="space-y-12 animate-in zoom-in-95 duration-1000">
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                                        <div className="lg:col-span-4 p-8 sm:p-12 bg-white border-2 border-slate-100 rounded-[2rem] sm:rounded-[3rem] text-center flex flex-col justify-center shadow-xl shadow-slate-100 relative group">
+                                            <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] block mb-4 sm:mb-6 leading-tight">Puntaje Relativo de Match</span>
+                                            <div className="relative inline-block mx-auto">
+                                                <div className={`text-6xl sm:text-8xl font-black ${(matchResult.score || matchResult.matchScore?.total || 0) >= 80 ? "text-emerald-500" : "text-amber-500"} tracking-tighter mb-4 leading-none`}>
+                                                    {matchResult.score || matchResult.matchScore?.total || 0}
+                                                    <span className="text-2xl sm:text-4xl ml-1">%</span>
+                                                </div>
+                                            </div>
+                                            <div className="bg-slate-950 text-white px-6 py-2.5 rounded-full text-[9px] sm:text-[11px] font-black uppercase tracking-[0.3em] inline-block mx-auto mt-4 border border-white/10">Veredicto Filtro ATS</div>
+                                        </div>
+                                        
+                                         <div className="lg:col-span-8 bg-slate-950 text-white p-6 sm:p-12 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] -mr-32 -mt-32" />
+                                            <div className="relative z-10 h-full flex flex-col">
+                                                <h4 className="font-black text-[9px] sm:text-[11px] uppercase tracking-[0.4em] text-amber-400 mb-6 sm:mb-10 border-b border-white/10 pb-4">Análisis de Brechas Tácticas (GAP ANALYSIS)</h4>
+                                                <div className="space-y-4 sm:space-y-5 flex-1">
+                                                    {(matchResult.gapAnalysis || matchResult.gaps?.missingSkills || []).slice(0, 4).map((gap: any, i: number) => (
+                                                        <div key={i} className="flex gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group/item">
+                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 group-hover/item:bg-amber-500 transition-colors">
+                                                                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 group-hover/item:text-slate-950" />
+                                                            </div>
+                                                            <span className="text-sm sm:text-lg font-bold text-slate-200 leading-tight">{typeof gap === 'string' ? gap : gap.descripcion}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 pt-8">
+                                        <Button variant="ghost" onClick={() => setMatchResult(null)} className="h-16 sm:h-20 rounded-2xl px-8 sm:px-12 font-black text-slate-400 hover:text-slate-950 hover:bg-slate-50 uppercase tracking-[0.2em] text-[10px] sm:text-[11px]">← Probar otra Oferta</Button>
+                                         <Button size="lg" onClick={handleCustomize} className="min-h-[5rem] sm:h-24 h-auto py-6 sm:py-0 rounded-[1.5rem] sm:rounded-[3.5rem] sm:px-24 px-8 font-black shadow-[0_30px_60px_-10px_rgba(255,255,255,0.1)] bg-amber-500 text-slate-950 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest sm:text-xl text-[10px] sm:text-xs group gap-4">
+                                            <span className="leading-tight">ADAPTAR MI CV A ESTA VACANTE</span> <ArrowRight className="w-5 h-5 sm:w-8 sm:h-8 group-hover:translate-x-2 transition-transform shrink-0" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : null}
+                        </div>
+                    </div>
+                )}
+
+                {/* TAB 4: ATTACK (Solid Premium Export) */}
+                {activeTab === "attack" && (
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="bg-white border-2 border-slate-100 rounded-[1.5rem] sm:rounded-[4rem] p-6 sm:p-16 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.05)]">
+                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-slate-50 gap-6">
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[2rem] bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/20 shrink-0">
+                                        <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-slate-950" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight">Fase 3: Ataque Maestro & Exportación</h3>
+                                        <p className="text-slate-500 text-xs sm:text-base font-medium">Generación de archivos finales con inyección de logros específicos.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {!customizedCv && !isLoading ? (
+                                <div className="text-center py-16 sm:py-32 space-y-8 sm:space-y-10">
+                                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-50 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-slate-100 flex items-center justify-center mx-auto shadow-sm">
+                                        <Target className="w-12 h-12 sm:w-16 sm:h-16 text-slate-200" />
+                                    </div>
+                                    <div className="max-w-md mx-auto space-y-3 sm:space-y-4 px-4">
+                                        <h4 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight uppercase">Acción Requerida</h4>
+                                        <p className="text-slate-500 text-sm sm:text-lg font-medium leading-relaxed">Debes analizar una vacante en el paso anterior antes de que Pierre pueda adaptar tu CV.</p>
+                                    </div>
+                                    <Button onClick={() => setActiveTab("radar")} variant="outline" className="h-16 rounded-[1.5rem] px-8 sm:px-12 font-black border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-950 hover:text-slate-950 transition-all uppercase tracking-widest text-[10px] sm:text-[11px] scale-100 sm:scale-110">Ir al Radar de Match</Button>
+                                </div>
+                            ) : isLoading && step === "match" ? (
+                                <div className="py-16 sm:py-32 text-center space-y-8 sm:space-y-10 animate-in fade-in duration-1000">
+                                    <div className="relative mx-auto w-24 h-24 sm:w-32 sm:h-32">
+                                        <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-ping" />
+                                        <div className="relative w-full h-full bg-white border-2 sm:border-4 border-slate-100 rounded-full flex items-center justify-center shadow-xl">
+                                            <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 text-emerald-500 animate-spin" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 px-4">
+                                        <p className="font-black text-2xl sm:text-4xl text-slate-950 tracking-tighter">Inyectando Inteligencia de Datos...</p>
+                                        <p className="text-slate-500 font-medium text-sm sm:text-lg max-w-md mx-auto">Asegurando que cada logro esté alineado 100% con las necesidades tácticas de la empresa.</p>
+                                    </div>
+                                </div>
+                            ) : customizedCv ? (
+                                 <div className="space-y-8 sm:space-y-12 animate-in zoom-in-95 duration-1000">
+                                     <div className="bg-slate-950 p-5 sm:p-20 rounded-[1.5rem] sm:rounded-[4rem] text-white relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] border border-white/5 group">
+                                        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 group-hover:scale-[1.6] transition-transform duration-1000">
+                                            <CheckCircle2 className="w-96 h-96 text-primary" />
+                                        </div>
+                                        
+                                        <div className="relative z-10 space-y-8 sm:space-y-12">
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 sm:gap-8 border-b border-white/10 pb-6 sm:pb-10">
+                                                 <div>
+                                                    <span className="text-[8px] sm:text-[10px] font-black text-amber-400 uppercase tracking-[0.5em] block mb-2 sm:mb-4">ESTADO: DOCUMENTO LISTO</span>
+                                                    <h4 className="text-2xl sm:text-5xl font-black tracking-tighter leading-tight">Tu Expediente <span className="text-amber-400 italic">Maestro</span></h4>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-white/5 p-2 rounded-2xl border border-white/10 self-start sm:self-center">
+                                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/20 shrink-0">
+                                                        <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-slate-950" />
+                                                    </div>
+                                                    <div className="pr-2 sm:pr-4">
+                                                        <div className="text-amber-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">Formato</div>
+                                                        <div className="text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest">Optimizado ATS</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                                                {(['Classic', 'Elegant', 'Modern'] as const).map((style) => (
+                                                    <button 
+                                                        key={style} 
+                                                        onClick={() => setCvStyle(style)} 
+                                                      className={`p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border-2 transition-all text-left relative group ${cvStyle === style ? "border-amber-400 bg-amber-400/10 shadow-[0_20px_50px_-10px_rgba(251,191,36,0.3)] ring-4 ring-amber-400/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                                                    >
+                                                        <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 inline-flex border border-white/10 ${cvStyle === style ? 'bg-amber-400 text-slate-950 shadow-lg' : 'bg-white/5 text-slate-500'}`}>
+                                                            <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                        </div>
+                                                        <div className="font-black text-sm sm:text-lg uppercase tracking-tight mb-0.5 sm:mb-1">{style === 'Classic' ? 'Clásico' : style === 'Elegant' ? 'Elegante' : 'Moderno'}</div>
+                                                        <div className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-wide">{style === 'Classic' ? 'Soberano y Tradicional' : style === 'Elegant' ? 'Élite y Minimalista' : 'Limpio y Vanguardista'}</div>
+                                                        {cvStyle === style && <div className="absolute top-4 right-4 w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,1)]" />}
+                                                    </button>
+                                                ))}
+                                             </div>
+                                             
+                                             {/* 📥 NEW DOWNLOAD ZONE FOR REDESIGN RESULTS */}
+                                             <div className="flex flex-col md:grid md:grid-cols-2 gap-4 sm:gap-6 pt-6 sm:pt-10">
+                                                 <Button 
+                                                     onClick={() => downloadStyledCVPdf(customizedCv, cvStyle, language === "English" ? "En" : "Fr")} 
+                                                     className="min-h-[5rem] sm:h-28 h-auto py-6 sm:py-0 rounded-[1.5rem] sm:rounded-[3rem] bg-white text-slate-950 hover:bg-white hover:scale-[1.03] active:scale-[0.98] font-black gap-4 sm:gap-6 text-sm sm:text-2xl transition-all shadow-2xl relative overflow-hidden group/btn px-4 sm:px-12"
+                                                 >
+                                                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                                     <Download className="w-5 h-5 sm:w-8 sm:h-8 text-primary group-hover/btn:scale-125 transition-transform shrink-0" /> <span className="leading-tight">DESCARGAR PDF PREMIUM</span>
+                                                 </Button>
+                                                 <Button 
+                                                     variant="outline" 
+                                                     onClick={() => downloadCustomizedCVWord(customizedCv)} 
+                                                     className="min-h-[5rem] sm:h-28 h-auto py-6 sm:py-0 rounded-[1.5rem] sm:rounded-[3rem] border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 hover:scale-[1.03] active:scale-[0.98] font-black gap-4 sm:gap-6 text-sm sm:text-2xl transition-all shadow-2xl px-4 sm:px-12"
+                                                 >
+                                                     <FileText className="w-5 h-5 sm:w-8 sm:h-8 text-primary shrink-0" /> <span className="leading-tight">DESCARGAR WORD (.DOCX)</span>
+                                                 </Button>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] sm:rounded-[3.5rem] p-6 sm:p-16 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.04)] relative">
+                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+                                             <div className="flex items-center gap-4">
+                                                 <div className="w-2 h-10 bg-primary rounded-full shrink-0" />
+                                                 <h5 className="font-black text-[10px] sm:text-xs text-slate-400 uppercase tracking-[0.4em]">Vista de Auditoría de Contenido</h5>
+                                             </div>
+                                             <div className="flex items-center self-start gap-2 px-6 py-2.5 rounded-full bg-emerald-50 border-2 border-emerald-100 text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest whitespace-nowrap">
+                                                 <ShieldCheck className="w-4 h-4 mr-1 shrink-0" /> 100% Optimizado Pierre PRO
+                                             </div>
+                                         </div>
+                                         <div className="bg-slate-50 border-2 border-slate-100 p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] max-h-[600px] overflow-auto text-sm font-medium font-sans text-slate-700 whitespace-pre-wrap leading-relaxed shadow-inner italic">
+                                             "{customizedCv.fullCvText || JSON.stringify(customizedCv, null, 2)}"
+                                         </div>
+                                     </div>
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 )}
             </div>
+            
+            <div className="max-w-4xl mx-auto pt-20 opacity-30 text-center space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.8em] text-slate-950">Inteligencia Artificial de Pierre PRO • v2.5.0</p>
+                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Todos los algoritmos de optimización NOC y ATS están protegidos bajo licencia exclusivo</p>
+            </div>
         </div>
+    )
+}
+
+function Palette({ className }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H17c2.8 0 5-2.2 5-5 0-4.4-4.5-8-10-8Z"/>
+        </svg>
     )
 }

@@ -5,13 +5,12 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
-        console.log("📥 [CV-ANALYSIS] Nueva petición recibida.");
         const apiKey = process.env.OPENAI_API_KEY;
-        const isMockMode = process.env.MOCK_ANALYSIS === 'true' || !apiKey;
+        const isMockMode = process.env.MOCK_ANALYSIS === 'true';
 
         if (isMockMode) {
-            console.log("⚠️ [CV-ANALYSIS] MODO MOCK ACTIVADO (PERFIL 40%). Generando respuesta simulada con bajo score.");
             const mockAnalysis = {
+                // ... (keeping structure)
                 diagnosticoEjecutivo: {
                     resumenEjecutivo: {
                         descripcion: "Perfil con talento técnico latente pero con una arquitectura de CV obsoleta para el mercado canadiense (ATS).",
@@ -92,7 +91,7 @@ export async function POST(req: Request) {
                 veredictoFinal: { conclusion: "Estás estancado por falta de estrategia, no por falta de capacidad.", ofertaEstrategica: "Optimiza tu CV con Pierre PRO para salir del riesgo hoy." }
             };
 
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 1000));
             return NextResponse.json({ result: mockAnalysis });
         }
 
@@ -100,13 +99,10 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { cvText, leadId, linkedinUrl, networking, workPermitStatus } = body;
 
-        console.log(`🔍 [CV-ANALYSIS] Procesando CV de ${cvText.length} caracteres...`);
-
         if (!cvText) {
             return NextResponse.json({ error: 'No CV text provided' }, { status: 400 });
         }
 
-        console.log("🤖 [CV-ANALYSIS] Llamando a OpenAI (gpt-4o-mini)...");
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
@@ -246,13 +242,11 @@ CV TEXT: ${cvText}`
             response_format: { type: "json_object" }
         });
 
-        console.log("✅ [CV-ANALYSIS] Respuesta de OpenAI recibida.");
         const content = completion.choices[0].message.content || '{}';
         const analysis = JSON.parse(content);
 
         if (leadId) {
             try {
-                console.log(`💾 [CV-ANALYSIS] Persistiendo reporte para leadId: ${leadId}`);
                 const prisma = (await import("@/lib/db")).default;
                 await prisma.score.create({
                     data: {
@@ -266,7 +260,6 @@ CV TEXT: ${cvText}`
                     where: { id: leadId },
                     data: { status: "EVALUATED" }
                 });
-                console.log("✅ [CV-ANALYSIS] Datos persistidos con éxito.");
             } catch (dbError) {
                 console.error('❌ [CV-ANALYSIS] Error de persistencia en DB:', dbError);
             }

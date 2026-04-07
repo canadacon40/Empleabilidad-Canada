@@ -92,10 +92,8 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         setShowCvWarning(false)
         setError("")
         
-        // Block reuse of the tool for the same email address
-        const isTestEmail = email.toLowerCase().includes("test");
         const storedEmail = localStorage.getItem(`cvReportGenerated_${email.toLowerCase().trim()}`);
-        if (storedEmail && !isTestEmail) {
+        if (storedEmail) {
              setAlreadyUsedEmail(email.toLowerCase().trim());
              return;
         }
@@ -122,10 +120,6 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             source: "Free CV Tool"
         };
 
-        // If it's a test email, clear cache so we forcer a fresh analysis
-        if (email.toLowerCase().includes("test")) {
-            localStorage.removeItem("pendingReportData");
-        }
 
         // Fire GTM event for lead capture
         sendGTMEvent({ 
@@ -517,17 +511,30 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                             size="sm" 
                                             className="h-9 px-4 text-[10px] font-black uppercase"
                                             onClick={() => {
-                                                if (promoCode === "PIERRE-PRO-2026" || promoCode === "DEBUG_PRO") {
-                                                    setIsPromoSuccess(true);
-                                                    setTimeout(() => {
-                                                        setAlreadyUsedEmail(null);
-                                                        localStorage.setItem("pierre_promo_unlocked", "true");
-                                                        // Force bypass if promo is entered
-                                                        window.location.href = window.location.pathname + "?code=" + promoCode;
-                                                    }, 1500);
-                                                } else {
-                                                    alert("Código inválido. Intenta de nuevo.");
-                                                }
+                                                const validatePromo = async () => {
+                                                    try {
+                                                        const res = await fetch("/api/validate-promo", {
+                                                            method: "POST",
+                                                            headers: { "Content-Type": "application/json" },
+                                                            body: JSON.stringify({ code: promoCode }),
+                                                        });
+                                                        const data = await res.json();
+                                                        
+                                                        if (res.ok && data.success) {
+                                                            setIsPromoSuccess(true);
+                                                            setTimeout(() => {
+                                                                setAlreadyUsedEmail(null);
+                                                                localStorage.setItem("pierre_promo_unlocked", "true");
+                                                                window.location.href = window.location.pathname + "?code=" + promoCode;
+                                                            }, 1500);
+                                                        } else {
+                                                            setError(data.error || "Código inválido o agotado.");
+                                                        }
+                                                    } catch (err) {
+                                                        setError("Error de validación.");
+                                                    }
+                                                };
+                                                validatePromo();
                                             }}
                                         >
                                             Validar
@@ -595,15 +602,29 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                         size="sm" 
                                         className="h-9 px-4 text-[10px] font-black uppercase"
                                         onClick={() => {
-                                            if (promoCode === "PIERRE-PRO-2026" || promoCode === "DEBUG_PRO" || promoCode === "BECA10") {
-                                                setIsPromoSuccess(true);
-                                                setTimeout(() => {
-                                                    localStorage.setItem("pierre_promo_unlocked", "true");
-                                                    window.location.href = window.location.pathname + "?code=" + promoCode;
-                                                }, 1000);
-                                            } else {
-                                                alert("Código inválido.");
-                                            }
+                                            const validatePromo = async () => {
+                                                try {
+                                                    const res = await fetch("/api/validate-promo", {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/json" },
+                                                        body: JSON.stringify({ code: promoCode }),
+                                                    });
+                                                    const data = await res.json();
+                                                    
+                                                    if (res.ok && data.success) {
+                                                        setIsPromoSuccess(true);
+                                                        setTimeout(() => {
+                                                            localStorage.setItem("pierre_promo_unlocked", "true");
+                                                            window.location.href = window.location.pathname + "?code=" + promoCode;
+                                                        }, 1000);
+                                                    } else {
+                                                        setError(data.error || "Código inválido.");
+                                                    }
+                                                } catch (err) {
+                                                    setError("Error de validación.");
+                                                }
+                                            };
+                                            validatePromo();
                                         }}
                                     >
                                         Validar

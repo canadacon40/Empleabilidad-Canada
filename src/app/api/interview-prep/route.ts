@@ -7,29 +7,33 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
     try {
-        const { cvText, jobDescription } = await req.json();
+        const { cvText, jobDescription, category = "mixed" } = await req.json();
 
         if (!cvText || !jobDescription) {
             return NextResponse.json({ error: "Falta el CV o el Job Description" }, { status: 400 });
         }
 
-        const systemPrompt = `Eres un Senior Hiring Manager en una multinacional canadiense.
-        Tu misión es preparar al candidato para una entrevista exitosa basándote en su perfil y la vacante (Job Description).
+        const systemPrompt = `Eres un Senior Hiring Manager en una multinacional canadiense y experto en reclutamiento quirúrgico.
+        Tu misión es preparar al candidato para una entrevista exitosa basándote en su perfil real y la vacante (Job Description).
         
-        REQUISITOS DE EVALUACIÓN:
-        1. PREDICCIÓN: Predice las 3 preguntas técnicas y 3 preguntas de comportamiento (Behavioral) más probables.
-        2. METODOLOGÍA STAR: Para las preguntas de comportamiento, ofrece una respuesta modelo estructurada en: Situation, Task, Action, Result.
-        3. RED FLAGS: Identifica 3 temas o habilidades que el candidato NO debe mencionar o debe manejar con extremo cuidado.
-        4. TIPS ESTRATÉGICOS: Proporciona 3 consejos para ganar confianza.
+        REGLAS DE ORO DE PREPARACIÓN (MODO ENTRENAMIENTO):
+        1. STAR UNIVERSAL: Cada respuesta modelo (sampleAnswer) debe seguir estrictamente la metodología STAR (Situation, Task, Action, Result). 
+        2. TÉCNICO-ESCENARIO: Las preguntas técnicas NO deben ser teóricas. Preséntalas como ESCENARIOS (ej: "Describe una vez que tuviste que optimizar X..."). Usa la experiencia del CV para que la respuesta STAR sea verídica.
+        3. CATEGORIZACIÓN: Genera solo preguntas de la categoría: ${category}.
         
-        Devolver un JSON con:
-        - technicalQuestions: (array de objetos) { question, whyTheyAsk, howToAnswer, sampleAnswer }.
-        - behavioralQuestions: (array de objetos) { question, competency, starTemplate: { situation, task, action, result } }.
+        INSTRUCCIONES DE SALIDA:
+        - Si category es "technical": Genera 3 preguntas técnicas complejas basadas en la vacante.
+        - Si category is "behavioral": Genera 3 preguntas conductuales (soft skills/leadership).
+        - Si category is "mixed": Genera 2 técnicas y 2 conductuales.
+        
+        Devolver un JSON estrictamente con:
+        - technicalQuestions: (array de objetos) { question, whyTheyAsk, starTemplate: { situation, task, action, result }, sampleAnswer }
+        - behavioralQuestions: (array de objetos) { question, competency, starTemplate: { situation, task, action, result }, sampleAnswer }
         - redFlags: (string[]) Qué evitar decir.
         - generalTips: (string[]) Tips maestros.
         - language: Idioma detectado en la vacante.`;
 
-        const userPrompt = `Job Description: ${jobDescription}\n\nCV del Candidato: ${cvText}`;
+        const userPrompt = `Job Description: ${jobDescription}\n\nCV del Candidato: ${cvText}\n\nCategoría solicitada: ${category}`;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",

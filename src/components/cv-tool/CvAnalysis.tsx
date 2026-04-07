@@ -43,11 +43,15 @@ import {
   FileText,
   Search,
   CheckCircle2,
+  Mail,
+  MessageSquare,
+  Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import GaugeChart from "./GaugeChart";
 import JdMatcher from "./JdMatcher";
 import UserManual from "./UserManual";
+import OnboardingTutorial from "./OnboardingTutorial";
 import EmployabilityEnginePro from "./EmployabilityEnginePro";
 import { Button } from "@/components/ui/button";
 import { sendGTMEvent } from "@next/third-parties/google";
@@ -89,15 +93,14 @@ export default function CvAnalysis({
   const [showProFeatures, setShowProFeatures] = useState(false);
 
   useEffect(() => {
-    // 🛡️ MODO TEST: Permitir al dueño probar las funciones PRO mediante URL
+    // 🛡️ MODO TEST: Permitir al dueño probar las funciones PRO mediante URL o código directo
     const params = new URLSearchParams(window.location.search);
-    if (params.get('debug') === 'pro' || params.get('session_id')) {
+    const hasDebugParam = params.get('debug') === 'pro' || params.get('session_id') || params.get('code') === 'DEBUG_PRO' || params.get('code') === 'PIERRE-MASTER';
+    
+    if (hasDebugParam || accessCode === 'DEBUG_PRO' || accessCode === 'PIERRE-MASTER' || accessCode === 'PREMIUM') {
       setShowProFeatures(true);
-      if (params.get('debug') === 'pro') {
-         console.log("🛠️ MODO DESARROLLADOR ACTIVO: Funciones PRO desbloqueadas");
-      }
     }
-  }, []);
+  }, [accessCode]);
 
   useEffect(() => {
      if (typeof window !== "undefined") {
@@ -181,8 +184,6 @@ export default function CvAnalysis({
     setHasGreeted(false);
     setError("");
     
-    console.log("🚀 Iniciando análisis de CV en Pierre Engine...");
-    
     try {
       const res = await fetch("/api/cv-analysis", {
         method: "POST",
@@ -213,7 +214,6 @@ export default function CvAnalysis({
         return;
       }
 
-      console.log("✅ Análisis completado con éxito!");
       setResult(data.result);
       
       // Save result for Pierre chatbot context
@@ -223,7 +223,16 @@ export default function CvAnalysis({
         console.warn("Could not save report result to localStorage:", e);
       }
 
-      // --- PHASE 1: Pierre AI Agent Proactive Greeting ---
+      // --- PHASE 1.5: Generate Personalized Module Plan (Background) ---
+      if (leadId) {
+        fetch("/api/generate-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId })
+        }).catch(err => console.error("Plan generation error:", err));
+      }
+
+      // --- PHASE 2: Pierre AI Agent Proactive Greeting ---
       setTimeout(() => {
         const score = data.result.puntaje?.final || data.result.puntaje?.base || 0;
         const noc = data.result.analisisNOC?.titulo || data.result.analisisNOC?.título || "tu perfil";
@@ -435,8 +444,8 @@ export default function CvAnalysis({
   };
 
   const searchParams = useSearchParams();
-  const isDebugPro = searchParams.get("debug") === "pro";
-  const isPremium = accessCode === "PREMIUM" || isDebugPro;
+  const isDebugPro = searchParams.get("debug") === "pro" || searchParams.get("code") === "DEBUG_PRO" || searchParams.get("code") === "PIERRE-MASTER";
+  const isPremium = accessCode === "PREMIUM" || accessCode === "DEBUG_PRO" || accessCode === "PIERRE-MASTER" || isDebugPro;
 
   if (error) {
     return (
@@ -490,6 +499,7 @@ export default function CvAnalysis({
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-5 duration-1000 bg-slate-50 p-4 sm:p-10 rounded-[4rem] border border-slate-200 shadow-sm overflow-hidden">
+
       {/* 1. INITIAL IMPACT / SCORE */}
       <header className="space-y-6 max-w-6xl mx-auto px-4 text-center sm:text-left">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
@@ -736,34 +746,95 @@ export default function CvAnalysis({
                     <Zap className="w-4 h-4 fill-primary" /> MODO PREMIUM ACTIVADO {isDebugPro && "(ADMIN DEBUG)"}
                 </p>
             </div>
-            <EmployabilityEnginePro cvText={cvText} />
-            
-            {/* User Manual PRO */}
-            <div className="mt-12">
+
+            {/* ERROR PREVENCIÓN: Mapa de Éxito / Instrucciones PRO (FIJA) */}
+            <div className="mb-16 space-y-10">
+              <div className="bg-slate-950 rounded-[3.5rem] p-10 sm:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
+                <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+                  <div className="lg:col-span-7 space-y-8">
+                    <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-primary border border-primary/30 shadow-lg shadow-primary/5">
+                      <ShieldCheck className="w-4 h-4" /> Protocolo de Ejecución PRO
+                    </div>
+                    <div>
+                      <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4">
+                        Optimización <span className="text-primary italic">Maestra</span>
+                      </h2>
+                      <p className="text-slate-200 text-lg sm:text-xl font-medium leading-relaxed max-w-2xl italic">
+                        "Para que tu perfil sea imparable, debes seguir el orden táctico. La adaptación ciega es el error #1 de los candidatos."
+                      </p>
+                    </div>
+                  </div>
+                  <div className="lg:col-span-5 relative">
+                    <div className="bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 space-y-6 shadow-2xl relative z-10">
+                      <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-slate-950 font-black text-sm shadow-xl shadow-primary/20">
+                          100%
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-0.5">Control de Calidad</p>
+                          <p className="text-xs font-bold text-primary tracking-tight">Valor Estratégico Garantizado</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-300 font-medium leading-relaxed">
+                        Sigue las instrucciones del manual a continuación para asegurar que tu CV no solo pase el filtro ATS, sino que enamore al reclutador humano.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* User Manual PRO Integrated directly */}
               <UserManual />
             </div>
 
-            {/* CTA: Abrir Centro Táctico Completo */}
-            <div className="mt-12 bg-slate-900 rounded-[3rem] p-8 sm:p-12 text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
-                <div className="relative z-10 space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary border border-primary/30">
-                        <Sparkles className="w-3 h-3" /> 6 Herramientas Premium
+            <div className="h-px bg-slate-200 w-full mb-16 opacity-30" />
+
+            <EmployabilityEnginePro cvText={cvText} />
+
+            {/* CTA: Abrir Centro Táctico Completo - HIGH POLISH REDESIGN */}
+            <div className="mt-20 bg-slate-950 rounded-[3.5rem] p-10 sm:p-16 text-center relative overflow-hidden border border-white/10 shadow-[0_20px_100px_rgba(0,0,0,0.8)]">
+                <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.15),transparent_50%)]" />
+                <div className="relative z-10 space-y-10 max-w-4xl mx-auto">
+                    <div className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-primary border border-white/10 shadow-xl">
+                        <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Arsenal Estratégico Completo
                     </div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                        Centro Táctico <span className="text-primary italic">Completo</span>
-                    </h3>
-                    <p className="text-slate-400 text-sm font-medium max-w-lg mx-auto leading-relaxed">
-                        Personaliza tu CV por oferta, genera Cover Letters, prepárate para entrevistas con metodología STAR, y accede a scripts de networking profesional.
-                    </p>
-                    <Button 
-                        size="lg"
-                        className="h-16 px-12 rounded-2xl bg-primary text-white font-black text-lg shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                        onClick={onAnalysisComplete}
-                    >
-                        <Rocket className="w-5 h-5 mr-3" />
-                        ABRIR CENTRO TÁCTICO
-                    </Button>
+                    
+                    <div className="space-y-4">
+                      <h3 className="text-4xl sm:text-6xl font-black text-white tracking-tighter leading-tight">
+                          Centro de <span className="text-primary italic">Recursos PRO</span>
+                      </h3>
+                      <p className="text-slate-300 text-lg sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+                          Accede a la suite completa de herramientas diseñadas para dominar el Mercado Oculto canadiense.
+                      </p>
+                    </div>
+
+                    {/* Features Grid for the CTA */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+                        {[
+                          { icon: Mail, label: "Cover Letters" },
+                          { icon: MessageSquare, label: "Entrevistas" },
+                          { icon: Search, label: "Portales Pro" },
+                          { icon: Phone, label: "Scripts" }
+                        ].map((f, i) => (
+                          <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/5 group hover:border-white/20 transition-all">
+                             <f.icon className="w-5 h-5 text-primary/60 group-hover:text-primary transition-colors" />
+                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{f.label}</span>
+                          </div>
+                        ))}
+                    </div>
+
+                    <div className="pt-6">
+                      <Button 
+                          size="lg"
+                          className="h-20 px-16 rounded-[2rem] bg-primary text-slate-950 font-black text-xl shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] hover:scale-105 active:scale-95 transition-all hover:bg-primary-foreground uppercase group"
+                          onClick={onAnalysisComplete}
+                      >
+                          <Rocket className="w-6 h-6 mr-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                          ABRIR CENTRO ESTRATÉGICO
+                      </Button>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-8 opacity-60">Tu éxito profesional comienza aquí.</p>
+                    </div>
                 </div>
             </div>
         </div>

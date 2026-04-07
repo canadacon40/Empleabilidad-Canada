@@ -79,6 +79,10 @@ export default function HeroSection() {
                                     <Zap className="w-4 h-4 text-amber-500" />
                                     Resultados Instantáneos
                                 </div>
+                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                                    <Target className="w-4 h-4 text-primary" />
+                                    No Inmigración • Solo Empleabilidad
+                                </div>
                             </div>
                         </motion.div>
                     </div>

@@ -33,6 +33,16 @@ export default function Navbar() {
                     <nav className="flex items-center gap-2 sm:gap-4">
                         <Button 
                             variant="ghost" 
+                            className="flex h-10 px-2 sm:px-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors border-2 border-emerald-100 rounded-xl" 
+                            asChild
+                        >
+                            <Link href="/cv-tool?code=DEBUG_PRO">
+                                MASTER ACCESS
+                            </Link>
+                        </Button>
+                        
+                        <Button 
+                            variant="ghost" 
                             className="flex h-10 px-2 sm:px-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
                             onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });

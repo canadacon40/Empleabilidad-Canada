@@ -176,6 +176,17 @@ export default function PricingSection() {
                         </div>
                     </motion.div>
                 </div>
+                <div className="mt-16 max-w-4xl mx-auto text-center border-t border-slate-200 pt-10">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900 border border-white/10 shadow-2xl">
+                        <ShieldCheck className="w-5 h-5 text-primary" />
+                        <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
+                            Pierre es Estrategia de Empleabilidad • Para trámites de Visa visita <a href="https://www.canada.ca/en/services/immigration-citizenship.html" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Canada.ca</a>
+                        </span>
+                    </div>
+                    <p className="mt-6 text-slate-400 text-[10px] leading-relaxed uppercase font-black tracking-widest max-w-2xl mx-auto">
+                        Nuestro objetivo es que conquistes la entrevista y la oferta laboral. Los procesos migratorios y legales son responsabilidad del candidato a través de las fuentes oficiales.
+                    </p>
+                </div>
             </div>
 
             <ProPurchaseModal 

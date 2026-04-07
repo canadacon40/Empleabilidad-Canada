@@ -43,9 +43,7 @@ export function generateReportHTML(result: any): string {
     </head>
     <body>
         <div class="header">
-            <div class="logo">CanadaConTrabajo.com</div>
             <div class="title">Estrategia de Acceso al Mercado Oculto</div>
-            <div class="version">Estrategia PRO - CanadaConTrabajo</div>
         </div>
 
         <div class="section">
@@ -162,23 +160,39 @@ export function generateReportHTML(result: any): string {
         </div>
 
         <div class="footer">
-            <div class="seal">Verified by Pierre</div>
-            <p style="margin-top: 15px;">Este reporte es un activo estratégico propiedad de CanadaConTrabajo.com</p>
-            <p>Generado electrónicamente bajo estándares ESDC / Job Bank Canada 2026.</p>
+            <p>Generado electrónicamente bajo estándares ESDC / Job Bank Canada 2026.</p>            
         </div>
     </body>
     </html>`;
 }
 
 export function downloadFullReportPDF(result: any) {
-    const printContent = generateReportHTML(result)
-    const printWindow = window.open("", "_blank")
-    if (printWindow) {
-        printWindow.document.write(printContent)
-        printWindow.document.close()
+    const html = generateReportHTML(result);
+    
+    // ASYNC PRINTING ENGINE - FIXES THE FREEZE
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        // 🚀 ACTIVATE PRINT DIALOG
         setTimeout(() => {
-            printWindow.print()
-        }, 500)
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }, 500);
     }
 }
 
@@ -232,7 +246,6 @@ export function generateCustomizedCVHTML(data: any) {
     <body>
         <div class="header">
             <div class="name">${data.name || 'Professional Candidate'}</div>
-            <div style="font-size: 12px; color: #64748b; margin-top: 5px; font-weight: 600;">Optimized for Canadian Professional Standards</div>
         </div>
         <div class="section">
             <div class="section-title">Professional Summary</div>
@@ -261,10 +274,6 @@ export function generateCustomizedCVHTML(data: any) {
                 </div>
             </div>
         ` : ''}
-        <div class="pierre-badge">
-            <div class="badge-text">Verified by Pierre Strategy Engine</div>
-            <div class="match-text">ATS Compatibility Score: ${data.matchScore || 'N/A'}%</div>
-        </div>
     </body>
     </html>`;
 }
@@ -285,84 +294,150 @@ export function downloadCustomizedCVPDF(data: any) {
     }
 }
 
-export async function downloadCustomizedCVWord(data: any) {
-    if (!data || !data.customizedExperience || data.customizedExperience.length === 0) {
-        alert("Información insuficiente para generar el CV. Por favor, asegúrate de haber completado el análisis.");
+export async function downloadCustomizedCVWord(cvData: any) {
+    if (!cvData) {
+        alert("Información insuficiente para generar el CV.");
         return;
     }
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } = await import("docx");
+
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, TabStopType, TabStopPosition } = await import("docx");
+
+    // Standardize data access
+    const cv = cvData.redesignedCv || cvData;
+    const info = cv.personalInfo || {};
+    const contact = info.contactDetails || {};
+
+    const contactStr = [
+        contact.email,
+        contact.phone,
+        contact.location,
+        contact.linkedin ? `linkedin.com/in/${contact.linkedin.replace(/.*\//, '')}` : null
+    ].filter(Boolean).join(" | ");
 
     const doc = new Document({
         sections: [{
             properties: {},
             children: [
+                // Header: Name & Headline
                 new Paragraph({
-                    text: data.name || "Professional Candidate",
+                    text: info.fullName || "Professional Candidate",
                     heading: HeadingLevel.HEADING_1,
                     alignment: AlignmentType.CENTER,
+                    spacing: { after: 100 },
                 }),
                 new Paragraph({
-                    text: "Optimized for Canadian Professional Standards",
+                    children: [
+                        new TextRun({
+                            text: info.headline || "",
+                            bold: true,
+                            color: "2563eb",
+                            size: 28, // 14pt
+                        })
+                    ],
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 200 },
+                    spacing: { after: 100 },
                 }),
+                new Paragraph({
+                    children: [new TextRun({ text: contactStr, size: 18 })],
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 300 },
+                }),
+
+                // Summary
                 new Paragraph({
                     text: "PROFESSIONAL SUMMARY",
                     heading: HeadingLevel.HEADING_2,
                     border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
                 }),
                 new Paragraph({
-                    children: [new TextRun(data.customizedSummary)],
-                    spacing: { before: 120, after: 200 },
+                    children: [new TextRun({ text: cv.professionalSummary, italics: true })],
+                    spacing: { before: 120, after: 250 },
                 }),
+
+                // Core Competencies
+                new Paragraph({
+                    text: "CORE COMPETENCIES",
+                    heading: HeadingLevel.HEADING_2,
+                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                }),
+                new Paragraph({
+                    text: (cv.coreCompetencies || []).join(" • "),
+                    spacing: { before: 120, after: 250 },
+                }),
+
+                // Work Experience
                 new Paragraph({
                     text: "PROFESSIONAL EXPERIENCE",
                     heading: HeadingLevel.HEADING_2,
                     border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
                 }),
-                ...data.customizedExperience.map((exp: any) => [
+                ...(cv.workExperience || []).map((exp: any) => [
                     new Paragraph({
                         children: [
-                            new TextRun({ text: exp.title, bold: true }),
-                            new TextRun({ text: `\t${exp.period}`, bold: true }),
+                            new TextRun({ text: exp.jobTitle, bold: true, size: 22 }),
+                            new TextRun({ text: `\t${exp.period}`, bold: true, size: 20 }),
                         ],
-                        tabStops: [{ type: "right", position: 9000, leader: "none" }],
+                        tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
                         spacing: { before: 200 },
                     }),
                     new Paragraph({
-                        children: [new TextRun({ text: exp.company, italics: true })],
+                        children: [new TextRun({ text: `${exp.company} | ${exp.location}`, italics: true, color: "666666" })],
                         spacing: { after: 120 },
                     }),
-                    ...exp.achievements.map((a: string) => 
+                    ...(exp.achievements || []).map((a: string) => 
                         new Paragraph({
                             text: a,
                             bullet: { level: 0 },
                         })
                     ),
                 ]).flat(),
-                new Paragraph({
-                    text: "CORE COMPETENCIES",
-                    heading: HeadingLevel.HEADING_2,
-                    spacing: { before: 200 },
-                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
-                }),
-                new Paragraph({
-                    text: (data.addedKeywords || []).join(", "),
-                    spacing: { before: 120 },
-                }),
+
+                // Education
+                ...(cv.education?.length ? [
+                    new Paragraph({
+                        text: "EDUCATION",
+                        heading: HeadingLevel.HEADING_2,
+                        spacing: { before: 300 },
+                        border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                    }),
+                    ...cv.education.map((edu: any) => 
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: edu.degree, bold: true }),
+                                new TextRun({ text: `\t${edu.year}` }),
+                            ],
+                            tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+                            spacing: { before: 120 },
+                        })
+                    ),
+                ] : []),
+
+                // Extra Sections
+                ...(cv.certifications?.length || cv.languages?.length ? [
+                    new Paragraph({
+                        text: "ADDITIONAL INFORMATION",
+                        heading: HeadingLevel.HEADING_2,
+                        spacing: { before: 300 },
+                        border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } },
+                    }),
+                    ...(cv.certifications?.length ? [
+                        new Paragraph({ children: [new TextRun({ text: "CERTIFICATIONS: ", bold: true }), new TextRun(cv.certifications.join(", "))], spacing: { before: 120 } })
+                    ] : []),
+                    ...(cv.languages?.length ? [
+                        new Paragraph({ children: [new TextRun({ text: "LANGUAGES: ", bold: true }), new TextRun(cv.languages.join(", "))], spacing: { before: 60 } })
+                    ] : [])
+                ] : [])
             ],
         }],
     });
 
     const blob = await Packer.toBlob(doc);
-    const filename = `CV_Canadian_Format_${data.name?.replace(/\s+/g, '_') || 'Professional'}.docx`;
+    const filename = `CV_${info.fullName?.replace(/\s+/g, '_') || 'Professional'}.docx`;
 
-    // Native Browser Download - Avoids file-saver interop issues
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.body.appendChild(document.createElement("a"));
     link.href = url;
     link.download = filename;
-    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
@@ -391,7 +466,6 @@ export function generateInterviewHTML(result: any) {
     <body>
         <div class="header">
             <div class="title">Predicción Estratégica de Entrevista</div>
-            <div class="subtitle">Preparación PRO - CanadaConTrabajo.com</div>
         </div>
 
         ${result.technicalQuestions?.length > 0 ? `
@@ -427,9 +501,6 @@ export function generateInterviewHTML(result: any) {
             </div>
         ` : ''}
 
-        <div class="footer">
-            <p>© 2026 CanadaConTrabajo.com - Sistema de Acceso al Mercado Oculto</p>
-        </div>
     </body>
     </html>`;
 }
@@ -439,14 +510,26 @@ export function downloadInterviewPDF(result: any) {
         alert("No hay preguntas generadas para descargar.");
         return;
     }
-    const printContent = generateInterviewHTML(result);
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
+    const html = generateInterviewHTML(result);
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
         setTimeout(() => {
-            printWindow.print();
-        }, 500);
+            document.body.removeChild(iframe);
+        }, 5000); 
     }
 }
 
@@ -480,7 +563,6 @@ export function generateManualHTML() {
     <body>
         <div class="header">
             <div class="title">Manual de Uso PRO</div>
-            <div class="subtitle">Motor de Empleabilidad - CanadaConTrabajo</div>
         </div>
         
         <p class="intro">Este manual explica cómo operar correctamente la sección PRO de Plataforma Pierre para estructurar tu CV, iterar con ofertas laborales (JD) y aumentar tus métricas de empleabilidad exponencialmente.</p>
@@ -530,101 +612,462 @@ export function generateManualHTML() {
             </div>
         </div>
 
-        <div class="footer">
-            <p>© 2026 CanadaConTrabajo.com - Tu Inteligencia de Mercado Oculto - Documento PRO Exclusivo</p>
-        </div>
     </body>
     </html>`;
 }
 
 export function downloadUserManualPDF() {
-    const printContent = generateManualHTML();
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
+    const html = generateManualHTML();
+    
+    // ASYNC PRINTING ENGINE - FIXES THE FREEZE
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        // 🚀 ACTIVATE PRINT DIALOG
         setTimeout(() => {
-            printWindow.print();
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
         }, 500);
     }
 }
 
-export function downloadStyledCVPdf(text: string, style: 'Classic' | 'Executive' | 'Modern', language: string) {
-    let font = "serif";
-    let color = "#000";
-    let accent = "#000";
-    let titleAlign = "left";
-    let headingStyle = "border-bottom: 2px solid #000; padding-bottom: 5px;";
-
-    if (style === 'Classic') {
-        font = "'Times New Roman', Times, serif";
-        color = "#111";
-        accent = "#333";
-        titleAlign = "center";
-        headingStyle = "border-bottom: 1px solid #333; margin-top: 15px; padding-bottom: 2px; text-transform: uppercase;";
-    } else if (style === 'Executive') {
-        font = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-        color = "#1e293b";
-        accent = "#0f172a";
-        titleAlign = "center";
-        headingStyle = "border-bottom: 2px solid #cbd5e1; margin-top: 20px; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;";
-    } else if (style === 'Modern') {
-        font = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-        color = "#334155";
-        accent = "#2563eb";
-        titleAlign = "left";
-        headingStyle = "color: #2563eb; border-bottom: 2px solid #bfdbfe; margin-top: 20px; padding-bottom: 4px;";
+/**
+ * 📄 PREMIUM PDF ENGINE - SURGICAL CANADIAN STANDARD
+ * This engine handles the 3 distinct visual styles and eliminates the UI freeze.
+ */
+export function downloadStyledCVPdf(cvData: any, style: 'Classic' | 'Elegant' | 'Modern', language: string = 'En') {
+    // If we received a string (old format), we try to parse it or wrap it
+    let data = cvData;
+    if (typeof cvData === 'string') {
+        try {
+            data = JSON.parse(cvData);
+        } catch (e) {
+            // Fallback for raw text - not ideal but prevents crash
+            data = { redesignedCv: { personalInfo: { fullName: 'Professional Candidate' }, professionalSummary: cvData } };
+        }
     }
 
-    const formattedHtml = text
-        .replace(/### (.*)/g, `<h4 style="margin-bottom: 5px; font-size: 14px; color: ${color};">$1</h4>`)
-        .replace(/## (.*)/g, `<h3 style="${headingStyle} font-size: 16px; margin-bottom: 10px;">$1</h3>`)
-        .replace(/# (.*)/g, `<h1 style="text-align: ${titleAlign}; font-size: 24px; color: ${accent}; margin-bottom: 15px;">$1</h1>`)
-        .replace(/\*\*(.*?)\*\*/g, `<strong>$1</strong>`)
-        .replace(/\*(.*?)\*/g, `<em>$1</em>`)
-        .replace(/- (.*)/g, `<li style="margin-bottom: 4px;">$1</li>`)
-        .replace(/(<li[\s\S]*<\/li>)/, `<ul style="margin-top: 5px; margin-bottom: 10px; padding-left: 20px;">$1</ul>`);
+    const cv = data.redesignedCv || data;
+    const info = cv.personalInfo || {};
+    const contact = info.contactDetails || {};
 
-    const html = `<!DOCTYPE html>
-    <html lang="${language === 'En' ? 'en' : 'fr'}">
+    // 1. SELECT STYLE TOKENS
+    let styles = {
+        font: "'Inter', -apple-system, sans-serif",
+        headerBg: "transparent",
+        headerText: "#0f172a",
+        accent: "#2563eb",
+        titleSize: "28pt",
+        sectionBorder: "1px solid #e2e8f0",
+        containerPadding: "40pt",
+        alignment: "left"
+    };
+
+    if (style === 'Classic') {
+        styles = {
+            font: "'Times New Roman', Times, serif",
+            headerBg: "transparent",
+            headerText: "#000",
+            accent: "#000",
+            titleSize: "22pt",
+            sectionBorder: "1px solid #000",
+            containerPadding: "50pt",
+            alignment: "center"
+        };
+    } else if (style === 'Elegant') {
+        styles = {
+            font: "'Playfair Display', serif",
+            headerBg: "transparent", 
+            headerText: "#0f172a",
+            accent: "#0f172a",
+            titleSize: "32pt",
+            sectionBorder: "0.5pt solid #0f172a",
+            containerPadding: "50pt",
+            alignment: "center"
+        };
+    } else if (style === 'Modern') {
+        styles = {
+            font: "'Inter', sans-serif",
+            headerBg: "transparent",
+            headerText: "#0f172a",
+            accent: "#f59e0b", // Amber accent
+            titleSize: "30pt",
+            sectionBorder: "none",
+            containerPadding: "40pt",
+            alignment: "left"
+        };
+    }
+
+    // 2. GENERATE PREMIUM HTML
+    const html = `
+    <!DOCTYPE html>
+    <html lang="${language === 'Fr' ? 'fr' : 'en'}">
     <head>
         <meta charset="utf-8">
-        <title>CV - ${style}</title>
         <style>
-            @page { margin: 15mm; size: letter; }
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+            @page { size: letter; margin: 0; }
             body { 
-                font-family: ${font}; 
-                color: ${color}; 
-                line-height: 1.5; 
-                font-size: 11px; 
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 20px;
-                background: white;
+                font-family: ${styles.font}; 
+                color: #1e293b; 
+                line-height: 1.45; 
+                font-size: 10pt; 
+                margin: 0; 
+                padding: 0;
             }
-            p { margin: 0 0 10px 0; }
-            ul { margin: 5px 0 15px 20px; padding: 0; }
-            li { margin-bottom: 4px; }
+            .page { 
+                padding: ${styles.containerPadding};
+                min-height: 100vh;
+                box-sizing: border-box;
+            }
+            
+            /* HEADER */
+            .header { 
+                background: ${styles.headerBg}; 
+                color: ${styles.headerText};
+                text-align: ${styles.alignment};
+                padding: ${style === 'Executive' ? '40pt' : '0 0 20pt 0'};
+                margin: ${style === 'Executive' ? '-40pt -40pt 20pt -40pt' : '0'};
+            }
+            .name { 
+                font-size: ${styles.titleSize}; 
+                font-weight: 900; 
+                text-transform: uppercase; 
+                letter-spacing: -0.05em;
+                margin-bottom: 5pt;
+            }
+            .headline {
+                font-size: 13pt;
+                font-weight: 700;
+                color: ${style === 'Classic' ? '#444' : styles.accent};
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin-bottom: 10pt;
+            }
+            .contact-info {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: ${styles.alignment === 'center' ? 'center' : 'flex-start'};
+                gap: 15pt;
+                font-size: 9pt;
+                font-weight: 600;
+                color: ${style === 'Executive' ? 'rgba(255,255,255,0.8)' : '#64748b'};
+            }
+
+            /* SECTIONS */
+            .section { margin-top: 20pt; }
+            .section-title {
+                font-size: 11pt;
+                font-weight: 900;
+                color: ${styles.accent};
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                border-bottom: ${styles.sectionBorder};
+                padding-bottom: 4pt;
+                margin-bottom: 10pt;
+            }
+            
+            .summary { text-align: justify; font-style: italic; color: #334155; }
+            
+            /* EXPERIENCE */
+            .exp-item { margin-bottom: 15pt; }
+            .exp-header { display: flex; justify-content: space-between; align-items: baseline; }
+            .job-title { font-weight: 900; font-size: 11pt; color: #0f172a; }
+            .dates { font-weight: 700; font-size: 9pt; color: #64748b; }
+            .company { font-weight: 700; font-size: 10pt; color: #475569; margin-bottom: 4pt; }
+            
+            .achievements { 
+                margin: 5pt 0 0 15pt; 
+                padding: 0; 
+                list-style-type: ${style === 'Modern' ? 'circle' : 'square'}; 
+            }
+            .achievement-item { margin-bottom: 3pt; color: #1e293b; }
+
+            /* SKILLS MATRIX */
+            .skills-grid { 
+                display: grid; 
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 5pt; 
+            }
+            .skill-item { 
+                font-weight: 700; 
+                font-size: 9pt; 
+                padding: 4pt 8pt;
+                background: ${style === 'Modern' ? '#f8fafc' : 'transparent'};
+                border: ${style === 'Modern' ? '1px solid #e2e8f0' : 'none'};
+                border-radius: 4pt;
+            }
+
+            .edu-item { margin-bottom: 8pt; }
+            .edu-degree { font-weight: 800; font-size: 10pt; }
+            
             @media print {
-                body { padding: 0; }
+                body { -webkit-print-color-adjust: exact; }
+                .no-print { display: none; }
             }
         </style>
     </head>
-    <body>
-        ${formattedHtml}
-        <script>
-            window.onload = function() {
-                window.print();
-                setTimeout(function(){ window.close(); }, 1000);
-            }
-        </script>
+    <body onload="window.print()">
+        <div class="page">
+            <div class="header">
+                <div class="name">${info.fullName || 'Professional Candidate'}</div>
+                <div class="headline">${info.headline || 'Impact-Driven Professional'}</div>
+                <div class="contact-info">
+                    ${contact.email ? `<span>${contact.email}</span>` : ''}
+                    ${contact.phone ? `<span>${contact.phone}</span>` : ''}
+                    ${contact.location ? `<span>${contact.location}</span>` : ''}
+                    ${contact.linkedin ? `<span>LinkedIn.com/in/${contact.linkedin.replace(/.*\//, '')}</span>` : ''}
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Professional Profile</div>
+                <div class="summary">${cv.professionalSummary}</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Core Competencies</div>
+                <div class="skills-grid">
+                    ${(cv.coreCompetencies || []).map((s: string) => `<div class="skill-item">• ${s}</div>`).join('')}
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Professional Experience</div>
+                ${(cv.workExperience || []).map((exp: any) => `
+                    <div class="exp-item">
+                        <div class="exp-header">
+                            <span class="job-title">${exp.jobTitle}</span>
+                            <span class="dates">${exp.period}</span>
+                        </div>
+                        <div class="company">${exp.company} | ${exp.location}</div>
+                        <ul class="achievements">
+                            ${(exp.achievements || []).map((a: string) => `<li class="achievement-item">${a}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            </div>
+
+            ${cv.education?.length ? `
+                <div class="section">
+                    <div class="section-title">Academic Background</div>
+                    ${cv.education.map((edu: any) => `
+                        <div class="edu-item">
+                            <div class="edu-degree">${edu.degree}</div>
+                            <div class="company">${edu.institution} | ${edu.year}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${cv.certifications?.length || cv.languages?.length ? `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30pt;">
+                    ${cv.certifications?.length ? `
+                        <div class="section">
+                            <div class="section-title">Certifications</div>
+                            <ul style="padding-left: 15pt; margin: 0;">
+                                ${cv.certifications.map((c: string) => `<li style="font-size: 9pt; font-weight:600;">${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : '<div></div>'}
+                    ${cv.languages?.length ? `
+                        <div class="section">
+                            <div class="section-title">Languages</div>
+                            <ul style="padding-left: 15pt; margin: 0;">
+                                ${cv.languages.map((l: string) => `<li style="font-size: 9pt; font-weight:600;">${l}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : '<div></div>'}
+                </div>
+            ` : ''}
+
+            {/* NO BRANDING - CLEAN EXPORT */}
+        </div>
     </body>
     </html>`;
 
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank');
-    if (win) {
-        win.focus();
+    // 3. ASYNC PRINTING ENGINE - FIXES THE FREEZE
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        // Give the browser time to render and open the print dialog
+        // Using an iframe prevents the main window from freezing or losing focus
+        setTimeout(() => {
+            // Remove iframe after print dialog is closed (or approximately enough time)
+            // Note: window.print() is blocking within the iframe, so this is safe
+            document.body.removeChild(iframe);
+        }, 3000); 
+    }
+}
+export function generateCoverLetterHTML(data: any) {
+    const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    // Default values for smart completion if AI didn't provide them
+    const contact = data.finalContactName || 'Hiring Manager';
+    const company = data.finalCompanyName || '[Company Name]';
+    const role = data.finalTargetRole || 'Professional Position';
+
+    return `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+        <style>
+            @page { size: letter; margin: 0.75in; }
+            body { 
+                font-family: 'Inter', -apple-system, sans-serif; 
+                color: #1e293b; 
+                line-height: 1.5; 
+                font-size: 10.5pt; 
+                margin: 0; 
+                padding: 0; 
+                background: #fff;
+                overflow: hidden; /* Force 1 page */
+                height: 100vh;
+            }
+            .page-container {
+                padding: 20pt 40pt;
+                max-height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            .header-line { border-bottom: 1px solid #e2e8f0; margin-bottom: 20pt; padding-bottom: 10pt; display: flex; justify-content: space-between; align-items: baseline; }
+            .header-title { font-weight: 900; font-size: 12pt; letter-spacing: 2px; color: #0f172a; text-transform: uppercase; }
+            
+            .date { margin-bottom: 20pt; font-weight: 700; color: #0f172a; }
+            
+            .recipient-block { margin-bottom: 20pt; line-height: 1.3; }
+            .recipient-name { font-weight: 700; }
+            .recipient-company { color: #64748b; font-weight: 500; }
+            
+            .subject-line { margin-bottom: 25pt; font-weight: 900; text-transform: uppercase; border-left: 4px solid #0f172a; padding-left: 12pt; }
+            
+            .salutation { margin-bottom: 15pt; font-weight: 700; }
+            
+            .content { text-align: justify; margin-bottom: 30pt; white-space: pre-wrap; font-size: 10.5pt; }
+            
+            .signature-block { margin-top: auto; padding-top: 20pt; page-break-inside: avoid; position: relative; }
+            .regards { margin-bottom: 35pt; font-weight: 700; }
+            
+            .signature-wrapper { position: relative; height: 50pt; margin-top: -30pt; }
+            .signature-handwriting { 
+                font-family: 'Dancing Script', cursive; 
+                font-size: 26pt; 
+                color: #2563eb; 
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 2;
+                transform: rotate(-2deg);
+            }
+            .signature-typed { 
+                font-weight: 900; 
+                text-transform: uppercase; 
+                font-size: 9pt; 
+                letter-spacing: 1px; 
+                color: #0f172a; 
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                border-top: 1px solid #f1f5f9;
+                width: 200pt;
+                padding-top: 4pt;
+            }
+            
+            .footer-info { font-size: 7.5pt; color: #cbd5e1; text-align: center; margin-top: 40pt; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; border-top: 1px solid #f8fafc; padding-top: 20pt; }
+        </style>
+    </head>
+    <body>
+        <div class="page-container">
+            <div class="header-line">
+                <div class="header-title">Cover Letter</div>
+                <div style="font-size: 8pt; color: #94a3b8; font-weight: 700;">PRO STRATEGY ENGINE</div>
+            </div>
+
+            <div class="date">${today}</div>
+            
+            <div class="recipient-block">
+                <div class="recipient-name">${contact}</div>
+                <div class="recipient-company">${company}</div>
+            </div>
+
+            <div class="subject-line">
+                RE: ${role} APPLICATION
+            </div>
+            
+            <div class="salutation">Dear ${contact},</div>
+            
+            <div class="content">${data.coverLetter}</div>
+            
+            <div class="signature-block">
+                <div class="regards">Sincerely,</div>
+                <div class="signature-wrapper">
+                    <div class="signature-handwriting">${data.userName || 'Professional Candidate'}</div>
+                    <div class="signature-typed">${data.userName || 'Professional Candidate'}</div>
+                </div>
+            </div>
+
+            <div class="footer-info">Canadian Market Access 2026</div>
+        </div>
+    </body>
+    </html>`;
+}
+
+export function downloadCoverLetterPDF(data: any) {
+    if (!data || !data.coverLetter) return;
+    const html = generateCoverLetterHTML(data);
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        // Give fonts time to load
+        setTimeout(() => {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }, 1000);
     }
 }

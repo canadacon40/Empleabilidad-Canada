@@ -3,9 +3,11 @@ import { Inter } from "next/font/google";
 import { GoogleTagManager } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/react";
 import { TrackingProvider } from "@/components/providers/TrackingProvider";
+import SessionProvider from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 import ChatWrapper from "@/components/chat/ChatWrapper";
+import MasterAccess from "@/components/debug/MasterAccess";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,11 +29,14 @@ export default function RootLayout({
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       )}
       <body className={`${inter.className} antialiased`}>
-        <TrackingProvider>
-          {children}
-        </TrackingProvider>
-        <Analytics />
-        <ChatWrapper />
+        <SessionProvider>
+          <TrackingProvider>
+            {children}
+          </TrackingProvider>
+          <Analytics />
+          <ChatWrapper />
+          <MasterAccess />
+        </SessionProvider>
       </body>
     </html>
   );

@@ -53,8 +53,8 @@ function UpsellContent() {
     }
 
     const toolHref = sessionId 
-        ? `/cv-tool?session_id=${sessionId}&lang=${selectedLang || 'en'}` 
-        : `/cv-tool?lang=${selectedLang || 'en'}`
+        ? `/cv-tool?session_id=${sessionId}&lang=${selectedLang || 'en'}&onboarding=true` 
+        : `/cv-tool?lang=${selectedLang || 'en'}&onboarding=true`
 
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 flex flex-col items-center font-sans text-slate-900 relative">

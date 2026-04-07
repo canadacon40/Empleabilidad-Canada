@@ -27,21 +27,40 @@ export async function POST(req: Request) {
             
             userPrompt = `Job Description: ${jobDescription}\n\nCV del Candidato: ${cvText}`;
         } else if (action === "customize") {
-            systemPrompt = `Eres un Consultor de Carrera Canadiense de Élite. 
-            Tu misión es RE-ESCRIBIR el CV del candidato para que sea una coincidencia del 95% con el Job Description proporcionado.
+            systemPrompt = `Eres un Consultor de Carrera Canadiense de Élite y experto en "Ingeniería Quirúrgica" de CVs. 
+            Tu misión es ADAPTAR el CV del candidato a una vacante (Job Description) con precisión quirúrgica, asegurando un match del 95% o superior.
             
             REGLAS CRÍTICAS:
-            1. IDIOMA: Si el Job Description está en Inglés o Francés, TRADUCE el CV a ese idioma automáticamente con un nivel C1/C2 Profesional.
-            2. LOOK EJECUTIVO: Usa verbos de acción fuertes (Managed, Orchestrated, Designed, Delivered) y métricas (KPIs).
-            3. LONGITUD: El CV debe estructurarse para no exceder las 2 páginas.
-            4. ATS MATCH: Inserta las keywords de la vacante de forma natural.
+            1. IDIOMA: Traduce el resultado al idioma dominante del Job Description (En/Fr).
+            2. LOOK EJECUTIVO: Usa la fórmula: VERBO DE ACCIÓN + TAREA + RESULTADO (KPIs).
+            3. ATS MATCHING: Inyecta keywords de forma natural pero densa.
+            4. HEADLINE: Crea un titular táctico alineado a la vacante (ej: "Senior Cloud Engineer | AWS Expert | Infrastructure Lead").
             
-            Devolver un JSON con:
-            - customizedSummary: Un resumen profesional de alto impacto (3-4 líneas).
-            - customizedExperience: (array de objetos) { title, company, period, achievements: string[] }.
-            - matchScore: (number 0-100) Estimado de compatibilidad tras la adaptación.
-            - addedKeywords: (string[]) Keywords clave que incorporaste.
-            - fullCvText: El texto completo del CV formateado profesionalmente.`;
+            Devolver un JSON estructurado igual a la fase de rediseño:
+            {
+              "personalInfo": {
+                "fullName": "Nombre real",
+                "headline": "Titular estratégico adaptado a la vacante",
+                "contactDetails": { "email": "...", "phone": "...", "linkedin": "...", "location": "..." }
+              },
+              "professionalSummary": "Resumen adaptado de alto impacto enfocándose en el match con la JD.",
+              "coreCompetencies": ["Habilidades clave del JD encontradas en el candidato"],
+              "workExperience": [
+                {
+                  "jobTitle": "Título adaptado",
+                  "company": "Compañía",
+                  "location": "Ubicación",
+                  "period": "Periodo",
+                  "achievements": ["Logros adaptados usando keywords del JD y métricas"]
+                }
+              ],
+              "education": [...],
+              "certifications": [...],
+              "achievements": [...],
+              "languages": [...],
+              "matchScore": 95, // Tu estimación técnica de compatibilidad
+              "addedKeywords": ["Keyword 1", "Keyword 2"]
+            }`;
             
             userPrompt = `CV Original: ${cvText}\n\nRE-ESCRIBIR PARA ESTA VACANTE: ${jobDescription}`;
         } else if (action === "ats-check") {
