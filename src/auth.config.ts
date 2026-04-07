@@ -20,6 +20,7 @@ export const authConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
         token.isPro = (user as any).isPro
       }
       return token
@@ -27,6 +28,7 @@ export const authConfig = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string
+        session.user.email = token.email as string
         (session.user as any).isPro = token.isPro
       }
       return session

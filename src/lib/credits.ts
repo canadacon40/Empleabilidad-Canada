@@ -15,8 +15,11 @@ export async function consumeCredit(userId: string) {
   const cleanUserId = userId.toLowerCase().trim();
   
   if (masterEmail && cleanUserId === masterEmail) {
+    console.log(`[CREDITS_BYPASS] Master access GRANTED for: ${cleanUserId}`);
     return { success: true, remaining: 999, isPro: true };
   }
+
+  console.log(`[CREDITS_BYPASS] Bypass FAILED. Input: '${cleanUserId}', MasterConfig: '${masterEmail}'`);
 
   const user: any = await prisma.user.findFirst({
     where: {
