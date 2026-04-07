@@ -114,15 +114,8 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         setAccessCode(code);
         setLeadId(id);
         
-        // 🔒 PRO/MASTER BYPASS: Si el usuario es PRO, forzamos acceso al Centro Táctico de inmediato
-        const isUserPro = (session?.user as any)?.isPro;
-        
-        if (code === "PREMIUM" || isUserPro) {
-            setStep("strategy");
-            if (onDashboardEnter) onDashboardEnter();
-        } else {
-            setStep("analysis");
-        }
+        // Revertimos el bypass forzado: Todos ven el análisis primero, pero PRO tiene opción de saltar dentro del componente
+        setStep("analysis");
         
         // Save for potential recovery after Stripe redirect
         localStorage.setItem("pendingReportData", JSON.stringify({
@@ -162,7 +155,13 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
             )}
 
             {step === "strategy" && (
-                <StrategyResources cvText={cvText} resultData={leadData} />
+                <StrategyResources 
+                    cvText={cvText} 
+                    resultData={leadData} 
+                    onBackToReport={() => {
+                        setStep("analysis");
+                    }} 
+                />
             )}
         </div>
     );

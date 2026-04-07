@@ -497,7 +497,33 @@ export default function CvAnalysis({
   };
 
   return (
-    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-5 duration-1000 bg-slate-50 p-4 sm:p-10 rounded-[4rem] border border-slate-200 shadow-sm overflow-hidden">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-1000 bg-slate-50 p-4 sm:p-10 rounded-[4rem] border border-slate-200 shadow-sm overflow-hidden">
+      
+      {/* 🚀 PRO CHOICE BANNER */}
+      {isPremium && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-6xl mx-auto bg-slate-950 p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -mr-32 -mt-32 group-hover:bg-primary/20 transition-colors" />
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20 shrink-0">
+               <Rocket className="w-7 h-7 text-slate-950 fill-slate-950 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-white text-lg sm:text-xl font-black tracking-tight leading-tight">Acceso Estratégico PRO Activo</h3>
+              <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Ya puedes acceder a todas las herramientas de rediseño y preparación.</p>
+            </div>
+          </div>
+          <Button 
+            onClick={onAnalysisComplete}
+            className="h-14 px-8 rounded-2xl bg-white text-slate-950 hover:bg-slate-200 font-black gap-3 text-xs uppercase shadow-xl transition-all relative z-10 border-none shrink-0"
+          >
+            Ir al Centro Táctico Directo <ChevronRight className="w-4 h-4" />
+          </Button>
+        </motion.div>
+      )}
 
       {/* 1. INITIAL IMPACT / SCORE */}
       <header className="space-y-6 max-w-6xl mx-auto px-4 text-center sm:text-left">

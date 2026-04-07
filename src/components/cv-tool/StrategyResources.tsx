@@ -1079,7 +1079,7 @@ function UsageBanner({ credits, isTrial, onUpgrade }: { credits: number, isTrial
 }
 
 // ============= MAIN COMPONENT =============
-export default function StrategyResources({ cvText, onCustomize, resultData }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any }) {
+export default function StrategyResources({ cvText, onCustomize, resultData, onBackToReport }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any; onBackToReport?: () => void }) {
     const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState<string>("engine-pro");
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -1117,6 +1117,18 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
             {/* Slim Dash Header - FIXED TOP */}
             <header className="bg-slate-950 border-b border-white/10 px-4 sm:px-8 py-3 sm:py-4 shrink-0 z-[60] flex items-center justify-between shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent_70%)] pointer-events-none" />
+                
+                {onBackToReport && (
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-0 z-20 hidden sm:block">
+                        <Button 
+                            variant="ghost" 
+                            onClick={onBackToReport}
+                            className="bg-primary/10 border-t border-x border-primary/20 rounded-t-xl px-6 py-1 text-[8px] font-black text-primary uppercase tracking-[0.2em] hover:bg-primary/20 transition-all gap-2"
+                        >
+                            <ChevronUp className="w-3 h-3" /> Volver al Diagnóstico
+                        </Button>
+                    </div>
+                )}
                 
                 <div className="flex items-center gap-4 sm:gap-8 relative z-10">
                     <div className="flex flex-col">
@@ -1171,6 +1183,17 @@ export default function StrategyResources({ cvText, onCustomize, resultData }: {
                         >
                              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Button>
+                        
+                        {onBackToReport && (
+                             <Button 
+                                variant="outline" 
+                                className="sm:hidden h-10 px-2 rounded-xl border border-white/20 bg-white/5 text-white/60 font-black text-[8px] uppercase" 
+                                onClick={onBackToReport}
+                                title="Volver al Reporte"
+                            >
+                                <Target className="w-3.5 h-3.5" />
+                            </Button>
+                        )}
                     </div>
                 </div>
             </header>
