@@ -10,7 +10,13 @@ import prisma from "./db";
  * @returns { success: boolean, remaining: number, isPro: boolean }
  */
 export async function consumeCredit(userId: string) {
-  const user = await prisma.user.findFirst({
+  // 🔒 MASTER BYPASS: Allow the owner to use all tools without a DB record
+  const masterEmail = process.env.MASTER_EMAIL;
+  if (masterEmail && userId.toLowerCase() === masterEmail.toLowerCase()) {
+    return { success: true, remaining: 999, isPro: true };
+  }
+
+  const user: any = await prisma.user.findFirst({
     where: {
       OR: [
         { id: userId },
@@ -25,13 +31,13 @@ export async function consumeCredit(userId: string) {
 
   // Bypass for official PRO users
   if (user.isPro) {
-    return { success: true, remaining: user.credits, isPro: true };
+    return { success: true, remaining: user.credits || 0, isPro: true };
   }
 
   // Check trial credits
   if (user.isTrial) {
     if (user.credits > 0) {
-      const updatedUser = await prisma.user.update({
+      const updatedUser: any = await (prisma.user as any).update({
         where: { id: user.id },
         data: { credits: { decrement: 1 } }
       });

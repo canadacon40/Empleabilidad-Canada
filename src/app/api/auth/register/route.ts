@@ -60,16 +60,22 @@ export async function POST(req: Request) {
         
         // Increment promo usage
         await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
-    } else if (existingUser) {
         // Assume upgrading from Lead (Free tool) or Stripe redirect
         // For production, we would ideally verify Stripe session here for absolute security.
         isTrial = false;
         initialCredits = 999; // Effectively unlimited for PRO buyers
     } else {
-        // Block unauthorized public registration
-        return NextResponse.json({ 
-            error: "Acceso restringido. Para registrarte debes haber generado un reporte previo o contar con un código de beca." 
-        }, { status: 403 })
+        // 🔒 MASTER BYPASS: Allow the owner to register without a code
+        const masterEmail = process.env.MASTER_EMAIL;
+        if (masterEmail && email.toLowerCase().trim() === masterEmail.toLowerCase().trim()) {
+            isTrial = false;
+            initialCredits = 999;
+        } else {
+            // Block unauthorized public registration
+            return NextResponse.json({ 
+                error: "Acceso restringido. Para registrarte debes haber generado un reporte previo o contar con un código de beca." 
+            }, { status: 403 })
+        }
     }
 
     // 3. Hash the password
