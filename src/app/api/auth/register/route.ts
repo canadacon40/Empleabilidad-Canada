@@ -66,8 +66,10 @@ export async function POST(req: Request) {
         initialCredits = 999; // Effectively unlimited for PRO buyers
     } else {
         // 🔒 MASTER BYPASS: Allow the owner to register without a code
-        const masterEmail = process.env.MASTER_EMAIL;
-        if (masterEmail && email.toLowerCase().trim() === masterEmail.toLowerCase().trim()) {
+        const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();
+        const cleanEmail = email.toLowerCase().trim();
+        
+        if (masterEmail && cleanEmail === masterEmail) {
             isTrial = false;
             initialCredits = 999;
         } else {

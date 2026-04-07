@@ -23,9 +23,11 @@ export async function GET() {
     });
 
     if (!user) {
-      // 🔒 MASTER BYPASS: For secret testing and owner access
-      const masterEmail = process.env.MASTER_EMAIL;
-      if (masterEmail && session.user.email.toLowerCase() === masterEmail.toLowerCase()) {
+      // 🔒 MASTER BYPASS: For secret testing and owner access (added robust trim)
+      const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();
+      const sessionEmail = session.user.email.toLowerCase().trim();
+      
+      if (masterEmail && sessionEmail === masterEmail) {
         return NextResponse.json({ 
           user: {
             id: "master-admin",

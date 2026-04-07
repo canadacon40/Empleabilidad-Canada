@@ -11,8 +11,10 @@ import prisma from "./db";
  */
 export async function consumeCredit(userId: string) {
   // 🔒 MASTER BYPASS: Allow the owner to use all tools without a DB record
-  const masterEmail = process.env.MASTER_EMAIL;
-  if (masterEmail && userId.toLowerCase() === masterEmail.toLowerCase()) {
+  const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();
+  const cleanUserId = userId.toLowerCase().trim();
+  
+  if (masterEmail && cleanUserId === masterEmail) {
     return { success: true, remaining: 999, isPro: true };
   }
 
