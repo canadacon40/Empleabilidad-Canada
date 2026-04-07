@@ -9,13 +9,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
         
-        // 🔒 MASTER BYPASS: For secret testing and owner access
-        const masterEmail = process.env.MASTER_EMAIL;
-        const masterPass = process.env.MASTER_PASSWORD;
+        // 🔒 MASTER BYPASS: Limpiamos espacios y normalizamos para evitar fallos de configuración
+        const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();
+        const masterPass = process.env.MASTER_PASSWORD?.trim();
+        
+        const inputEmail = (credentials.email as string).toLowerCase().trim();
+        const inputPass = (credentials.password as string).trim();
         
         if (masterEmail && masterPass && 
-            (credentials.email as string).toLowerCase().trim() === masterEmail.toLowerCase() && 
-            (credentials.password as string) === masterPass) {
+            inputEmail === masterEmail && 
+            inputPass === masterPass) {
           return {
             id: "master-admin",
             email: masterEmail,
