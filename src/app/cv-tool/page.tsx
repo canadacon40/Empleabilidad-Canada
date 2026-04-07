@@ -114,8 +114,10 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         setAccessCode(code);
         setLeadId(id);
         
-        // If it's a PRO client, we might want to skip the "Analysis" screen and go straight to Strategy
-        if (code === "PREMIUM") {
+        // 🔒 PRO/MASTER BYPASS: Si el usuario es PRO, forzamos acceso al Centro Táctico de inmediato
+        const isUserPro = (session?.user as any)?.isPro;
+        
+        if (code === "PREMIUM" || isUserPro) {
             setStep("strategy");
             if (onDashboardEnter) onDashboardEnter();
         } else {
