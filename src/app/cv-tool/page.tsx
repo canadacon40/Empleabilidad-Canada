@@ -73,6 +73,19 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         }
     }, [authStatus, session, step, leadData, searchParams]);
 
+    // 🚀 MASTER ADMIN AUTO-BYPASS: No more frustrating forms for the owner
+    useEffect(() => {
+        const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
+        if (authStatus === "authenticated" && isMaster && step === "form") {
+            console.log("[MASTER_BYPASS] Jumping to Strategy Dashboard...");
+            setLeadData(DUMMY_LEAD_DATA);
+            setCvText(DUMMY_CV_TEXT);
+            setAccessCode("PREMIUM");
+            setStep("strategy");
+            if (onDashboardEnter) onDashboardEnter();
+        }
+    }, [authStatus, session, step, onDashboardEnter]);
+
     // 1. Detect Stripe Session or Developer Bypass and Recover Data
     useEffect(() => {
         const queryCode = searchParams.get("code");
