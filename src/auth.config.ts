@@ -22,6 +22,8 @@ export const authConfig = {
         token.id = user.id
         token.email = user.email
         token.isPro = (user as any).isPro
+        token.isTrial = (user as any).isTrial
+        token.credits = (user as any).credits
       }
       return token
     },
@@ -29,7 +31,9 @@ export const authConfig = {
       if (token) {
         session.user.id = token.id as string
         session.user.email = token.email as string
-        (session.user as any).isPro = token.isPro
+        (session.user as any).isPro = token.isPro;
+        (session.user as any).isTrial = token.isTrial;
+        (session.user as any).credits = token.credits;
       }
       return session
     }

@@ -56,7 +56,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             id: user.id,
             email: user.email,
             name: user.name,
-            isPro: user.isPro
+            isPro: user.isPro,
+            isTrial: user.isTrial,
+            credits: user.credits
           }
         } catch (error) {
           console.error("Auth.js Authorize Error (Dynamic):", error)
