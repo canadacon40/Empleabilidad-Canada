@@ -11,7 +11,7 @@ function RegistrationForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  const sessionId = searchParams.get("session_id")
+  const activeSessionId = searchParams.get("session_id")
   const becaParam = searchParams.get("beca") || searchParams.get("code")
 
   const [formData, setFormData] = useState({
@@ -53,8 +53,8 @@ function RegistrationForm() {
         }
     }
 
-    if (sessionId) {
-        fetchSessionEmail(sessionId);
+    if (activeSessionId) {
+        fetchSessionEmail(activeSessionId);
     }
   }, [searchParams])
 
@@ -169,7 +169,7 @@ function RegistrationForm() {
             </div>
 
             {/* Beca Code Field */}
-            {!sessionId && !isAsesoria && (
+            {!activeSessionId && !isAsesoria && (
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest ml-4">¿Tienes un Código de Beca?</label>
                 <div className="relative">
