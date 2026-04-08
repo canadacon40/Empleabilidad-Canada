@@ -34,7 +34,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     const [networking, setNetworking] = useState("")
     const [workPermit, setWorkPermit] = useState("")
     
-    const [showWelcome, setShowWelcome] = useState(true)
+    const [showWelcome, setShowWelcome] = useState(false)
     const [showCvWarning, setShowCvWarning] = useState(false)
     const [highlightFields, setHighlightFields] = useState<string[]>([])
     const [hasStartedForm, setHasStartedForm] = useState(false)
@@ -55,10 +55,13 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
 
     // 🛡️ VIP PROTECTION: Do not show welcome modal or free-tier warnings to PRO/Trial users
     useEffect(() => {
-        if (isPremium) {
+        // Only show welcome for authenticated users who are NOT premium
+        if (session?.user && !isPremium) {
+            setShowWelcome(true)
+        } else if (isPremium) {
             setShowWelcome(false)
         }
-    }, [isPremium])
+    }, [isPremium, session])
 
     const accessCode = "LEAD_MAGNET" // Default bypass code
 

@@ -87,6 +87,11 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
     const [leadId, setLeadId] = useState<string | undefined>();
     const [accessCode, setAccessCode] = useState("LEAD_MAGNET");
 
+    const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
+    const isPro = (session?.user as any)?.isPro;
+    const isTrial = (session?.user as any)?.isTrial;
+    const isVIP = isMaster || isPro || isTrial;
+
     // 🛡️ LOADING SHIELD: Prevent flash of free content while auth resolves
     if (authStatus === "loading") {
         return <LoadingShield />;
@@ -187,7 +192,7 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
 
     return (
         <div className={step === "strategy" ? "h-screen w-full overflow-hidden" : "flex-1 container mx-auto px-4 py-12"}>
-            {step === "form" && (
+            {(step === "form" && !isVIP) && (
                 <LeadCaptureForm onResult={handleResult} />
             )}
 
