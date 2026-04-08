@@ -137,6 +137,36 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {/* Scholarship Code Section */}
+          <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center italic">
+                  ¿Recibiste una beca o acceso especial?
+              </p>
+              <div className="flex gap-2">
+                  <input 
+                    id="login-beca-code"
+                    type="text"
+                    placeholder="TU CÓDIGO AQUÍ"
+                    className="flex-1 bg-slate-950 border-2 border-white/5 rounded-xl px-4 text-xs font-black text-amber-400 placeholder:text-slate-800 uppercase tracking-widest focus:outline-none focus:border-amber-400/30 transition-all"
+                  />
+                  <Button 
+                    variant="outline"
+                    className="border-2 border-white/10 hover:border-amber-400/50 text-[10px] font-black uppercase tracking-widest rounded-xl px-4"
+                    onClick={() => {
+                        const code = (document.getElementById('login-beca-code') as HTMLInputElement)?.value;
+                        if (code) {
+                            router.push(`/register?beca=${code.toUpperCase()}`);
+                        }
+                    }}
+                  >
+                      ACTIVAR
+                  </Button>
+              </div>
+          </div>
+
+          <p className="text-center mt-8 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+            ¿No tienes cuenta? <Link href="/register" className="text-white hover:text-amber-400 transition-colors">Regístrate gratis</Link>
+          </p>
         </div>
 
         <footer className="mt-12 text-center opacity-30">
