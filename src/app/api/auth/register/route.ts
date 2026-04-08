@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         if (promo.grantedCredits && promo.grantedCredits > 0) {
             initialCredits = promo.grantedCredits;
         } else {
-            initialCredits = isBeca ? 10 : 50; 
+            initialCredits = isBeca ? 5 : 50; 
         }
         
         // Increment promo usage
