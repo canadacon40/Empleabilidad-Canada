@@ -133,6 +133,36 @@ function RegistrationForm() {
         {/* Form Container */}
         <div className="bg-slate-900/50 backdrop-blur-xl border-4 border-slate-900 rounded-[3rem] p-8 sm:p-12 shadow-2xl shadow-black/50 overflow-hidden relative">
           
+          {/* Premium Beca Badge */}
+          <AnimatePresence>
+            {formData.becaCode && !isAsesoria && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="mb-8 p-6 rounded-3xl bg-amber-400/10 border border-amber-400/20 flex items-center gap-5 shadow-[0_20px_50px_-15px_rgba(251,191,36,0.1)] relative overflow-hidden"
+              >
+                 <div className="absolute top-0 right-0 p-2 opacity-10">
+                    <Sparkles className="w-12 h-12 text-amber-400" />
+                 </div>
+                 <div className="w-14 h-14 rounded-2xl bg-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-400/20">
+                    <Star className="w-7 h-7 text-black fill-black" />
+                 </div>
+                 <div>
+                    <h3 className="text-sm font-black text-amber-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-2">
+                        Acceso Exclusivo Pierre <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    </h3>
+                    <p className="text-white text-xs font-bold font-mono tracking-wider">
+                        CÓDIGO: <span className="text-white">{formData.becaCode}</span> • DETECTADO 
+                    </p>
+                    <p className="text-amber-400/50 text-[10px] font-black uppercase tracking-widest mt-2 leading-none">
+                       {formData.becaCode.includes("BECA") ? "Soporte de Muestreo Activo (10 USOS)" : "Acceso PRO Estratégico Autorizado"}
+                    </p>
+                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
              {/* Name Field */}
              <div className="space-y-2">

@@ -88,7 +88,8 @@ model PromoCode {
   maxUses     Int      @default(1)
   currentUses Int      @default(0)
   isActive    Boolean  @default(true)
-  description String?
+  grantedCredits Int      @default(10)
+  description    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

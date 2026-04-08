@@ -56,23 +56,25 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Este código ya ha superado su límite de usos" }, { status: 403 })
         }
 
-        // Logic for specialized scholarship codes
-        if (activeCode.includes("BECA")) {
-            isTrial = true;
-            initialCredits = 10; 
+        // Precision Access Logic: Determine tier and capacity
+        const isBeca = activeCode.includes("BECA");
+        
+        // 1. Assign Trial Status
+        isTrial = isBeca;
+
+        // 2. Assign Credits (Priority: DB field -> Default based on type)
+        if (promo.grantedCredits && promo.grantedCredits > 0) {
+            initialCredits = promo.grantedCredits;
         } else {
-            // Default codes (like PREMIUM or others) might grant full access or trial based on type
-            // For now, assume anything else is PRO-level or trial depending on DB.
-            isTrial = false;
-            initialCredits = 999;
+            initialCredits = isBeca ? 10 : 50; 
         }
         
         // Increment promo usage
         await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
     } else if (sessionId) {
-        // Stripe success flow
+        // Stripe success flow (Real Purchasers)
         isTrial = false;
-        initialCredits = 999;
+        initialCredits = 50; // Per user request: "dar el acceso de (50 usos) a los que compren"
     } else {
         // 🔒 MASTER BYPASS: Allow the owner to register without a code
         const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();

@@ -116,18 +116,7 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
 
     // 1. Detect Stripe Session or Developer Bypass and Recover Data
     useEffect(() => {
-        const queryCode = searchParams.get("code");
-        const savedData = localStorage.getItem("pendingReportData");
-        
-        // Developer Bypass: ?code=DEBUG_PRO
-        if (queryCode === "DEBUG_PRO") {
-            setLeadData(DUMMY_LEAD_DATA);
-            setCvText(DUMMY_CV_TEXT);
-            setAccessCode("PREMIUM");
-            setStep("strategy"); // JUMP STRAIGHT TO DASHBOARD
-            if (onDashboardEnter) onDashboardEnter();
-            return;
-        }
+        // Removed Developer Bypass for Production Security
 
         if (sessionId && savedData) {
             try {
@@ -220,11 +209,7 @@ function CvToolPageWrapper() {
     const [isDashboard, setIsDashboard] = useState(false);
     const searchParams = useSearchParams();
 
-    useEffect(() => {
-        if (searchParams.get("code") === "DEBUG_PRO") {
-            setIsDashboard(true);
-        }
-    }, [searchParams]);
+    // Removed Developer Bypass for Production Security
 
     useEffect(() => {
         const handleDashboardEnter = () => setIsDashboard(true);

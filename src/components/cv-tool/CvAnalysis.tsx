@@ -444,13 +444,11 @@ export default function CvAnalysis({
     );
   };
 
-  const searchParams = useSearchParams();
-  const isDebugPro = searchParams.get("debug") === "pro" || searchParams.get("code") === "DEBUG_PRO" || searchParams.get("code") === "PIERRE-MASTER";
-  
   const isUserPro = (session?.user as any)?.isPro;
   const isMasterEmail = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
   
-  const isPremium = accessCode === "PREMIUM" || accessCode === "DEBUG_PRO" || accessCode === "PIERRE-MASTER" || isDebugPro || isUserPro || isMasterEmail;
+  // 🔒 HARD GATE: Strictly allow based on active session status or confirmed access code
+  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail;
 
   if (error) {
     return (

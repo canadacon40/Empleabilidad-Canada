@@ -11,17 +11,8 @@ export async function POST(req: Request) {
 
     const normalizedCode = code.trim().toUpperCase();
 
-    // 1. HARDCODED BYPASSES (Emergency/Admin)
-    const staticBypasses = ["DEBUG_PRO", "PIERRE-MASTER", "PIERRE-PRO-2026", "SOL-PRO-CAN", "BECA10"];
-    if (staticBypasses.includes(normalizedCode)) {
-      return NextResponse.json({ 
-        success: true, 
-        isStatic: true,
-        message: "Código maestro verificado." 
-      });
-    }
-
-    // 2. DB-MANAGED PROMO CODES (Scholarships with limited uses)
+    // 1. DB-MANAGED PROMO CODES (Scholarships & Admin Codes)
+    // Every code must be present in the database to be valid.
     const promo = await prisma.promoCode.findUnique({
       where: { code: normalizedCode },
     });
