@@ -21,13 +21,18 @@ function RegistrationForm() {
   const [error, setError] = useState("")
   const [isAsesoria, setIsAsesoria] = useState(false)
 
-  useEffect(() => {
+    useEffect(() => {
     const emailParam = searchParams.get("email")
     const sourceParam = searchParams.get("source")
     const sessionId = searchParams.get("session_id")
+    const becaParam = searchParams.get("beca") || searchParams.get("code")
     
     if (emailParam) {
       setFormData(prev => ({ ...prev, email: emailParam }))
+    }
+
+    if (becaParam) {
+      setFormData(prev => ({ ...prev, becaCode: becaParam.toUpperCase() }))
     }
     
     if (sourceParam === "asesoria") {

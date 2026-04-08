@@ -43,27 +43,36 @@ export async function POST(req: Request) {
     let isTrial = false;
     let initialCredits = 0;
 
-    if (becaCode) {
-        const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1 AND "isActive" = true', [becaCode.toUpperCase()])
+    if (becaCode || promoCode) {
+        const activeCode = (becaCode || promoCode).toUpperCase();
+        const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1 AND "isActive" = true', [activeCode])
         const promo = promoRes.rows[0]
         
         if (!promo) {
-            return NextResponse.json({ error: "Código de beca inválido" }, { status: 403 })
+            return NextResponse.json({ error: "Código de beca/promoción inválido" }, { status: 403 })
         }
         
-        if (promo.currentUses >= promo.maxUses) {
-            return NextResponse.json({ error: "Este código de beca ya ha superado su límite de usos" }, { status: 403 })
+        if (promo.maxUses && promo.currentUses >= promo.maxUses) {
+            return NextResponse.json({ error: "Este código ya ha superado su límite de usos" }, { status: 403 })
         }
-        
-        isTrial = true;
-        initialCredits = 10; // Trial users get 10 interactions
+
+        // Logic for specialized scholarship codes
+        if (activeCode.includes("BECA")) {
+            isTrial = true;
+            initialCredits = 10; 
+        } else {
+            // Default codes (like PREMIUM or others) might grant full access or trial based on type
+            // For now, assume anything else is PRO-level or trial depending on DB.
+            isTrial = false;
+            initialCredits = 999;
+        }
         
         // Increment promo usage
         await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
-        // Assume upgrading from Lead (Free tool) or Stripe redirect
-        // For production, we would ideally verify Stripe session here for absolute security.
+    } else if (sessionId) {
+        // Stripe success flow
         isTrial = false;
-        initialCredits = 999; // Effectively unlimited for PRO buyers
+        initialCredits = 999;
     } else {
         // 🔒 MASTER BYPASS: Allow the owner to register without a code
         const masterEmail = process.env.MASTER_EMAIL?.toLowerCase().trim();
