@@ -29,6 +29,10 @@ export async function POST(req: Request) {
 
     await client.connect()
     const normalizedEmail = email.toLowerCase().trim()
+    
+    // 🛡️ ANTI-ABUSE: Extract IP from headers
+    const forwarded = req.headers.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(',')[0] : (req.headers.get("x-real-ip") || "unknown");
 
     // 1. Check if user already exists
     const checkRes = await client.query('SELECT * FROM "User" WHERE email = $1', [normalizedEmail])
@@ -97,16 +101,16 @@ export async function POST(req: Request) {
     if (existingUser) {
       // 4a. Upgrade existing lead to a full account
       await client.query(
-        'UPDATE "User" SET name = $1, password = $2, "isPro" = $3, "isTrial" = $4, credits = $5 WHERE id = $6',
-        [name || existingUser.name, hashedPassword, !isTrial, isTrial, initialCredits, existingUser.id]
+        'UPDATE "User" SET name = $1, password = $2, "isPro" = $3, "isTrial" = $4, credits = $5, "registrationIp" = $6 WHERE id = $7',
+        [name || existingUser.name, hashedPassword, !isTrial, isTrial, initialCredits, ip, existingUser.id]
       )
       return NextResponse.json({ success: true, user: { email: normalizedEmail, isTrial } })
     } else {
       // 4b. Create new user (Only if Beca Code was used, since otherwise it would have hit the 'else' gate above)
       const newId = uuidv4()
       await client.query(
-        'INSERT INTO "User" (id, email, name, password, "isPro", "isTrial", credits, "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
-        [newId, normalizedEmail, name || "Anonymous", hashedPassword, !isTrial, isTrial, initialCredits]
+        'INSERT INTO "User" (id, email, name, password, "isPro", "isTrial", credits, "registrationIp", "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())',
+        [newId, normalizedEmail, name || "Anonymous", hashedPassword, !isTrial, isTrial, initialCredits, ip]
       )
       return NextResponse.json({ success: true, user: { email: normalizedEmail, isTrial } })
     }
