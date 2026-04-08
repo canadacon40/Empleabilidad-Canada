@@ -9,6 +9,7 @@ import StrategyResources from "@/components/cv-tool/StrategyResources";
 import PremiumWelcome from "@/components/cv-tool/PremiumWelcome";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { ShieldCheck } from "lucide-react";
 
 const DUMMY_LEAD_DATA = {
     name: "Juan Perez (Test)",
@@ -54,16 +55,42 @@ const DUMMY_LEAD_DATA = {
 const DUMMY_CV_TEXT = "Juan Perez. Senior Software Engineer with 8 years of experience in Fullstack Development. Lead teams of 5+ developers. Proficient in React, Node.js, and Cloud Architecture.";
 
 
+function LoadingShield() {
+    return (
+        <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center space-y-8 animate-in fade-in duration-1000 bg-slate-50/50 rounded-[4rem] border-2 border-dashed border-slate-200">
+            <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-[40px] rounded-full animate-pulse" />
+                <ShieldCheck className="w-20 h-20 text-primary relative z-10 animate-bounce duration-[2000ms]" />
+            </div>
+            <div className="space-y-4">
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter italic">Validando Acceso Pierre PRO...</h3>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
+                    Estamos verificando tus credenciales tácticas y sincronizando tu Centro de Estrategia.
+                </p>
+                <div className="w-48 h-1 bg-slate-200 mx-auto rounded-full overflow-hidden">
+                    <div className="h-full bg-primary animate-progress-fast" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) {
     const { data: session, status: authStatus } = useSession();
     const searchParams = useSearchParams();
     const sessionId = searchParams.get("session_id");
+    const savedData = typeof window !== 'undefined' ? localStorage.getItem("pendingReportData") : null;
     
     const [step, setStep] = useState<"form" | "analysis" | "strategy" | "premium-onboarding">("form");
     const [cvText, setCvText] = useState("");
     const [leadData, setLeadData] = useState<any>(null);
     const [leadId, setLeadId] = useState<string | undefined>();
     const [accessCode, setAccessCode] = useState("LEAD_MAGNET");
+
+    // 🛡️ LOADING SHIELD: Prevent flash of free content while auth resolves
+    if (authStatus === "loading") {
+        return <LoadingShield />;
+    }
 
     // 🛡️ ACCESSO DIRECTO PARA ASESORÍA (PRO)
     useEffect(() => {

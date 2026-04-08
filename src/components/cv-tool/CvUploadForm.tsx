@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { FileText, User, Mail, Phone, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sendGTMEvent } from "@next/third-parties/google"
@@ -41,6 +42,9 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     const [promoCode, setPromoCode] = useState("")
     const [isPromoSuccess, setIsPromoSuccess] = useState(false)
 
+    const { data: session } = useSession()
+    const isPremium = (session?.user as any)?.isPro || (session?.user as any)?.isTrial;
+
     // Track when user starts typing
     useEffect(() => {
         if (!hasStartedForm && (name || email || cvText)) {
@@ -48,6 +52,13 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             trackEvent("FORM_START")
         }
     }, [name, email, cvText, hasStartedForm, trackEvent])
+
+    // 🛡️ VIP PROTECTION: Do not show welcome modal or free-tier warnings to PRO/Trial users
+    useEffect(() => {
+        if (isPremium) {
+            setShowWelcome(false)
+        }
+    }, [isPremium])
 
     const accessCode = "LEAD_MAGNET" // Default bypass code
 
