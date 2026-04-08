@@ -1046,6 +1046,34 @@ function JobBoardTab({ initialProvince }: { initialProvince?: string }) {
     )
 }
 
+function PersonalizationBanner({ onStart }: { onStart: () => void }) {
+    return (
+        <div className="max-w-7xl mx-auto mb-8 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <div className="p-8 rounded-[3rem] bg-slate-950 border-4 border-amber-400/20 flex flex-col sm:flex-row items-center gap-8 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <Sparkles className="w-24 h-24 text-amber-400" />
+                </div>
+                <div className="w-20 h-20 rounded-[2rem] bg-amber-400 flex items-center justify-center shrink-0 shadow-[0_20px_40px_rgba(251,191,36,0.2)] rotate-3 group-hover:rotate-0 transition-transform">
+                    <Star className="w-10 h-10 text-black fill-black" />
+                </div>
+                <div className="flex-1 text-center sm:text-left relative z-10">
+                    <h4 className="font-black uppercase text-xs tracking-[0.3em] text-amber-400 mb-2">Modo Demostración PRO Activo</h4>
+                    <p className="text-xl font-black text-white leading-tight tracking-tighter">
+                        Estás viendo <span className="text-amber-400">datos de ejemplo premium</span>. <br className="hidden sm:block"/>
+                        Sube tu CV real para desbloquear tu diagnóstico personalizado.
+                    </p>
+                </div>
+                <Button 
+                    className="h-14 px-10 rounded-2xl bg-amber-400 hover:bg-amber-350 text-black font-black text-xs uppercase tracking-widest shadow-2xl shadow-amber-400/20 transition-all active:scale-95 flex items-center gap-3 relative z-10"
+                    onClick={onStart}
+                >
+                    Personalizar con mi CV <ArrowRight className="w-4 h-4" />
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 function UsageBanner({ credits, isTrial, onUpgrade }: { credits: number, isTrial: boolean, onUpgrade: () => void }) {
     if (!isTrial) return null;
 
@@ -1247,6 +1275,10 @@ export default function StrategyResources({ cvText, onCustomize, resultData, onB
                 {/* Main Dashboard Content - SCROLLABLE INTERNAL ONLY */}
                 <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative overscroll-contain">
                     <div className="max-w-[1400px] mx-auto p-4 sm:p-10 pb-32 sm:pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        {profile?.isTrial && cvText.includes("Juan Perez") && (
+                            <PersonalizationBanner onStart={() => window.location.href = '/cv-tool?force_form=true'} />
+                        )}
+
                         <UsageBanner 
                             credits={profile?.credits ?? 0} 
                             isTrial={profile?.isTrial ?? false} 

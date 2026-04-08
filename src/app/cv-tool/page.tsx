@@ -73,22 +73,23 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         }
     }, [authStatus, session, step, leadData, searchParams]);
 
-    // 🚀 PRO & MASTER AUTO-BYPASS: No more frustrating forms for premium users
+    // 🚀 PRO, MASTER & TRIAL AUTO-BYPASS: Direct entry to Strategy Center
     useEffect(() => {
         const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
         const isPro = (session?.user as any)?.isPro;
+        const isTrial = (session?.user as any)?.isTrial;
+        const forceForm = searchParams.get("force_form") === "true";
         
-        if (authStatus === "authenticated" && (isMaster || isPro) && step === "form") {
+        if (authStatus === "authenticated" && (isMaster || isPro || isTrial) && step === "form" && !forceForm) {
             const lastResult = localStorage.getItem("last_report_result");
             const pendingData = localStorage.getItem("pendingReportData");
             
-            console.log("[PRO_BYPASS] Jumping to Strategy Dashboard...");
+            console.log("[VIP_BYPASS] Jumping to Strategy Dashboard...");
             
             if (lastResult) {
                 try {
                     const parsed = JSON.parse(lastResult);
                     setLeadData(parsed);
-                    // Use a generic CV text if we don't have the original saved alongside the result
                     setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
                 } catch (e) {
                     setLeadData(DUMMY_LEAD_DATA);
