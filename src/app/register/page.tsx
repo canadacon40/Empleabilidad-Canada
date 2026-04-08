@@ -11,6 +11,9 @@ function RegistrationForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
+  const sessionId = searchParams.get("session_id")
+  const becaParam = searchParams.get("beca") || searchParams.get("code")
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,8 +27,6 @@ function RegistrationForm() {
     useEffect(() => {
     const emailParam = searchParams.get("email")
     const sourceParam = searchParams.get("source")
-    const sessionId = searchParams.get("session_id")
-    const becaParam = searchParams.get("beca") || searchParams.get("code")
     
     if (emailParam) {
       setFormData(prev => ({ ...prev, email: emailParam }))
