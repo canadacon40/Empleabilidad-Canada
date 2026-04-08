@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   AlertTriangle,
   CheckCircle,
@@ -76,6 +77,7 @@ export default function CvAnalysis({
   leadId,
   onUnlockPremium,
 }: CvAnalysisProps) {
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(leadData || null);
@@ -444,7 +446,11 @@ export default function CvAnalysis({
 
   const searchParams = useSearchParams();
   const isDebugPro = searchParams.get("debug") === "pro" || searchParams.get("code") === "DEBUG_PRO" || searchParams.get("code") === "PIERRE-MASTER";
-  const isPremium = accessCode === "PREMIUM" || accessCode === "DEBUG_PRO" || accessCode === "PIERRE-MASTER" || isDebugPro;
+  
+  const isUserPro = (session?.user as any)?.isPro;
+  const isMasterEmail = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
+  
+  const isPremium = accessCode === "PREMIUM" || accessCode === "DEBUG_PRO" || accessCode === "PIERRE-MASTER" || isDebugPro || isUserPro || isMasterEmail;
 
   if (error) {
     return (
