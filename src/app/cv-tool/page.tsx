@@ -73,13 +73,41 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         }
     }, [authStatus, session, step, leadData, searchParams]);
 
-    // 🚀 MASTER ADMIN AUTO-BYPASS: No more frustrating forms for the owner
+    // 🚀 PRO & MASTER AUTO-BYPASS: No more frustrating forms for premium users
     useEffect(() => {
         const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
-        if (authStatus === "authenticated" && isMaster && step === "form") {
-            console.log("[MASTER_BYPASS] Jumping to Strategy Dashboard...");
-            setLeadData(DUMMY_LEAD_DATA);
-            setCvText(DUMMY_CV_TEXT);
+        const isPro = (session?.user as any)?.isPro;
+        
+        if (authStatus === "authenticated" && (isMaster || isPro) && step === "form") {
+            const lastResult = localStorage.getItem("last_report_result");
+            const pendingData = localStorage.getItem("pendingReportData");
+            
+            console.log("[PRO_BYPASS] Jumping to Strategy Dashboard...");
+            
+            if (lastResult) {
+                try {
+                    const parsed = JSON.parse(lastResult);
+                    setLeadData(parsed);
+                    // Use a generic CV text if we don't have the original saved alongside the result
+                    setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
+                } catch (e) {
+                    setLeadData(DUMMY_LEAD_DATA);
+                    setCvText(DUMMY_CV_TEXT);
+                }
+            } else if (pendingData) {
+                try {
+                    const { result, cvText: savedText } = JSON.parse(pendingData);
+                    setLeadData(result);
+                    setCvText(savedText);
+                } catch (e) {
+                    setLeadData(DUMMY_LEAD_DATA);
+                    setCvText(DUMMY_CV_TEXT);
+                }
+            } else {
+                setLeadData(DUMMY_LEAD_DATA);
+                setCvText(DUMMY_CV_TEXT);
+            }
+            
             setAccessCode("PREMIUM");
             setStep("strategy");
             if (onDashboardEnter) onDashboardEnter();
