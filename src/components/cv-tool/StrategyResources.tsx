@@ -1391,23 +1391,9 @@ export default function StrategyResources({ cvText = "", onCustomize, resultData
                             {activeTab === "scripts" && <ScriptsTab />}
                         </div>
 
-                        <footer className="text-center opacity-40 pt-16 sm:pt-20 border-t border-slate-200 mt-16 sm:mt-20 px-4 flex flex-col items-center gap-6">
-                            <button 
-                                onClick={() => {
-                                    if (typeof window !== "undefined") {
-                                        localStorage.clear();
-                                        sessionStorage.clear();
-                                        window.location.reload();
-                                    }
-                                }}
-                                className="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 text-slate-400 hover:text-red-500 font-black text-[9px] uppercase tracking-widest transition-all"
-                            >
-                                ¿Problemas técnicos? Limpiar Pierre y Reintentar
-                            </button>
-                            <div>
-                                <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.6em] text-slate-900">Pierre Strategy Master Suite • © 2026</p>
-                                <p className="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2 leading-relaxed">Tecnología de Optimización Algorítmica Protegida bajo licencia PRO</p>
-                            </div>
+                        <footer className="text-center opacity-40 pt-16 sm:pt-20 border-t border-slate-200 mt-16 sm:mt-20 px-4">
+                            <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.6em] text-slate-900">Pierre Strategy Master Suite • © 2026</p>
+                            <p className="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2 leading-relaxed">Tecnología de Optimización Algorítmica Protegida bajo licencia PRO</p>
                         </footer>
                     </div>
                 </main>

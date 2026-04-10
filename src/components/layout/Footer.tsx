@@ -38,9 +38,23 @@ export default function Footer() {
                 </div>
 
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">
-                        © 2024 Pierre Employability Engine. All Rights Reserved.
-                    </p>
+                    <div className="flex flex-col items-center md:items-start gap-4">
+                        <button 
+                            onClick={() => {
+                                if (typeof window !== "undefined") {
+                                    localStorage.clear();
+                                    sessionStorage.clear();
+                                    window.location.reload();
+                                }
+                            }}
+                            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/30 hover:text-primary font-black text-[8px] sm:text-[9px] uppercase tracking-widest transition-all"
+                        >
+                            ¿Problemas técnicos? Limpiar Pierre y Reintentar
+                        </button>
+                        <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">
+                            © 2024 Pierre Employability Engine. All Rights Reserved.
+                        </p>
+                    </div>
                     <div className="flex items-center gap-6">
                          {/* Social Placeholders */}
                          <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
