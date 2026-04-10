@@ -155,6 +155,7 @@ export default function PricingSection() {
                         <Button 
                             className="h-16 w-full rounded-2xl text-lg font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xl group transition-all active:scale-95"
                             disabled={isAloading}
+                            onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Pricing", plan: "Acelerador PRO", price: 29 });
                                 handleCheckout(2900, "/cv-tool", "Acelerador PRO (Herramientas)", setIsAloading);
                             }}
