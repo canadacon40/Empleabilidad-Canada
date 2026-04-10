@@ -933,6 +933,7 @@ export function generateCoverLetterHTML(data: any) {
     const contact = data.finalContactName || 'Hiring Manager';
     const company = data.finalCompanyName || '[Company Name]';
     const role = data.finalTargetRole || 'Professional Position';
+    const name = data.userName || 'Professional Candidate';
 
     return `<!DOCTYPE html>
     <html lang="en">
@@ -940,54 +941,115 @@ export function generateCoverLetterHTML(data: any) {
         <meta charset="utf-8">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
         <style>
-            @page { size: letter; margin: 0.75in; }
+            @page { size: letter; margin: 0; }
             body { 
                 font-family: 'Inter', -apple-system, sans-serif; 
-                color: #1e293b; 
-                line-height: 1.5; 
-                font-size: 10.5pt; 
+                color: #0f172a; 
+                line-height: 1.6; 
+                font-size: 10pt; 
                 margin: 0; 
                 padding: 0; 
                 background: #fff;
-                overflow: hidden; /* Force 1 page */
-                height: 100vh;
+                -webkit-print-color-adjust: exact;
             }
             .page-container {
-                padding: 20pt 40pt;
-                max-height: 100%;
+                padding: 50pt 60pt;
+                min-height: 100vh;
                 display: flex;
                 flex-direction: column;
+                box-sizing: border-box;
             }
-            .header-line { border-bottom: 1px solid #e2e8f0; margin-bottom: 20pt; padding-bottom: 10pt; display: flex; justify-content: space-between; align-items: baseline; }
-            .header-title { font-weight: 900; font-size: 12pt; letter-spacing: 2px; color: #0f172a; text-transform: uppercase; }
             
-            .date { margin-bottom: 20pt; font-weight: 700; color: #0f172a; }
+            /* SENDER HEADER */
+            .sender-header {
+                text-align: right;
+                margin-bottom: 40pt;
+                border-bottom: 2px solid #0f172a;
+                padding-bottom: 15pt;
+            }
+            .sender-name {
+                font-size: 18pt;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: -0.02em;
+                line-height: 1;
+                margin-bottom: 5pt;
+            }
+            .sender-contact {
+                font-size: 8.5pt;
+                font-weight: 600;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .date { 
+                margin-bottom: 25pt; 
+                font-weight: 700; 
+                color: #0f172a;
+                font-size: 10pt;
+            }
             
-            .recipient-block { margin-bottom: 20pt; line-height: 1.3; }
-            .recipient-name { font-weight: 700; }
-            .recipient-company { color: #64748b; font-weight: 500; }
+            .recipient-block { 
+                margin-bottom: 30pt; 
+                line-height: 1.4; 
+                font-size: 10pt;
+            }
+            .recipient-name { font-weight: 800; color: #0f172a; }
+            .recipient-company { color: #475569; font-weight: 600; }
             
-            .subject-line { margin-bottom: 25pt; font-weight: 900; text-transform: uppercase; border-left: 4px solid #0f172a; padding-left: 12pt; }
+            .subject-line { 
+                margin-bottom: 25pt; 
+                font-weight: 800; 
+                text-transform: uppercase; 
+                background: #f8fafc;
+                padding: 10pt 15pt;
+                border-left: 4px solid #0f172a;
+                font-size: 9.5pt;
+                letter-spacing: 0.02em;
+            }
             
-            .salutation { margin-bottom: 15pt; font-weight: 700; }
+            .salutation { 
+                margin-bottom: 15pt; 
+                font-weight: 800; 
+                font-size: 10pt;
+            }
             
-            .content { text-align: justify; margin-bottom: 30pt; white-space: pre-wrap; font-size: 10.5pt; }
+            .content { 
+                text-align: justify; 
+                margin-bottom: 40pt; 
+                white-space: pre-wrap; 
+                font-size: 10pt;
+                color: #334155;
+            }
             
-            .signature-block { margin-top: auto; padding-top: 20pt; page-break-inside: avoid; position: relative; }
-            .regards { margin-bottom: 35pt; font-weight: 700; }
+            .signature-block { 
+                margin-top: auto; 
+                padding-top: 20pt; 
+                page-break-inside: avoid; 
+            }
+            .regards { 
+                margin-bottom: 40pt; 
+                font-weight: 800; 
+                font-size: 10pt;
+            }
             
-            .signature-wrapper { position: relative; height: 50pt; margin-top: -30pt; }
+            .signature-wrapper { 
+                position: relative; 
+                height: 60pt; 
+            }
             .signature-handwriting { 
                 font-family: 'Dancing Script', cursive; 
-                font-size: 26pt; 
+                font-size: 28pt; 
                 color: #2563eb; 
                 position: absolute;
-                top: 0;
+                top: -20pt;
                 left: 0;
                 z-index: 2;
-                transform: rotate(-2deg);
+                transform: rotate(-1.5deg);
+                opacity: 0.9;
             }
             .signature-typed { 
                 font-weight: 900; 
@@ -995,22 +1057,27 @@ export function generateCoverLetterHTML(data: any) {
                 font-size: 9pt; 
                 letter-spacing: 1px; 
                 color: #0f172a; 
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                border-top: 1px solid #f1f5f9;
-                width: 200pt;
-                padding-top: 4pt;
+                border-top: 1px solid #e2e8f0;
+                width: 180pt;
+                padding-top: 6pt;
             }
             
-            .footer-info { font-size: 7.5pt; color: #cbd5e1; text-align: center; margin-top: 40pt; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; border-top: 1px solid #f8fafc; padding-top: 20pt; }
+            .footer-info { 
+                font-size: 7pt; 
+                color: #cbd5e1; 
+                text-align: center; 
+                margin-top: 40pt; 
+                font-weight: 800; 
+                text-transform: uppercase; 
+                letter-spacing: 0.2em; 
+            }
         </style>
     </head>
     <body>
         <div class="page-container">
-            <div class="header-line">
-                <div class="header-title">Cover Letter</div>
-                <div style="font-size: 8pt; color: #94a3b8; font-weight: 700;">PRO STRATEGY ENGINE</div>
+            <div class="sender-header">
+                <div class="sender-name">${name}</div>
+                <div class="sender-contact">Professional Candidate | Canadian Market Applicant</div>
             </div>
 
             <div class="date">${today}</div>
@@ -1021,7 +1088,7 @@ export function generateCoverLetterHTML(data: any) {
             </div>
 
             <div class="subject-line">
-                RE: ${role} APPLICATION
+                RE: Strategic Application for ${role}
             </div>
             
             <div class="salutation">Dear ${contact},</div>
@@ -1031,12 +1098,12 @@ export function generateCoverLetterHTML(data: any) {
             <div class="signature-block">
                 <div class="regards">Sincerely,</div>
                 <div class="signature-wrapper">
-                    <div class="signature-handwriting">${data.userName || 'Professional Candidate'}</div>
-                    <div class="signature-typed">${data.userName || 'Professional Candidate'}</div>
+                    <div class="signature-handwriting">${name}</div>
+                    <div class="signature-typed">${name}</div>
                 </div>
             </div>
 
-            <div class="footer-info">Canadian Market Access 2026</div>
+            <div class="footer-info">Generated by Pierre PRO Strategy Engine • Surgical Performance Standard</div>
         </div>
     </body>
     </html>`;

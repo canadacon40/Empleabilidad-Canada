@@ -4,9 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { useSession } from "next-auth/react"
 import { ArrowRight, Zap, Play, Target, ShieldCheck, CheckCircle2 } from "lucide-react"
 
 export default function HeroSection() {
+    const { data: session } = useSession()
     const [showVideo, setShowVideo] = useState(false)
     return (
         <section className="relative overflow-hidden bg-background pt-24 pb-16 md:pt-44 md:pb-40">
@@ -49,7 +51,7 @@ export default function HeroSection() {
                                 <Button size="lg" className="h-16 sm:h-24 px-8 sm:px-12 w-full sm:w-auto rounded-2xl sm:rounded-[2rem] text-sm sm:text-2xl font-black shadow-[0_20px_40px_-10px_rgba(var(--primary),0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all group gap-4 relative overflow-hidden" asChild>
                                     <Link href="/cv-tool">
                                         <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 italic" />
-                                        OBTENER MI REPORTE GRATIS
+                                        {session ? "ENTRAR A MI PANEL" : "OBTENER MI REPORTE GRATIS"}
                                         <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
                                     </Link>
                                 </Button>

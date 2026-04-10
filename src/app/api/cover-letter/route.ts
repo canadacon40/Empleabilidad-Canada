@@ -22,28 +22,31 @@ export async function POST(req: Request) {
 
         const currentTone = toneInstructions[tone] || toneInstructions.formal;
 
-        const systemPrompt = `Eres un Experto Reclutador Canadiense con 20 años de experiencia redactando cartas de éxito quirúrgico.
-        Tu misión es redactar una Cover Letter (Carta de Presentación) potente y ultra-personalizada.
+        const systemPrompt = `Eres un Estratega de Empleabilidad Canadiense Senior con 20 años de experiencia ejecutando el "Método de 11 Bloques para el Éxito".
+        Tu misión es redactar una Cover Letter (Carta de Presentación) QUIRÚRGICA, de alto impacto y orientada a RESULTADOS.
         
         ${currentTone}
 
-        INSTRUCCIONES DE CONTEXTO:
-        - Si 'contactName' no está presente o es vacío, busca el nombre del reclutador en el JD. Si no lo encuentras, usa 'Hiring Manager'.
-        - Si 'companyName' no está presente o es vacío, busca el nombre de la empresa en el JD. Si no lo encuentras, usa '[Company Name]'.
-        - Si 'targetRole' no está presente o es vacío, busca el título de la posición en el JD.
-        - Usa 'finalContactName' y 'finalCompanyName' para el saludo y cuerpo de la carta de forma natural.
+        ESTRATEGIA "SURGICAL CANADA":
+        - No seas un solicitante, sé el SOLUCIONADOR de problemas.
+        - Identifica el "Dolor" o "Pain Point" principal en el Job Description y posiciónate como la cura inmediata.
+        - Usa logros CUANTIFICABLES (%, $, #) extraídos del CV que resuelvan directamente los requisitos del JD.
+        - El tono debe ser de CONSULTOR experto, no de empleado necesitado.
 
-        REGLAS DE ORO:
-        1. IDIOMA: Debe redactarse en el mismo idioma predominante en el Job Description (Inglés o Francés).
-        2. ESTRUCTURA: Saludo Profesional, El Gancho (por qué esta empresa), El Match (logros específicos cuantitativos que resuelven los problemas del JD), y un Call to Action potente.
-        3. BREVEDAD CRÍTICA: La carta debe ser de MÁXIMO 250 PALABRAS para asegurar que quepa en 1 sola página PDF incluyendo encabezados.
-        4. NO GENÉRICA: Usa detalles cuantitativos del CV. Si el CV dice "líder de equipo", la carta debe decir "lideré un equipo de 10 personas aumentando la productividad en un 15%".
-        5. NO CLICHÉS: Prohibido usar "I am writing to...". Empieza directo con el impacto y valor.
+        REGLAS DE ORO DE FORMATO (CRÍTICO):
+        1. CONTENIDO ÚNICAMENTE DEL CUERPO: NO incluyas encabezados de contacto, NO incluyas la fecha, NO incluyas el bloque del destinatario, NO incluyas el saludo inicial (ej: "Dear..."), y NO incluyas la despedida final (ej: "Sincerely..."). Estos elementos ya están en la plantilla visual.
+        2. ESTRUCTURA INTERNA: 
+           - Párrafo 1 (El Gancho): Impacto inmediato. Por qué esta empresa y por qué eres el match perfecto desde el segundo 1.
+           - Párrafo 2 (La Prueba): Logros específicos que demuestren que ya has hecho lo que ellos necesitan.
+           - Párrafo 3 (El Cierre): Call to Action potente y estratégico.
+        3. IDIOMA: Debe redactarse en el mismo idioma predominante en el Job Description (Inglés o Francés).
+        4. BREVEDAD CRÍTICA: La carta debe tener entre 180 y 220 palabras. Debe ser densa en valor pero corta en lectura.
+        5. CERO CLICHÉS: Prohibido "I am writing to...". Empieza con una declaración de valor.
         
         Devolver un JSON con:
-        - coverLetter: (string) El texto completo de la carta con line breaks.
-        - finalContactName: (string) El nombre usado para el saludo (extraído o el proveído).
-        - finalCompanyName: (string) El nombre de la empresa usado (extraído o el proveído).
+        - coverLetter: (string) Solo los párrafos del cuerpo de la carta con line breaks dobles entre párrafos.
+        - finalContactName: (string) El nombre del Reclutador o 'Hiring Manager'.
+        - finalCompanyName: (string) El nombre de la empresa.
         - finalTargetRole: (string) El rol para el que se aplica.
         - wordCount: (number).
         - keyHighlights: (string[]) Qué puntos del CV usaste para enganchar al reclutador.
@@ -59,16 +62,35 @@ export async function POST(req: Request) {
         
         CV del Candidato: ${cvText}`;
 
+        console.log("PRO_DEBUG: API received cover-letter generation request", { tone, contactName, companyName });
+
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
             ],
-            response_format: { type: "json_object" }
+            response_format: { type: "json_object" },
+            max_tokens: 1000,
+            temperature: 0.7
         });
 
-        const result = JSON.parse(completion.choices[0].message.content || "{}");
+        let content = completion.choices[0].message.content || "{}";
+        // Strip markdown if present
+        if (content.includes("```json")) {
+            content = content.split("```json")[1].split("```")[0];
+        } else if (content.includes("```")) {
+            content = content.split("```")[1].split("```")[0];
+        }
+
+        const rawResult = JSON.parse(content);
+        
+        // Normalize keys (ensure coverLetter even if AI uses snake_case)
+        const result = {
+            ...rawResult,
+            coverLetter: rawResult.coverLetter || rawResult.cover_letter || rawResult.content || ""
+        };
+
         return NextResponse.json({ result });
 
     } catch (error: any) {

@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { FileText, User, Mail, Phone, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import { FileText, User, Mail, Phone, Clock, MapPin, DollarSign, CreditCard, Sparkles, CheckCircle2, ShoppingCart, ArrowRight, Key, Users2, ShieldAlert, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { sendGTMEvent } from "@next/third-parties/google"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
@@ -562,12 +562,24 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                 </div>
                              )}
                             
-                            <button 
-                                onClick={() => setAlreadyUsedEmail(null)}
-                                className="text-[10px] text-muted-foreground hover:text-foreground underline"
-                            >
-                                Intentar con otro correo
-                            </button>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-100">
+                                <button 
+                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    className="text-[10px] font-black text-red-600 uppercase tracking-widest hover:underline flex items-center gap-1.5"
+                                >
+                                    <LogOut className="w-3 h-3" />
+                                    Cerrar Sesión Actual
+                                </button>
+
+                                <div className="hidden sm:block w-px h-3 bg-slate-200" />
+
+                                <button 
+                                    onClick={() => setAlreadyUsedEmail(null)}
+                                    className="text-[10px] text-muted-foreground hover:text-foreground underline"
+                                >
+                                    Intentar con otro correo
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

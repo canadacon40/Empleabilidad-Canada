@@ -55,6 +55,8 @@ const DUMMY_LEAD_DATA = {
 const DUMMY_CV_TEXT = "Juan Perez. Senior Software Engineer with 8 years of experience in Fullstack Development. Lead teams of 5+ developers. Proficient in React, Node.js, and Cloud Architecture.";
 
 
+
+
 function LoadingShield() {
     return (
         <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center space-y-8 animate-in fade-in duration-1000 bg-slate-50/50 rounded-[4rem] border-2 border-dashed border-slate-200">
@@ -69,6 +71,22 @@ function LoadingShield() {
                 </p>
                 <div className="w-48 h-1 bg-slate-200 mx-auto rounded-full overflow-hidden">
                     <div className="h-full bg-primary animate-progress-fast" />
+                </div>
+                
+                <div className="flex flex-col gap-3 mt-8">
+                    <button 
+                        onClick={() => {
+                            localStorage.clear();
+                            signOut({ callbackUrl: "/" });
+                        }}
+                        className="text-[10px] font-black text-slate-400 hover:text-red-500 uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto border border-slate-200 px-6 py-3 rounded-2xl hover:bg-red-50"
+                    >
+                        <LogOut className="w-3 h-3" />
+                        ¿Atascado? Limpiar Sesión y Salir
+                    </button>
+                    <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest text-center mt-2 px-10">
+                        * Esto cerrará tu acceso y limpiará cualquier dato corrupto en tu navegador.
+                    </p>
                 </div>
             </div>
         </div>
@@ -88,31 +106,23 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
     const [accessCode, setAccessCode] = useState("LEAD_MAGNET");
 
     const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
-    const isPro = (session?.user as any)?.isPro;
-    const isTrial = (session?.user as any)?.isTrial;
+    const isPro = session?.user ? (session.user as any)?.isPro : false;
+    const isTrial = session?.user ? (session.user as any)?.isTrial : false;
     const isVIP = isMaster || isPro || isTrial;
-
-    // 🛡️ LOADING SHIELD: Prevent flash of free content while auth resolves
-    if (authStatus === "loading") {
-        return <LoadingShield />;
-    }
 
     // 🛡️ ACCESSO DIRECTO PARA ASESORÍA (PRO)
     useEffect(() => {
         const onboardingParam = searchParams.get("onboarding");
-        if (authStatus === "authenticated" && (session?.user as any)?.isPro && step === "form" && !leadData && onboardingParam === "true") {
+        if (authStatus === "authenticated" && isPro && step === "form" && !leadData && onboardingParam === "true") {
             setStep("premium-onboarding");
         }
-    }, [authStatus, session, step, leadData, searchParams]);
+    }, [authStatus, isPro, step, leadData, searchParams]);
 
     // 🚀 PRO, MASTER & TRIAL AUTO-BYPASS: Direct entry to Strategy Center
     useEffect(() => {
-        const isMaster = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
-        const isPro = (session?.user as any)?.isPro;
-        const isTrial = (session?.user as any)?.isTrial;
         const forceForm = searchParams.get("force_form") === "true";
         
-        if (authStatus === "authenticated" && (isMaster || isPro || isTrial) && step === "form" && !forceForm) {
+        if (authStatus === "authenticated" && isVIP && step === "form" && !forceForm) {
             const lastResult = localStorage.getItem("last_report_result");
             const pendingData = localStorage.getItem("pendingReportData");
             
@@ -145,12 +155,10 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
             setStep("strategy");
             if (onDashboardEnter) onDashboardEnter();
         }
-    }, [authStatus, session, step, onDashboardEnter]);
+    }, [authStatus, isVIP, step, onDashboardEnter]);
 
     // 1. Detect Stripe Session or Developer Bypass and Recover Data
     useEffect(() => {
-        // Removed Developer Bypass for Production Security
-
         if (sessionId && savedData) {
             try {
                 const { result, cvText: savedText, leadId: savedId } = JSON.parse(savedData);
@@ -169,7 +177,12 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                 console.error("Error recovering report data:", e);
             }
         }
-    }, [sessionId, searchParams, onDashboardEnter]);
+    }, [sessionId, searchParams, onDashboardEnter, savedData]);
+
+    // 🛡️ LOADING SHIELD: Prevent flash of free content while auth resolves
+    if (authStatus === "loading") {
+        return <LoadingShield />;
+    }
 
     const handleResult = (data: any, text: string, lang: string, code: string, id?: string) => {
         setLeadData(data);
@@ -177,10 +190,8 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         setAccessCode(code);
         setLeadId(id);
         
-        // Revertimos el bypass forzado: Todos ven el análisis primero, pero PRO tiene opción de saltar dentro del componente
         setStep("analysis");
         
-        // Save for potential recovery after Stripe redirect
         localStorage.setItem("pendingReportData", JSON.stringify({
             result: data,
             cvText: text,

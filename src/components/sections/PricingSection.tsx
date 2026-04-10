@@ -12,7 +12,6 @@ import ProPurchaseModal from "../ui/ProPurchaseModal"
 export default function PricingSection() {
     const { trackEvent } = useLeadTracking();
     const router = useRouter();
-    const [isProModalOpen, setIsProModalOpen] = useState(false)
     const [isAloading, setIsAloading] = useState(false)
 
     const handleCheckout = async (amount: number, successUrl: string, productName: string, setLoader: (val: boolean) => void) => {
@@ -156,9 +155,8 @@ export default function PricingSection() {
                         <Button 
                             className="h-16 w-full rounded-2xl text-lg font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xl group transition-all active:scale-95"
                             disabled={isAloading}
-                            onClick={() => {
                                 trackEvent("CTA_CLICK", { zone: "Pricing", plan: "Acelerador PRO", price: 29 });
-                                setIsProModalOpen(true);
+                                handleCheckout(2900, "/cv-tool", "Acelerador PRO (Herramientas)", setIsAloading);
                             }}
                         >
                             {isAloading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
@@ -189,19 +187,6 @@ export default function PricingSection() {
                 </div>
             </div>
 
-            <ProPurchaseModal 
-                isOpen={isProModalOpen}
-                onClose={() => setIsProModalOpen(false)}
-                onGoToFreeReport={() => {
-                    trackEvent("MODAL_CLICK", { action: "GoToFreeReport" });
-                    router.push('/cv-tool');
-                }}
-                onContinueToCheckout={() => {
-                    trackEvent("MODAL_CLICK", { action: "ContinueToCheckout" });
-                    setIsProModalOpen(false);
-                    handleCheckout(2900, "/cv-tool", "Acelerador PRO (Herramientas)", setIsAloading);
-                }}
-            />
         </section>
     )
 }

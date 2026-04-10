@@ -1,13 +1,15 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
+import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import DiscountModal from "@/components/ui/DiscountModal"
 import PlanDetailsModal from "@/components/ui/PlanDetailsModal"
 import { useLeadTracking } from "@/hooks/useLeadTracking"
-import { Sparkles, Layout } from "lucide-react"
+import { Sparkles, Layout, LogOut } from "lucide-react"
 
 export default function Navbar() {
+    const { data: session } = useSession();
     const { trackEvent } = useLeadTracking();
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false)
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
@@ -41,20 +43,42 @@ export default function Navbar() {
                             Asesoría 1-1
                         </Button>
 
-                        <Button 
-                            variant="ghost" 
-                            className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl" 
-                            asChild
-                        >
-                            <Link href="/login">
-                                ACCESO PRO
-                            </Link>
-                        </Button>
+                        {session ? (
+                            <>
+                                <Button 
+                                    variant="ghost" 
+                                    className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl bg-amber-400/5 border-amber-400/20" 
+                                    asChild
+                                >
+                                    <Link href="/cv-tool">
+                                        MI PANEL PRO
+                                    </Link>
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-slate-400 hover:text-red-500 transition-colors" 
+                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    title="Cerrar Sesión"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                </Button>
+                            </>
+                        ) : (
+                            <Button 
+                                variant="ghost" 
+                                className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl" 
+                                asChild
+                            >
+                                <Link href="/login">
+                                    ACCESO PRO
+                                </Link>
+                            </Button>
+                        )}
                         
                         <Button asChild size="sm" className="h-9 sm:h-12 px-3 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
                             <Link href="/cv-tool" className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 hidden sm:block" />
-                                Reporte Gratis
+                                {session ? "ENTRAR AL CENTRO" : "Reporte Gratis"}
                             </Link>
                         </Button>
                     </nav>

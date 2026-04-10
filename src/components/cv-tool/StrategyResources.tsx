@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield, LogOut, User, Share2, Zap, EyeOff, Map as MapIcon, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
@@ -158,8 +158,8 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
 }
 
 // ============= COVER LETTER TAB =============
-function CoverLetterTab({ cvText }: { cvText: string }) {
-    const [editableCvText, setEditableCvText] = useState(cvText)
+function CoverLetterTab({ cvText = "", onAction, onCreditLimit }: { cvText: string; onAction?: () => void; onCreditLimit?: () => void }) {
+    const [editableCvText, setEditableCvText] = useState(cvText || "")
     const [userName, setUserName] = useState("")
     const [contactName, setContactName] = useState("")
     const [companyName, setCompanyName] = useState("")
@@ -169,6 +169,7 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
     const [error, setError] = useState("")
     const [result, setResult] = useState<any>(null)
     const [tone, setTone] = useState("formal")
+    const resultRef = useRef<HTMLDivElement>(null)
 
     // Update editable text if main CV changes
     useEffect(() => {
@@ -178,21 +179,33 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
     }, [cvText])
 
     const handleGenerate = async () => {
+        // Emergency Debug Alert for Master User
+        if (typeof window !== "undefined") {
+            console.info("PRO_DEBUG: Master trigger activated.");
+            window.alert("¡Clic Pierre PRO Detectado! Iniciando generación..."); 
+        }
+
+        if (!userName.trim()) {
+            setError("Por favor, ingresa tu nombre legal para la firma de la carta.");
+            return
+        }
         if (!editableCvText.trim() || editableCvText.trim().length < 50) {
-            setError("Tu perfil/CV parece estar vacío o ser demasiado corto.")
+            setError("Tu perfil/CV parece estar vacío o ser demasiado corto para generar una carta estratégica.");
             return
         }
         if (!jobDescription.trim() || jobDescription.trim().length < 30) {
-            setError("Pega el Job Description completo.")
-            return
-        }
-        if (!hasStrategyActionsRemaining()) {
-            setError("Reserva de aplicaciones agotada. Sube de nivel o espera al siguiente ciclo."); 
+            setError("Necesitamos el Job Description para poder adaptar la carta quirúrgicamente.");
             return
         }
         setIsLoading(true)
         setError("")
+        console.info("PRO_DEBUG: handleGenerate called. Mandatories verified.");
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
+
         try {
+            console.info("PRO_DEBUG: Initiating fetch to /api/cover-letter...");
             const res = await fetch("/api/cover-letter", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -204,13 +217,54 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
                     companyName,
                     targetRole
                 }),
+                signal: controller.signal
             })
+            
+            clearTimeout(timeoutId);
+            console.info("PRO_DEBUG: Response received from server. Status:", res.status);
             const data = await res.json()
-            if (!res.ok) { setError(data.error); return }
-            consumeStrategyAction("cover_letter")
-            setResult(data.result)
-        } catch { setError("Error de conexión con el motor estratégico.") }
-        finally { setIsLoading(false) }
+            
+            if (res.status === 403) {
+                setError("Reserva estratégica agotada. Redirigiendo a recarga de créditos...");
+                setTimeout(() => {
+                    if (onCreditLimit) onCreditLimit();
+                }, 1500);
+                return;
+            }
+
+            if (!res.ok) { 
+                console.error("PRO_DEBUG: Server returned error", data);
+                setError(data.error || "Hubo un problema al generar la carta. Intenta de nuevo."); 
+                return; 
+            }
+
+            if (onAction) onAction();
+            const finalizedResult = {
+                ...data.result,
+                coverLetter: data.result?.coverLetter || data.result?.cover_letter || ""
+            };
+            setResult(finalizedResult)
+            console.info("PRO_DEBUG: Cover Letter generated and state set successfully.");
+            
+            // Auto-scroll to result
+            setTimeout(() => {
+                if (resultRef.current) {
+                    resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }, 200);
+        } catch (err: any) { 
+            if (err.name === 'AbortError') {
+                console.error("PRO_DEBUG: Fetch timed out after 45s");
+                setError("El servidor tardó demasiado en responder. Intenta con un CV más breve.");
+            } else {
+                console.error("PRO_DEBUG: Fetch error", err);
+                setError("Error de conexión con el motor estratégico.") 
+            }
+        }
+        finally { 
+            setIsLoading(false);
+            console.info("PRO_DEBUG: Finalized handleGenerate execution.");
+        }
     }
 
     return (
@@ -334,7 +388,7 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
             </Button>
 
             {result && (
-                <div className="rounded-[2.5rem] border-2 border-slate-100 bg-white p-8 space-y-6 shadow-sm overflow-hidden relative">
+                <div ref={resultRef} className="rounded-[2.5rem] border-2 border-slate-100 bg-white p-8 space-y-6 shadow-sm overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex flex-col sm:flex-row items-center justify-between border-b border-slate-100 pb-6 mb-6 gap-4">
                         <div className="flex items-center gap-3">
                             <h4 className="text-lg font-black text-slate-900">Tu Carta de Presentación</h4>
@@ -353,8 +407,24 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
                             </Button>
                         </div>
                     </div>
-                    <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 flex flex-col gap-6">
-                        <pre className="text-lg text-slate-800 whitespace-pre-wrap font-sans leading-relaxed italic">"{result.coverLetter}"</pre>
+                    <div className="p-8 sm:p-12 bg-slate-50 rounded-[2rem] border-2 border-slate-100 flex flex-col gap-6 shadow-inner relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                            <Mail className="w-32 h-32 -mr-16 -mt-16" />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-8 border-b border-slate-200 pb-4">
+                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vista Previa Estratégica</div>
+                                <div className="text-[10px] font-bold text-slate-400">{new Date().toLocaleDateString('en-CA')}</div>
+                            </div>
+                            <pre className="text-base sm:text-lg text-slate-800 whitespace-pre-wrap font-sans leading-relaxed text-justify selection:bg-primary/20">
+                                {result.coverLetter}
+                            </pre>
+                            <div className="mt-12 pt-8 border-t border-slate-100">
+                                <div className="font-black text-slate-900 uppercase text-xs tracking-wider mb-1">Sincerely,</div>
+                                <div className="font-['Dancing_Script',_cursive] text-3xl text-primary transform -rotate-2 origin-left mb-2">{userName || 'Professional Candidate'}</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{userName || 'Professional Candidate'}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -363,8 +433,8 @@ function CoverLetterTab({ cvText }: { cvText: string }) {
 }
 
 // ============= INTERVIEW TAB =============
-function InterviewTab({ cvText, onAction, onCreditLimit }: { cvText: string; onAction?: () => void; onCreditLimit?: () => void }) {
-    const [editableCvText, setEditableCvText] = useState(cvText)
+function InterviewTab({ cvText = "", onAction, onCreditLimit }: { cvText: string; onAction?: () => void; onCreditLimit?: () => void }) {
+    const [editableCvText, setEditableCvText] = useState(cvText || "")
     const [jobDescription, setJobDescription] = useState("")
     const [category, setCategory] = useState("mixed")
     const [isLoading, setIsLoading] = useState(false)
@@ -1107,11 +1177,11 @@ function UsageBanner({ credits, isTrial, onUpgrade }: { credits: number, isTrial
 }
 
 // ============= MAIN COMPONENT =============
-export default function StrategyResources({ cvText, onCustomize, resultData, onBackToReport }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any; onBackToReport?: () => void }) {
+export default function StrategyResources({ cvText = "", onCustomize, resultData, onBackToReport }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any; onBackToReport?: () => void }) {
     const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState<string>("engine-pro");
     const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [isProModalOpen, setIsProModalOpen] = useState(false);
+
 
     // Fetch live credits/profile
     const fetchProfile = async () => {
@@ -1140,6 +1210,28 @@ export default function StrategyResources({ cvText, onCustomize, resultData, onB
         signOut({ callbackUrl: "/" });
     };
 
+    const handleDirectPurchase = async () => {
+        try {
+            const res = await fetch("/api/create-checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    priceOverride: 2900,
+                    successPath: "/cv-tool",
+                    productNameOverride: "Radar de Empleo PRO (50 Créditos)",
+                }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert("Error al conectar con la pasarela de pago.");
+            }
+        } catch (e) {
+            console.error("Purchase error:", e);
+        }
+    };
+
     return (
         <div className="h-screen sm:h-[100dvh] flex flex-col bg-slate-50 overflow-hidden animate-in fade-in duration-1000 relative">
             {/* Slim Dash Header - FIXED TOP */}
@@ -1162,11 +1254,11 @@ export default function StrategyResources({ cvText, onCustomize, resultData, onB
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2 sm:gap-3">
                             <h1 className="text-base sm:text-2xl font-black text-white tracking-tighter leading-none shrink-0">
-                                Centro <span className="text-amber-400 italic font-black">Estrategia</span>
+                                MI PANEL <span className="text-amber-400 font-black">PIERRE PRO</span>
                             </h1>
-                            <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg bg-white/20 border border-white/30 text-[7px] sm:text-[8px] font-black text-white uppercase tracking-[0.1em] sm:tracking-[0.2em] shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]" />
-                                <span className="hidden xs:inline">Pierre</span> PRO Mode
+                            <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-lg bg-amber-400/10 border border-amber-400/30 text-[7px] sm:text-[8px] font-black text-amber-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,1)]" />
+                                <span className="hidden xs:inline">Centro</span> Estrategia
                             </div>
                         </div>
                         {session?.user?.email && (
@@ -1274,45 +1366,53 @@ export default function StrategyResources({ cvText, onCustomize, resultData, onB
 
                 {/* Main Dashboard Content - SCROLLABLE INTERNAL ONLY */}
                 <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative overscroll-contain">
-                    <div className="max-w-[1400px] mx-auto p-4 sm:p-10 pb-32 sm:pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        {profile?.isTrial && cvText.includes("Juan Perez") && (
+                    <div className="max-w-[1400px] mx-auto p-4 sm:p-10 pb-48 sm:pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        {profile?.isTrial && cvText?.includes?.("Juan Perez") && (
                             <PersonalizationBanner onStart={() => window.location.href = '/cv-tool?force_form=true'} />
                         )}
 
                         <UsageBanner 
                             credits={profile?.credits ?? 0} 
                             isTrial={profile?.isTrial ?? false} 
-                            onUpgrade={() => setIsProModalOpen(true)}
+                            onUpgrade={handleDirectPurchase}
                         />
                         
-                        <div className="bg-white rounded-[1.5rem] sm:rounded-[3.5rem] border-2 border-slate-100 shadow-[0_40px_100px_-30px_rgba(var(--primary-rgb),0.05)] p-4 sm:p-14 relative overflow-hidden min-h-[500px]">
+                        <div className="bg-white rounded-[1.5rem] sm:rounded-[3.5rem] border-2 border-slate-100 shadow-[0_40px_100px_-30px_rgba(var(--primary-rgb),0.05)] p-4 sm:p-14 relative overflow-visible min-h-[500px]">
                             <div className="absolute top-0 left-0 w-full h-1 sm:h-1.5 bg-primary/20" />
-                            {activeTab === "engine-pro" && <EmployabilityEnginePro cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
+                            {activeTab === "engine-pro" && <EmployabilityEnginePro cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "customize" && <CustomizeTab cvText={cvText} onCustomize={(data) => {
                                 if (data?.type === "refresh_credits") fetchProfile();
-                                if (data?.type === "insufficient_credits") setIsProModalOpen(true);
+                                if (data?.type === "insufficient_credits") handleDirectPurchase();
                                 if (onCustomize) onCustomize(data);
                             }} />}
                             {activeTab === "job-boards" && <JobBoardTab initialProvince={resultData?.province} />}
-                            {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
-                            {activeTab === "interview" && <InterviewTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={() => setIsProModalOpen(true)} />}
+                            {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}
+                            {activeTab === "interview" && <InterviewTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "scripts" && <ScriptsTab />}
                         </div>
 
-                        <footer className="text-center opacity-40 pt-16 sm:pt-20 border-t border-slate-200 mt-16 sm:mt-20 px-4">
-                            <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.6em] text-slate-900">Pierre Strategy Master Suite • © 2026</p>
-                            <p className="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2 leading-relaxed">Tecnología de Optimización Algorítmica Protegida bajo licencia PRO</p>
+                        <footer className="text-center opacity-40 pt-16 sm:pt-20 border-t border-slate-200 mt-16 sm:mt-20 px-4 flex flex-col items-center gap-6">
+                            <button 
+                                onClick={() => {
+                                    if (typeof window !== "undefined") {
+                                        localStorage.clear();
+                                        sessionStorage.clear();
+                                        window.location.reload();
+                                    }
+                                }}
+                                className="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 text-slate-400 hover:text-red-500 font-black text-[9px] uppercase tracking-widest transition-all"
+                            >
+                                ¿Problemas técnicos? Limpiar Pierre y Reintentar
+                            </button>
+                            <div>
+                                <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.6em] text-slate-900">Pierre Strategy Master Suite • © 2026</p>
+                                <p className="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2 leading-relaxed">Tecnología de Optimización Algorítmica Protegida bajo licencia PRO</p>
+                            </div>
                         </footer>
                     </div>
                 </main>
             </div>
 
-            <ProPurchaseModal 
-                isOpen={isProModalOpen}
-                onClose={() => setIsProModalOpen(false)}
-                onContinueToCheckout={() => window.open("/upsell", "_blank")}
-                onGoToFreeReport={() => setActiveTab("job-boards")}
-            />
         </div>
     );
 }
