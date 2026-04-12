@@ -78,7 +78,7 @@ export default function Navbar() {
                         <Button asChild size="sm" className="h-9 sm:h-12 px-3 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
                             <Link href="/cv-tool" className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 hidden sm:block" />
-                                {session ? "ENTRAR AL CENTRO" : "Reporte Gratis"}
+                                Reporte de Empleabilidad Gratis
                             </Link>
                         </Button>
                     </nav>

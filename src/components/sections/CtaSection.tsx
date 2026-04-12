@@ -38,7 +38,7 @@ export default function CtaSection() {
                             asChild
                         >
                             <Link href="/cv-tool">
-                                Diagnosticar Mi CV Gratis
+                                GENERAR MI REPORTE GRATIS
                                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </Button>
