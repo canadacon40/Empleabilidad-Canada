@@ -7,6 +7,7 @@ import LeadCaptureForm from "@/components/cv-tool/CvUploadForm";
 import CvAnalysis from "@/components/cv-tool/CvAnalysis";
 import StrategyResources from "@/components/cv-tool/StrategyResources";
 import PremiumWelcome from "@/components/cv-tool/PremiumWelcome";
+import UpgradeGate from "@/components/cv-tool/UpgradeGate";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ShieldCheck, LogOut } from "lucide-react";
@@ -99,7 +100,7 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
     const sessionId = searchParams.get("session_id");
     const savedData = typeof window !== 'undefined' ? localStorage.getItem("pendingReportData") : null;
     
-    const [step, setStep] = useState<"form" | "analysis" | "strategy" | "premium-onboarding">("form");
+    const [step, setStep] = useState<"form" | "analysis" | "strategy" | "premium-onboarding" | "upsell">("form");
     const [cvText, setCvText] = useState("");
     const [leadData, setLeadData] = useState<any>(null);
     const [leadId, setLeadId] = useState<string | undefined>();
@@ -230,7 +231,11 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                         leadId={leadId}
                         accessCode={accessCode}
                         onAnalysisComplete={() => {
-                            setStep("strategy");
+                            if (isVIP) {
+                                setStep("strategy");
+                            } else {
+                                setStep("upsell");
+                            }
                             // Auto-scroll to top to ensure clean transition
                             window.scrollTo({ top: 0, behavior: 'instant' });
                         }} 
@@ -239,13 +244,20 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                 </div>
             )}
 
-            {step === "strategy" && (
+            {step === "strategy" && isVIP && (
                 <StrategyResources 
                     cvText={cvText} 
                     resultData={leadData} 
                     onBackToReport={() => {
                         setStep("analysis");
                     }} 
+                />
+            )}
+
+            {(step === "upsell" || (step === "strategy" && !isVIP)) && (
+                <UpgradeGate 
+                    email={session?.user?.email || leadData?.email}
+                    onBack={() => setStep("analysis")}
                 />
             )}
         </div>
