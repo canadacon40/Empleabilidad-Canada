@@ -653,6 +653,56 @@ export default function CvAnalysis({
             </div>
           </div>
 
+          {/* 🔍 ESTATUS DE REGULACIÓN (NEW) */}
+          {result.regulacion && (
+             <section className="bg-white rounded-[2.5rem] border-2 border-slate-200 overflow-hidden mt-8 shadow-sm">
+                 <div className={`p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 ${result.regulacion.esRegulada ? 'bg-orange-50' : 'bg-emerald-50'}`}>
+                    <div className="flex items-center gap-5">
+                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${result.regulacion.esRegulada ? 'bg-orange-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                          {result.regulacion.esRegulada ? <Lock className="w-7 h-7" /> : <ShieldCheck className="w-7 h-7" />}
+                       </div>
+                       <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest ${result.regulacion.esRegulada ? 'text-orange-600' : 'text-emerald-600'}`}>
+                            Estatus de Profesión en Canadá
+                          </p>
+                          <h3 className="text-2xl font-black text-slate-900 leading-tight">
+                            {result.regulacion.esRegulada ? 'Sujeta a Regulación' : 'No Regulada (Acceso Libre)'}
+                          </h3>
+                       </div>
+                    </div>
+                    {result.regulacion.esRegulada && (
+                       <div className="px-5 py-2 rounded-full bg-orange-100 border border-orange-200 text-orange-700 text-[10px] font-black uppercase tracking-widest">
+                          Requiere Licencia para Firmar
+                       </div>
+                    )}
+                 </div>
+                 <div className="p-8 grid md:grid-cols-2 gap-10">
+                    <div className="space-y-4">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Lo que PUEDES hacer ahora:
+                       </h4>
+                       <p className="text-slate-600 text-sm font-medium leading-relaxed italic border-l-2 border-emerald-100 pl-4">
+                          {result.regulacion.quePuedesHacer || "Trabajar en roles de soporte, coordinación o bajo supervisión de un Licenciado."}
+                       </p>
+                    </div>
+                    <div className="space-y-4">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <XCircle className="w-4 h-4 text-rose-500" /> Lo que tienes PROHIBIDO:
+                       </h4>
+                       <p className="text-slate-600 text-sm font-medium leading-relaxed italic border-l-2 border-rose-100 pl-4">
+                          {result.regulacion.queNoPuedesHacer || "Firmar proyectos oficiales o ostentar el título de Ingeniero/Profesional Colegiado."}
+                       </p>
+                    </div>
+                    {result.regulacion.comoRegularizarse && (
+                       <div className="md:col-span-2 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                          <p className="text-xs font-black text-slate-900 uppercase tracking-tight mb-2">Camino a la Colegiatura:</p>
+                          <p className="text-sm text-slate-600 font-medium">{result.regulacion.comoRegularizarse}</p>
+                       </div>
+                    )}
+                 </div>
+             </section>
+          )}
+
           {result.diagnostico?.length > 0 && (
             <section className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden mt-8">
                 <div className="bg-slate-900 p-8">
@@ -677,10 +727,6 @@ export default function CvAnalysis({
 
       {/* 3. MERCADO (Paso 02) */}
       <div className="space-y-8 max-w-6xl mx-auto px-4 mt-12">
-          <div className="flex items-center gap-4 pt-4">
-              <span className="px-5 py-1.5 rounded-full bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest">Paso 02: Mercado</span>
-              <div className="h-[2px] bg-slate-200 flex-1" />
-          </div>
           <div className="grid lg:grid-cols-2 gap-8">
               <section className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden flex flex-col min-h-[400px]">
                    <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -732,6 +778,49 @@ export default function CvAnalysis({
                   </div>
               </section>
           </div>
+      </div>
+
+          {/* 🌉 PLAN DE ROLES PUENTE (NEW) */}
+          {result.rolesPuente && result.rolesPuente.length > 0 && (
+            <section className="mt-12 space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="bg-slate-900 text-white px-5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0">Paso 03: Roles Puente</div>
+                    <div className="h-px bg-slate-200 flex-1" />
+                </div>
+                <div className="bg-white rounded-[3rem] p-8 sm:p-12 border border-slate-200 shadow-xl space-y-10">
+                    <div className="space-y-4 max-w-2xl">
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Tu Mapa de <span className="text-primary italic">Entrada Rápida</span></h3>
+                        <p className="text-slate-500 font-medium leading-relaxed">
+                          Si tu rol principal requiere regularización o el mercado está saturado, estos 3 roles son tu mejor apuesta para entrar a la industria canadiense aprovechando tu experiencia actual.
+                        </p>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-3 gap-6">
+                      {result.rolesPuente.slice(0, 3).map((role: any, i: number) => (
+                        <div key={i} className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 flex flex-col gap-6 relative group hover:bg-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                           <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-lg border border-slate-100 group-hover:bg-primary group-hover:text-white transition-colors">
+                              <Briefcase className="w-6 h-6" />
+                           </div>
+                           <div className="space-y-2">
+                              <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Bridge Role {i+1}</p>
+                              <h4 className="text-lg font-black text-slate-900 leading-tight">{role.titulo}</h4>
+                           </div>
+                           <div className="space-y-4 flex-1">
+                              <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                                <span className="text-slate-900 font-black uppercase text-[9px] block mb-1">¿Por qué este rol?</span>
+                                {role.porque}
+                              </p>
+                              <div className="pt-4 border-t border-slate-200/50">
+                                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Salario Estimado</p>
+                                 <p className="text-xl font-black text-slate-900 tracking-tighter">{role.salarioAnual}</p>
+                              </div>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+            </section>
+          )}
       </div>
 
       {/* 4. AHA MOMENT: Score Leap Simulator */}

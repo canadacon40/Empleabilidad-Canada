@@ -243,11 +243,12 @@ Estructura obligatoria (format JSON):
 }
 
 ### REGLAS CRÍTICAS DE SALIDA:
-- PROVINCIAS: DEBES incluir un análisis de EXACTAMENTE 5 provincias de Canadá en 'mercado.provincias', priorizando mayor demanda para el NOC.
-- ROLES PUENTE: DEBES proporcionar EXACTAMENTE 3 roles en 'rolesPuente'. El 'titulo' DEBE ESTAR EN INGLÉS (ej. "Welder Helper", NO "Ayudante de Soldador").
-- IDIOMAS Y CERTIFICACIONES: Incluye siempre un horizonte de tiempo y 3 enlaces reales y útiles para aprender gratis en 'enlacesGratuitos', y estimación de costos/sitio oficial en certificaciones.
-- PROBABILIDADES Y CRECIMIENTO: En 'conclusionEjecutiva', detalla porcentajes realistas en 'probabilidadDesdeDentro' y 'probabilidadDesdeFuera'. En 'puntaje.potencialCrecimiento' detalla 3 acciones asumiendo que el CV está en español, con su impacto numérico explícito (ej. '+15%', '+10%').
-- NOC: Explica qué es el NOC brevemente en 'queEsElNOC' y entrega un link verificable real en 'linkOficialNOC'.`
+- PROVINCIAS: DEBES incluir un análisis de EXACTAMENTE 5 provincias.
+- ROLES PUENTE: DEBES sugerir EXACTAMENTE 3 roles puente técnicos o de industria asociados a la experiencia del usuario (Ej. "Site Coordinator" para un Ingeniero). Explica el 'porque' estratégico.
+- REGULACIÓN: Sé implacable y claro en 'regulacion'. Indica qué PUEDE hacer el usuario sin licencia y qué tiene PROHIBIDO (Cannot do) hacer legalmente.
+- IDIOMAS Y CERTIFICACIONES: Incluye siempre un horizonte de tiempo y 3 enlaces reales.
+- PROBABILIDADES Y CRECIMIENTO: Detalla porcentajes realistas. En 'puntaje.potencialCrecimiento' detalla 3 acciones con su impacto numérico explícito (ej. '+15%').
+- NOC: Explica qué es el NOC brevemente y entrega un link verificable real.`
                 },
                 {
                     role: "user",
