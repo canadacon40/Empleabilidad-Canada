@@ -414,33 +414,38 @@ export default function CvAnalysis({
                     })}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
           <div className="grid lg:grid-cols-2">
-            <div className="p-8 sm:p-12 bg-rose-50 border-r border-slate-100">
-               <div className="flex items-center gap-2 mb-8">
-                  <XCircle className="w-5 h-5 text-rose-500" />
-                  <p className="text-[11px] font-black text-rose-600 uppercase tracking-[0.3em]">Bloqueadores Críticos</p>
+            <div className="p-8 sm:p-12 bg-rose-50/50 border-r border-slate-100">
+               <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
+                    <XCircle className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-black text-rose-600 uppercase tracking-tight italic">Los 3 Errores de impacto Crítico</h4>
                </div>
-               <div className="space-y-6">
-                 {data.principalesBloqueadores?.map((b: any, i: number) => (
-                    <div key={i} className="group">
-                      <p className="text-sm font-black text-slate-900 mb-1 uppercase">{b.titulo}</p>
-                      <p className="text-xs text-slate-600 leading-relaxed mb-2 font-medium">{b.descripcion}</p>
+               <div className="grid gap-4">
+                 {data.principalesBloqueadores?.slice(0, 3).map((b: any, i: number) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                      <div className="absolute top-0 right-0 px-3 py-1 bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl">Error {i+1}</div>
+                      <p className="text-sm font-black text-slate-900 mb-2 uppercase">{b.titulo}</p>
+                      <p className="text-xs text-slate-600 leading-relaxed mb-3 font-medium">{b.descripcion}</p>
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-50">
+                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-0.5 rounded">Impacto: {b.impacto || "Crítico"}</span>
+                        <p className="text-[9px] font-bold text-slate-400 italic">"{b.insight}"</p>
+                      </div>
                     </div>
                  ))}
                </div>
             </div>
-            <div className="p-8 sm:p-12 bg-emerald-50">
-              <div className="flex items-center gap-2 mb-8">
-                  <Zap className="w-5 h-5 text-emerald-500" />
-                  <p className="text-[11px] font-black text-emerald-600 uppercase tracking-[0.3em]">Factores de Apalancamiento</p>
+            <div className="p-8 sm:p-12 bg-emerald-50/50">
+              <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-black text-emerald-600 uppercase tracking-tight italic">Factores de Apalancamiento</h4>
                </div>
                <div className="grid grid-cols-1 gap-4">
-                  {data.factoresApalancamiento?.map((f: any, i: number) => (
-                    <div key={i} className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+                  {data.factoresApalancamiento?.slice(0, 3).map((f: any, i: number) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
                       <p className="text-sm font-black text-emerald-600 mb-1 uppercase ">{f.titulo}</p>
                       <p className="text-xs text-slate-600 leading-relaxed font-medium italic">"{f.descripcion}"</p>
                     </div>
@@ -819,9 +824,54 @@ export default function CvAnalysis({
                       ))}
                     </div>
                 </div>
-            </section>
           )}
       </div>
+
+      {/* 🚀 HOJA DE RUTA AL ÉXITO (NEW) */}
+      {!isPremium && result.puntaje?.potencialCrecimiento && (
+        <section className="max-w-6xl mx-auto px-4 mt-20">
+            <div className="bg-slate-900 rounded-[4rem] p-10 sm:p-16 relative overflow-hidden shadow-2xl border border-white/5">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[100px] rounded-full -mr-40 -mt-40" />
+                
+                <div className="relative z-10 text-center space-y-4 mb-16">
+                    <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tighter">Tu Hoja de Ruta al <span className="text-primary italic">Éxito en Canadá</span></h3>
+                    <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
+                        Identificamos los 3 pasos críticos que debes ejecutar para pasar de "Invisible" a "Contratable".
+                    </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8 relative z-10">
+                    <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 hidden md:block -translate-y-1/2" />
+                    
+                    {result.puntaje.potencialCrecimiento.slice(0, 3).map((step: any, i: number) => (
+                      <div key={i} className="relative space-y-6 flex flex-col items-center text-center group">
+                          <div className="w-16 h-16 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-xl font-black text-primary shadow-2xl relative z-10 group-hover:scale-110 transition-transform">
+                             {i + 1}
+                          </div>
+                          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-[2rem] border border-white/5 space-y-4 flex-1 hover:bg-white/10 transition-colors">
+                              <h4 className="text-lg font-black text-white leading-tight uppercase tracking-tight">{step.accion}</h4>
+                              <p className="text-xs text-slate-400 font-medium leading-relaxed">
+                                 Este paso es vital para corregir tus bloqueadores actuales e incrementar tu visibilidad.
+                              </p>
+                              <div className="pt-4 border-t border-white/5">
+                                  <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1 italic">El "CÓMO" táctico:</p>
+                                  <p className="text-[9px] font-bold text-slate-500 uppercase leading-relaxed">
+                                    Disponible paso a paso en <span className="text-white">Pierre PRO</span>
+                                  </p>
+                              </div>
+                          </div>
+                      </div>
+                    ))}
+                </div>
+
+                <div className="mt-16 flex flex-col items-center gap-4 relative z-10">
+                    <div className="px-6 py-2 bg-primary/20 rounded-full border border-primary/30">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Optimización 2026</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+      )}
 
       {/* 4. AHA MOMENT: Score Leap Simulator */}
       {!isPremium && (

@@ -244,10 +244,11 @@ Estructura obligatoria (format JSON):
 
 ### REGLAS CRÍTICAS DE SALIDA:
 - PROVINCIAS: DEBES incluir un análisis de EXACTAMENTE 5 provincias.
-- ROLES PUENTE: DEBES sugerir EXACTAMENTE 3 roles puente técnicos o de industria asociados a la experiencia del usuario (Ej. "Site Coordinator" para un Ingeniero). Explica el 'porque' estratégico.
-- REGULACIÓN: Sé implacable y claro en 'regulacion'. Indica qué PUEDE hacer el usuario sin licencia y qué tiene PROHIBIDO (Cannot do) hacer legalmente.
+- ROLES PUENTE: DEBES sugerir EXACTAMENTE 3 roles puente técnicos.
+- BLOQUEADORES: Proporciona EXACTAMENTE 3 bloqueadores críticos en 'principalesBloqueadores' que sean los errores más graves del perfil.
+- REGULACIÓN: Sé implacable y claro en 'regulacion'.
 - IDIOMAS Y CERTIFICACIONES: Incluye siempre un horizonte de tiempo y 3 enlaces reales.
-- PROBABILIDADES Y CRECIMIENTO: Detalla porcentajes realistas. En 'puntaje.potencialCrecimiento' detalla 3 acciones con su impacto numérico explícito (ej. '+15%').
+- PROBABILIDADES Y CRECIMIENTO: En 'puntaje.potencialCrecimiento' detalla EXACTAMENTE 3 acciones secuenciales (Roadmap) que el usuario debe seguir para el éxito, enfocándote en el "Qué" debe hacerse.
 - NOC: Explica qué es el NOC brevemente y entrega un link verificable real.`
                 },
                 {
