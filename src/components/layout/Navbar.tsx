@@ -31,35 +31,24 @@ export default function Navbar() {
                         </Link>
                     </div>
                     
-                    <nav className="flex items-center gap-1 sm:gap-3">
-                        <Button 
-                            variant="ghost" 
-                            className="flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-500 hover:text-primary transition-colors focus:ring-0" 
-                            onClick={() => {
-                                trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
-                                setIsDetailsModalOpen(true);
-                            }}
-                        >
-                            Asesoría 1-1
-                        </Button>
-
+                    <nav className="flex items-center gap-2 sm:gap-4">
                         {session ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 <Button 
                                     size="sm"
-                                    className="h-9 sm:h-12 px-3 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-[0.2em] rounded-xl shadow-xl shadow-amber-500/20 hover:scale-[1.02] transition-all bg-amber-400 text-slate-950 border-none" 
+                                    variant="ghost"
+                                    className="h-9 sm:h-12 px-3 sm:px-6 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-widest rounded-xl hover:bg-slate-50 text-slate-900 border border-slate-100" 
                                     asChild
                                 >
                                     <Link href="/cv-tool?view=dashboard" className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 hidden sm:block" />
-                                        MI PANEL PIERRE PRO
+                                        <Sparkles className="w-4 h-4 text-amber-500" />
+                                        MI PANEL PRO
                                     </Link>
                                 </Button>
                                 <Button 
                                     variant="ghost" 
-                                    className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-slate-400 hover:text-red-500 transition-colors" 
+                                    className="h-9 w-9 p-0 text-slate-400 hover:text-red-500 transition-colors" 
                                     onClick={() => signOut({ callbackUrl: "/" })}
-                                    title="Cerrar Sesión"
                                 >
                                     <LogOut className="w-4 h-4" />
                                 </Button>
@@ -67,7 +56,7 @@ export default function Navbar() {
                         ) : (
                             <Button 
                                 variant="ghost" 
-                                className="hidden sm:flex h-9 sm:h-10 px-2 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest text-slate-950 hover:bg-slate-50 transition-all border-2 border-slate-100 rounded-xl" 
+                                className="h-9 sm:h-12 px-3 sm:px-6 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-widest text-slate-900 hover:bg-slate-50 transition-all border border-slate-100 rounded-xl" 
                                 asChild
                             >
                                 <Link href="/login">
@@ -75,12 +64,15 @@ export default function Navbar() {
                                 </Link>
                             </Button>
                         )}
-                        
-                        <Button asChild size="sm" className="h-9 sm:h-12 px-3 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all bg-primary text-white">
-                            <Link href="/cv-tool?force_form=true" className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 hidden sm:block" />
-                                Reporte de Empleabilidad Gratis
-                            </Link>
+
+                        <Button 
+                            className="h-9 sm:h-12 px-4 sm:px-8 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-widest rounded-xl bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all" 
+                            onClick={() => {
+                                trackEvent("CTA_CLICK", { zone: "Navbar", action: "Agendar" });
+                                setIsDetailsModalOpen(true);
+                            }}
+                        >
+                            Asesoría 1-1
                         </Button>
                     </nav>
                 </div>
