@@ -33,7 +33,10 @@ export default function EmployabilityEnginePro({ cvText, onAction, onCreditLimit
             const res = await fetch("/api/cv-redesign", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ cvText: localCvText, language })
+                body: JSON.stringify({ 
+                    cvText: localCvText, 
+                    targetLanguage: language === "French" ? "fr" : "en" 
+                })
             })
             const data = await res.json()
             
@@ -101,7 +104,10 @@ export default function EmployabilityEnginePro({ cvText, onAction, onCreditLimit
 
             const res = await fetch("/api/cv-customize", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "x-target-language": language === "French" ? "fr" : "en"
+                },
                 body: JSON.stringify({ cvText: baseCvText, jobDescription: jdText, action: "customize" })
             })
             const data = await res.json()

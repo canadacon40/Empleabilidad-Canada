@@ -48,13 +48,25 @@ export default function HeroSection() {
                             </p>
 
                             <div className="space-y-8">
-                                <Button size="lg" className="h-16 sm:h-24 px-8 sm:px-12 w-full sm:w-auto rounded-2xl sm:rounded-[2rem] text-sm sm:text-2xl font-black shadow-[0_20px_40px_-10px_rgba(var(--primary),0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all group gap-4 relative overflow-hidden" asChild>
-                                    <Link href="/cv-tool">
-                                        <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 italic" />
-                                        OBTENER MI REPORTE GRATIS
-                                        <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
-                                    </Link>
-                                </Button>
+                                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                    <Button size="lg" className="h-16 sm:h-24 px-8 sm:px-12 w-full sm:w-auto rounded-2xl sm:rounded-[2rem] text-sm sm:text-2xl font-black shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all group gap-4 relative overflow-hidden bg-primary text-white shadow-primary/30" asChild>
+                                        <Link href="/cv-tool?force_form=true">
+                                            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 italic" />
+                                            OBTENER MI REPORTE GRATIS
+                                            <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+                                        </Link>
+                                    </Button>
+
+                                    {session && (
+                                        <Link 
+                                            href="/cv-tool" 
+                                            className="text-xs font-black text-slate-400 hover:text-amber-500 uppercase tracking-widest transition-colors flex items-center gap-2 px-6 py-4"
+                                        >
+                                            <ShieldCheck className="w-4 h-4" />
+                                            Ir a mi Panel Pierre PRO
+                                        </Link>
+                                    )}
+                                </div>
 
                                 {/* Value Bullets */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 max-w-lg">

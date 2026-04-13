@@ -48,6 +48,7 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
     const [isLoading, setIsLoading] = useState(false)
     const [loadingAction, setLoadingAction] = useState("")
     const [error, setError] = useState("")
+    const [targetLanguage, setTargetLanguage] = useState<"en" | "fr">("en")
     const [analyzeResult, setAnalyzeResult] = useState<any>(null)
     const [customizeResult, setCustomizeResult] = useState<any>(null)
     const [atsResult, setAtsResult] = useState<any>(null)
@@ -64,7 +65,10 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
         try {
             const res = await fetch("/api/cv-customize", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "x-target-language": targetLanguage
+                },
                 body: JSON.stringify({ cvText, jobDescription, action }),
             })
             const data = await res.json()
@@ -120,6 +124,23 @@ function CustomizeTab({ cvText, onCustomize }: { cvText: string; onCustomize?: (
                     <p className="text-sm font-bold text-red-600">{error}</p>
                 </div>
             )}
+
+            <div className="flex gap-4 mb-6">
+                <button 
+                    onClick={() => setTargetLanguage("en")}
+                    className={`flex-1 h-12 rounded-xl border-2 font-black transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest ${targetLanguage === "en" ? "bg-slate-950 border-slate-950 text-white shadow-lg" : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"}`}
+                >
+                    English Standard
+                    {targetLanguage === "en" && <Check className="w-4 h-4 text-primary" />}
+                </button>
+                <button 
+                    onClick={() => setTargetLanguage("fr")}
+                    className={`flex-1 h-12 rounded-xl border-2 font-black transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest ${targetLanguage === "fr" ? "bg-slate-950 border-slate-950 text-white shadow-lg" : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"}`}
+                >
+                    Québec Français
+                    {targetLanguage === "fr" && <Check className="w-4 h-4 text-primary" />}
+                </button>
+            </div>
 
             <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
                 <Button variant="outline" className="min-h-[4rem] h-auto py-3 rounded-2xl border-2 border-slate-100 bg-white hover:border-amber-400 font-black gap-3 text-xs uppercase" onClick={() => callApi("analyze")} disabled={isLoading}>

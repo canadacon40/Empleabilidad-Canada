@@ -2,14 +2,14 @@
 
 import { useState, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import LeadCaptureForm from "@/components/cv-tool/CvUploadForm";
 import CvAnalysis from "@/components/cv-tool/CvAnalysis";
 import StrategyResources from "@/components/cv-tool/StrategyResources";
 import PremiumWelcome from "@/components/cv-tool/PremiumWelcome";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, LogOut } from "lucide-react";
 
 const DUMMY_LEAD_DATA = {
     name: "Juan Perez (Test)",
@@ -118,14 +118,13 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
         }
     }, [authStatus, isPro, step, leadData, searchParams]);
 
-    // 🚀 PRO, MASTER & TRIAL AUTO-BYPASS: Direct entry to Strategy Center
+    // 🚀 PRO, MASTER & TRIAL AUTO-BYPASS: Direct entry to Strategy Center ONLY if requested
     useEffect(() => {
         const forceForm = searchParams.get("force_form") === "true";
+        const isDashboardView = searchParams.get("view") === "dashboard";
         
-        if (authStatus === "authenticated" && isVIP && step === "form" && !forceForm) {
+        if (authStatus === "authenticated" && isVIP && step === "form" && isDashboardView && !forceForm) {
             const lastResult = localStorage.getItem("last_report_result");
-            const pendingData = localStorage.getItem("pendingReportData");
-            
             console.log("[VIP_BYPASS] Jumping to Strategy Dashboard...");
             
             if (lastResult) {
@@ -203,7 +202,19 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
 
     return (
         <div className={step === "strategy" ? "h-screen w-full overflow-hidden" : "flex-1 container mx-auto px-4 py-12"}>
-            {(step === "form" && !isVIP) && (
+            {/* Dynamic Status Header */}
+            {step !== "form" && (
+                <div className="mb-8 flex items-center justify-between border-b pb-4 border-slate-100">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full animate-pulse ${isVIP ? 'bg-amber-400' : 'bg-primary'}`} />
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                            {isVIP ? "Panel Pierre PRO • Centro de Estrategia" : "Reporte de Empleabilidad • Lead Magnet"}
+                        </h2>
+                    </div>
+                </div>
+            )}
+
+            {step === "form" && (
                 <LeadCaptureForm onResult={handleResult} />
             )}
 

@@ -42,12 +42,16 @@ export async function POST(req: Request) {
             - tips: (string[]) 3 consejos estratégicos para este rol específico.`;
             
             userPrompt = `Job Description: ${jobDescription}\n\nCV del Candidato: ${cvText}`;
-        } else if (action === "customize") {
+            const targetLanguage = req.headers.get("x-target-language") || "en";
+            const langSystemInstruction = targetLanguage.toLowerCase() === 'fr' 
+                ? 'IDIOMA: FRANÇAIS (Québec). Traduce COMPLETAMENTE el contenido (titulares, logros, resumen) al francés de Quebec. IMPORTANTE: Los valores deben ser franceses, pero las LLAVES del JSON DEBEN permanecer en inglés.' 
+                : 'LANGUAGE: ENGLISH (Canada).';
+
             systemPrompt = `Eres un Consultor de Carrera Canadiense de Élite y experto en "Ingeniería Quirúrgica" de CVs. 
             Tu misión es ADAPTAR el CV del candidato a una vacante (Job Description) con precisión quirúrgica, asegurando un match del 95% o superior.
             
             REGLAS CRÍTICAS:
-            1. IDIOMA: Traduce el resultado al idioma dominante del Job Description (En/Fr).
+            1. ${langSystemInstruction}
             2. LOOK EJECUTIVO: Usa la fórmula: VERBO DE ACCIÓN + TAREA + RESULTADO (KPIs).
             3. ATS MATCHING: Inyecta keywords de forma natural pero densa.
             4. HEADLINE: Crea un titular táctico alineado a la vacante (ej: "Senior Cloud Engineer | AWS Expert | Infrastructure Lead").

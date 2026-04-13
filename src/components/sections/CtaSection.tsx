@@ -37,7 +37,7 @@ export default function CtaSection() {
                             className="h-20 w-full sm:w-auto px-10 text-xl font-black bg-white text-primary hover:bg-slate-50 rounded-[2rem] shadow-2xl shadow-white/10 hover:scale-[1.02] transition-all group" 
                             asChild
                         >
-                            <Link href="/cv-tool">
+                            <Link href="/cv-tool?force_form=true">
                                 GENERAR MI REPORTE GRATIS
                                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                             </Link>

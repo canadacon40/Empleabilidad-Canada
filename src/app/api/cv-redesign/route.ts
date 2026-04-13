@@ -34,8 +34,8 @@ export async function POST(req: Request) {
         }
 
         const languageInstruction = targetLanguage.toLowerCase() === 'fr' 
-            ? 'Traducir y formatear el CV al FRANCÉS (estándar de Quebec).' 
-            : 'Traducir y formatear el CV al INGLÉS (estándar del resto de Canadá).';
+            ? 'IDIOMA: FRANÇAIS (Québec). Traduce COMPLETAMENTE el contenido. Usa terminología corporativa de Quebec (ej: "Expérience professionnelle", "Compétences clés"). Evita modismos de Francia (ej: no usar "Stage" si es una pasantía profesional de alto nivel, prefiere términos locales). IMPORTANTE: Los valores deben ser franceses, pero las LLAVES del JSON DEBEN permanecer en inglés.' 
+            : 'LANGUAGE: ENGLISH (Canada). Translate and format the CV to English (Rest of Canada standard).';
 
         const nocInstruction = (nocCode && nocTitle) 
             ? `\n\n[CONTEXTO NOC]: El código NOC objetivo de este candidato es ${nocCode} - ${nocTitle}. Asegúrate de alinear el lenguaje y las responsabilidades a las expectativas de este NOC Canadiense.` 

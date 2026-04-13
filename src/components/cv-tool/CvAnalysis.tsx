@@ -778,6 +778,30 @@ export default function CvAnalysis({
 
             {/* ERROR PREVENCIÓN: Mapa de Éxito / Instrucciones PRO (FIJA) */}
             <div className="mb-16 space-y-10">
+              {/* VIP BRIDGE: Only for PRO users seeing the report */}
+              {showProFeatures && (
+                <motion.div 
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   className="bg-primary/5 border-2 border-primary/20 rounded-[2.5rem] p-8 sm:p-10 text-center mb-12 shadow-inner"
+                >
+                   <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                      <div className="text-left">
+                         <h3 className="text-2xl font-black text-slate-900 leading-tight">Acceso Pierre PRO Activado</h3>
+                         <p className="text-slate-500 font-medium max-w-md">Ya tienes tu score. Ahora utiliza el arsenal táctico para transformar este CV en una oferta real.</p>
+                      </div>
+                      <Button 
+                        size="lg" 
+                        onClick={onAnalysisComplete}
+                        className="h-16 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:scale-105 transition-all flex items-center gap-3 shrink-0"
+                      >
+                         <Rocket className="w-5 h-5 animate-pulse" />
+                         Entrar al Centro Táctico
+                      </Button>
+                   </div>
+                </motion.div>
+              )}
+
               <div className="bg-slate-950 rounded-[3.5rem] p-10 sm:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
                 <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
