@@ -335,12 +335,13 @@ export default function CvAnalysis({
     if (!data) return null;
 
     const scoreLabels: Record<string, string> = {
-      tecnica: "Experiencia Técnica",
-      transferibilidad: "Transferibilidad al Mercado",
-      ingles: "Nivel de Inglés Funcional",
-      posicionamiento: "Posicionamiento Profesional",
-      acceso: "Acceso al Mercado (Work Permit)",
-      red: "Red Profesional en Canadá",
+      experiencia: "Experiencia",
+      educacion: "Educación",
+      certificaciones: "Certificaciones",
+      cv: "CV",
+      idioma: "Inglés / Francés",
+      networking: "Networking",
+      estrategia: "Estrategia",
     };
 
     return (
@@ -357,19 +358,19 @@ export default function CvAnalysis({
             <div className="flex items-center justify-between mb-8">
                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <Shield className="w-5 h-5 text-primary" />
+                    <TrendingUp className="w-5 h-5 text-primary" />
                   </div>
-                  <h4 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Diagnóstico Profundo</h4>
+                  <h4 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">2. NIVEL DE EMPLEABILIDAD (REAL)</h4>
                </div>
             </div>
             
             <div className="grid lg:grid-cols-2 gap-10">
               <div className="space-y-4">
                 <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Resumen Estratégico</p>
-                <p className="text-slate-600 text-lg font-medium leading-relaxed italic">
+                <p className="text-slate-600 text-lg font-medium leading-relaxed italic border-l-4 border-slate-100 pl-6">
                   "{data.resumenEjecutivo?.descripcion}"
                 </p>
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-200">
                   <p className="text-sm font-black text-slate-900 flex gap-2">
                     <Sparkles className="w-5 h-5 text-primary shrink-0" />
                     CONCLUSIÓN CLAVE: {data.resumenEjecutivo?.conclusionClave}
@@ -378,32 +379,40 @@ export default function CvAnalysis({
               </div>
 
               <div className="space-y-6">
-                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Score Multidimensional</p>
-                <div className="space-y-4 bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
-                  {Object.entries(data.scoreMultidimensional || {}).map(([key, val]: [string, any]) => {
-                    if (key === 'interpretacionEstrategica') return null;
-                    const score = typeof val === 'number' ? val : parseInt(val) || 0;
-                    return (
-                      <div key={key} className="space-y-1.5">
-                        <div className="flex justify-between text-[10px] font-black uppercase text-slate-500 tracking-wider">
-                          <span>{scoreLabels[key] || key}</span>
-                          <span className={score >= 7 ? "text-emerald-600" : score >= 5 ? "text-amber-600" : "text-rose-600"}>
-                            {score}/10
-                          </span>
+                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Scoring Tipo Mercado</p>
+                <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
+                  <div className="grid grid-cols-12 bg-slate-50/50 p-4 border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="col-span-8">Área de Evaluación</div>
+                    <div className="col-span-4 text-right">Score Competitivo</div>
+                  </div>
+                  <div className="divide-y divide-slate-50">
+                    {Object.entries(data.scoreMultidimensional || {}).map(([key, val]: [string, any]) => {
+                      if (key === 'interpretacionEstrategica') return null;
+                      const scoreValue = typeof val === 'number' ? val : parseInt(val) || 0;
+                      // Ensure everything is on a 0-100 basis for consistency in display
+                      const displayScore = scoreValue > 10 ? scoreValue : scoreValue * 10;
+                      const label = scoreLabels[key] || key;
+
+                      return (
+                        <div key={key} className="grid grid-cols-12 items-center p-4 hover:bg-slate-50/30 transition-colors">
+                          <div className="col-span-8">
+                            <span className="text-xs font-bold text-slate-800 uppercase tracking-tight">{label}</span>
+                          </div>
+                          <div className="col-span-4 flex items-center justify-end gap-3 text-right">
+                            <span className={`text-sm font-black ${displayScore >= 80 ? 'text-emerald-500' : displayScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
+                              {displayScore}%
+                            </span>
+                            {displayScore < 60 && (
+                              <XCircle className="w-4 h-4 text-rose-500 animate-pulse" />
+                            )}
+                            {displayScore >= 80 && (
+                              <CheckCircle className="w-4 h-4 text-emerald-500" />
+                            )}
+                          </div>
                         </div>
-                        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${score * 10}%` }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
-                            className={`h-full rounded-full ${
-                              score >= 7 ? "bg-emerald-500" : score >= 5 ? "bg-amber-500" : "bg-rose-500"
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

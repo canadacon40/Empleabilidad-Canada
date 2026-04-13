@@ -128,13 +128,19 @@ export async function POST(req: Request) {
 - El reporte debe empezar explicando que analizar el perfil es el "Paso 0" crítico. Aplicar sin este diagnóstico es una pérdida de tiempo y recursos.
 - Tu tono es profesional, directo, mentor y visionario.
 
-### 2. LÓGICA DE PUNTUACIÓN (REGLAS DE ORO)
-- scoreBase: Calidad técnica, estructura y logros (0-100).
-- penalizacionIdioma: Valor negativo si el CV no está en Inglés o Francés.
-- REGLA MANDATORIA: Si el CV está en ESPAÑOL, el 'scoreFinal' NO PUEDE superar los 40 puntos.
-- PERFILES DE OFICIOS (TRADES): Para soldadores, electricistas, mecánicos, etc., valora la EXPERIENCIA TÉCNICA y certificaciones por encima del idioma. Si tienen inglés básico pero técnica sólida, el 'scoreFinal' puede ser hasta 45 si el CV está en español, o 65 si ya está en inglés.
-- Explica qué nivel CLB es "Mínimo Funcional" (para entrar) e identifica si el usuario ya lo cumple.
-- **DIMENSIONES ESTRATÉGICAS (0-10):** Valora 'acceso' según el estatus migratorio real proporcionado. Valora 'red' según la respuesta de networking del usuario.
+### 2. LÓGICA DE PUNTUACIÓN "SCORING TIPO MERCADO" (REGLAS DE ORO)
+Debes evaluar 7 categorías del 0 al 100. El 'scoreFinal' (puntaje.final) DEBE ser el promedio ponderado exacto usando estos PESOS:
+1. 'idioma': 30% (Filtro mandatorio. Evalúa Inglés/Francés).
+2. 'experiencia': 25% (CRÍTICO: Evalúa si la carrera/NOC está en ALTA DEMANDA y calidad técnica).
+3. 'cv': 15% (Estructura canadiense y ATS).
+4. 'networking': 10% (Input del usuario sobre red de contactos).
+5. 'educacion': 10% (Títulos y validaciones).
+6. 'certificaciones': 5% (Ceras locales/globales).
+7. 'estrategia': 5% (Claridad del plan).
+
+- REGLA MANDATORIA: Si el CV está en ESPAÑOL, el 'idioma' NO PUEDE superar los 10 puntos y el 'cv' NO PUEDE superar los 30 puntos.
+- PERFILES DE OFICIOS (TRADES): Valora la EXPERIENCIA TÉCNICA por encima de la narrativa.
+- Explica qué nivel CLB es "Mínimo Funcional" e identifica si el usuario ya lo cumple.
 
 ### 3. REDUCCIÓN DE ALUCINACIONES
 - No inventes nombres de empresas específicas con LMIA ni precios exactos de certificaciones.
@@ -153,13 +159,14 @@ Estructura obligatoria (format JSON):
       "conclusionClave": "La verdad cruda sobre si es un problema de experiencia o de posicionamiento"
     },
     "scoreMultidimensional": {
-      "tecnica": "número (0-10)",
-      "transferibilidad": "número (0-10)",
-      "ingles": "número (0-10)",
-      "posicionamiento": "número (0-10)",
-      "acceso": "número (0-10)",
-      "red": "número (0-10)",
-      "interpretacionEstrategica": "Descripción basada en el score global"
+        "experiencia": "número (0-100)",
+        "educacion": "número (0-100)",
+        "certificaciones": "número (0-100)",
+        "cv": "número (0-100)",
+        "idioma": "número (0-100)",
+        "networking": "número (0-100)",
+        "estrategia": "número (0-100)",
+        "interpretacionEstrategica": "Descripción basada en el score global"
     },
     "principalesBloqueadores": [
       {"titulo": "string", "descripcion": "string", "impacto": "string", "insight": "string"}
