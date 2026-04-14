@@ -69,7 +69,7 @@ export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
                                 Has llegado al <span className="text-primary relative inline-block">
                                     Límite
                                     <div className="absolute -bottom-1 left-0 w-full h-1.5 bg-primary/20 rounded-full" />
-                                </span> Gratuitio.
+                                </span> Gratuito.
                             </h2>
                             <p className="text-slate-500 text-lg font-medium max-w-md">
                                 Tu diagnóstico está listo, pero la ejecución es donde se gana la guerra. Desbloquea el arsenal completo de Pierre.

@@ -31,7 +31,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
             const data = await res.json()
             if (!res.ok) { setError(data.error); return }
             setResult(data.result)
-        } catch { setError("Error de conexiÃ³n. Intenta de nuevo.") }
+        } catch { setError("Error de conexión. Intenta de nuevo.") }
         finally { setIsLoading(false) }
     }
 
@@ -82,10 +82,10 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                     <Shield className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">AnÃ¡lisis de Empleabilidad Canadiense</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-2">Análisis de Empleabilidad Canadiense</h3>
                     <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                        Antes de transformar tu CV, analizaremos tu perfil para el mercado canadiense: regulaciÃ³n profesional,
-                        certificaciones, salarios, empresas que contratan y mÃ¡s.
+                        Antes de transformar tu CV, analizaremos tu perfil para el mercado canadiense: regulación profesional,
+                        certificaciones, salarios, empresas que contratan y más.
                     </p>
                 </div>
 
@@ -110,7 +110,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                 </Button>
 
                 <button onClick={onAnalysisComplete} className="text-sm text-muted-foreground hover:text-foreground underline block mx-auto">
-                    Saltar anÃ¡lisis e ir directo a transformar
+                    Saltar análisis e ir directo a transformar
                 </button>
             </div>
         )
@@ -122,7 +122,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
             {/* Header + Download buttons */}
             <div className="text-center space-y-3">
                 <h3 className="text-xl font-bold text-foreground mb-1">ðŸ“Š Reporte de Empleabilidad Canadiense</h3>
-                <p className="text-sm text-muted-foreground">AnÃ¡lisis completo de tu perfil para el mercado laboral canadiense</p>
+                <p className="text-sm text-muted-foreground">Análisis completo de tu perfil para el mercado laboral canadiense</p>
                 <div className="flex justify-center gap-3 mt-2">
                     <Button size="sm" variant="outline" className="gap-2" onClick={downloadFullReportPDF}>
                         <Download className="w-4 h-4" />
@@ -141,18 +141,18 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
             <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2">
                 <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700">
-                    <strong>Nota:</strong> Esta informaciÃ³n es referencial, basada en datos histÃ³ricos y conocimiento del mercado canadiense.
+                    <strong>Nota:</strong> Esta información es referencial, basada en datos históricos y conocimiento del mercado canadiense.
                     Los precios de certificaciones pueden variar, algunas pueden no estar disponibles, y los rangos salariales
                     son estimaciones generales. Verifica siempre en los sitios web oficiales antes de tomar decisiones.
                 </p>
             </div>
 
-            {/* 1. DIAGNÃ“STICO */}
+            {/* 1. DIAGNÓSTICO */}
             {result.diagnostico?.length > 0 && (
                 <section>
                     <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
                         <XCircle className="w-5 h-5 text-destructive" />
-                        DiagnÃ³stico de tu CV actual
+                        Diagnóstico de tu CV actual
                     </h4>
                     <div className="space-y-3">
                         {result.diagnostico.map((d: any, i: number) => (
@@ -162,7 +162,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                                     <p className="text-sm font-semibold text-foreground">{d.problema}</p>
                                 </div>
                                 <p className="text-sm text-muted-foreground pl-6">
-                                    <strong>Â¿Por quÃ©?</strong> {d.porque}
+                                    <strong>Â¿Por qué?</strong> {d.porque}
                                 </p>
                                 <div className="flex items-start gap-2 pl-6">
                                     <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
@@ -174,19 +174,19 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                 </section>
             )}
 
-            {/* 2. REGULACIÃ“N POR PROVINCIA */}
+            {/* 2. REGULACIÓN POR PROVINCIA */}
             {result.regulacion && (
                 <section>
                     <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
                         <Shield className="w-5 h-5 text-primary" />
-                        RegulaciÃ³n Profesional por Provincia
+                        Regulación Profesional por Provincia
                     </h4>
                     <div className={`rounded-xl border p-5 ${result.regulacion.esRegulada ? "border-amber-300 bg-amber-50/50" : "border-green-300 bg-green-50/50"
                         }`}>
                         <div className="flex items-center gap-2 mb-2">
                             <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${result.regulacion.esRegulada ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
                                 }`}>
-                                {result.regulacion.esRegulada ? "âš ï¸ ProfesiÃ³n Regulada" : "âœ… ProfesiÃ³n No Regulada"}
+                                {result.regulacion.esRegulada ? "âš ï¸ Profesión Regulada" : "âœ… Profesión No Regulada"}
                             </span>
                             <span className="text-sm text-muted-foreground">â€” {result.regulacion.profesion}</span>
                         </div>
@@ -251,7 +251,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                         <Award className="w-5 h-5 text-primary" />
                         Certificaciones Recomendadas
                     </h4>
-                    <p className="text-xs text-muted-foreground mb-4">MÃ¡ximo 5 certificaciones: relevantes al puesto + cultura y seguridad laboral canadiense</p>
+                    <p className="text-xs text-muted-foreground mb-4">Máximo 5 certificaciones: relevantes al puesto + cultura y seguridad laboral canadiense</p>
                     <div className="space-y-3">
                         {result.certificaciones.slice(0, 5).map((c: any, i: number) => (
                             <div key={i} className="rounded-xl border border-border p-4">
@@ -273,7 +273,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted-foreground">
                                     <div><strong>Organismo:</strong> {c.organismo}</div>
                                     <div><strong>Costo:</strong> {c.costoCAD}</div>
-                                    <div><strong>DuraciÃ³n:</strong> {c.duracion}</div>
+                                    <div><strong>Duración:</strong> {c.duracion}</div>
                                     <div>
                                         <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">
                                             Ver sitio <ExternalLink className="w-3 h-3" />
@@ -304,7 +304,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     <p className="text-sm font-bold text-primary">{r.salarioPromedio}</p>
-                                    <p className="text-[10px] text-muted-foreground">CAD/aÃ±o</p>
+                                    <p className="text-[10px] text-muted-foreground">CAD/año</p>
                                 </div>
                             </div>
                         ))}
@@ -324,7 +324,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                 <section>
                     <h4 className="font-bold text-foreground flex items-center gap-2 mb-4">
                         <DollarSign className="w-5 h-5 text-primary" />
-                        Rangos Salariales en CanadÃ¡
+                        Rangos Salariales en Canadá
                     </h4>
                     <div className="grid grid-cols-3 gap-3">
                         <div className="rounded-xl border border-border p-4 text-center">
@@ -357,11 +357,11 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4">
-                            <p className="text-xs font-bold text-blue-800 mb-1">InglÃ©s (CLB)</p>
+                            <p className="text-xs font-bold text-blue-800 mb-1">Inglés (CLB)</p>
                             <p className="text-sm text-foreground font-medium">{result.idiomas.clbIngles}</p>
                         </div>
                         <div className="rounded-xl border border-border bg-muted/20 p-4">
-                            <p className="text-xs font-bold text-muted-foreground mb-1">FrancÃ©s (CLB)</p>
+                            <p className="text-xs font-bold text-muted-foreground mb-1">Francés (CLB)</p>
                             <p className="text-sm text-foreground font-medium">{result.idiomas.clbFrances}</p>
                         </div>
                     </div>
@@ -395,7 +395,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="font-bold text-foreground flex items-center gap-2">
                             <Building2 className="w-5 h-5 text-primary" />
-                            Empresas con historial de contrataciÃ³n internacional â€” {result.empresasLMIA.length} empresas
+                            Empresas con historial de contratación internacional â€” {result.empresasLMIA.length} empresas
                         </h4>
                         <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={downloadLMIAExcel}>
                             <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -407,8 +407,8 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
                     <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-2 mb-4">
                         <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-blue-700">
-                            <strong>Importante:</strong> Estas empresas <strong>han gestionado LMIA (Labour Market Impact Assessment) para contratar trabajadores extranjeros</strong> en aÃ±os recientes.
-                            Esto <strong>no garantiza</strong> que estÃ©n contratando en este momento, pero son tus principales objetivos
+                            <strong>Importante:</strong> Estas empresas <strong>han gestionado LMIA (Labour Market Impact Assessment) para contratar trabajadores extranjeros</strong> en años recientes.
+                            Esto <strong>no garantiza</strong> que estén contratando en este momento, pero son tus principales objetivos
                             cuando busques oportunidades con patrocinio. Visita sus sitios web para revisar vacantes actuales.
                         </p>
                     </div>
@@ -477,19 +477,19 @@ function generateReportHTML(result: any): string {
 
     html += `<h1>ðŸ“Š Reporte de Empleabilidad Canadiense</h1>`
     html += `<p style="color:#666;font-size:11px;">Generado el ${new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}</p>`
-    html += `<div class="disclaimer"><strong>Nota:</strong> Esta informaciÃ³n es referencial. Los precios, disponibilidad y rangos salariales pueden variar. Verifica siempre en los sitios web oficiales.</div>`
+    html += `<div class="disclaimer"><strong>Nota:</strong> Esta información es referencial. Los precios, disponibilidad y rangos salariales pueden variar. Verifica siempre en los sitios web oficiales.</div>`
 
-    // DiagnÃ³stico
+    // Diagnóstico
     if (result.diagnostico?.length) {
-        html += `<h2>âŒ DiagnÃ³stico del CV Actual</h2><table><tr><th>Problema</th><th>Â¿Por quÃ©?</th><th>Cambio</th></tr>`
+        html += `<h2>âŒ Diagnóstico del CV Actual</h2><table><tr><th>Problema</th><th>Â¿Por qué?</th><th>Cambio</th></tr>`
         result.diagnostico.forEach((d: any) => { html += `<tr><td>${d.problema}</td><td>${d.porque}</td><td>${d.cambio}</td></tr>` })
         html += `</table>`
     }
 
-    // RegulaciÃ³n
+    // Regulación
     if (result.regulacion) {
-        html += `<h2>ðŸ›¡ï¸ RegulaciÃ³n Profesional â€” ${result.regulacion.profesion}</h2>`
-        html += `<p><strong>${result.regulacion.esRegulada ? "âš ï¸ ProfesiÃ³n Regulada" : "âœ… ProfesiÃ³n No Regulada"}</strong></p>`
+        html += `<h2>ðŸ›¡ï¸ Regulación Profesional â€” ${result.regulacion.profesion}</h2>`
+        html += `<p><strong>${result.regulacion.esRegulada ? "âš ï¸ Profesión Regulada" : "âœ… Profesión No Regulada"}</strong></p>`
         html += `<p>${result.regulacion.detalle}</p>`
         if (result.regulacion.reguladoresPorProvincia?.length) {
             html += `<table><tr><th>Provincia</th><th>Ente Regulador</th><th>Sitio Web</th></tr>`
@@ -503,7 +503,7 @@ function generateReportHTML(result: any): string {
 
     // Certificaciones
     if (result.certificaciones?.length) {
-        html += `<h2>ðŸ† Certificaciones Recomendadas</h2><table><tr><th>CertificaciÃ³n</th><th>Organismo</th><th>Costo</th><th>DuraciÃ³n</th><th>Tipo</th></tr>`
+        html += `<h2>ðŸ† Certificaciones Recomendadas</h2><table><tr><th>Certificación</th><th>Organismo</th><th>Costo</th><th>Duración</th><th>Tipo</th></tr>`
         result.certificaciones.slice(0, 5).forEach((c: any) => {
             html += `<tr><td><a href="${c.url}">${c.nombre}</a></td><td>${c.organismo}</td><td>${c.costoCAD}</td><td>${c.duracion}</td><td>${c.tipo}</td></tr>`
         })
@@ -512,7 +512,7 @@ function generateReportHTML(result: any): string {
 
     // Roles puente
     if (result.rolesPuente?.length) {
-        html += `<h2>ðŸ”€ Roles Puente</h2><table><tr><th>Rol (EN)</th><th>Rol (ES)</th><th>Salario</th><th>Â¿Por quÃ©?</th></tr>`
+        html += `<h2>ðŸ”€ Roles Puente</h2><table><tr><th>Rol (EN)</th><th>Rol (ES)</th><th>Salario</th><th>Â¿Por qué?</th></tr>`
         result.rolesPuente.forEach((r: any) => { html += `<tr><td>${r.titulo}</td><td>${r.tituloEspanol}</td><td>${r.salarioPromedio}</td><td>${r.porque}</td></tr>` })
         html += `</table>`
     }
@@ -537,7 +537,7 @@ function generateReportHTML(result: any): string {
     // Idiomas
     if (result.idiomas) {
         html += `<h2>ðŸ—£ï¸ Requisitos de Idioma (CLB)</h2>`
-        html += `<table><tr><th>InglÃ©s (CLB)</th><th>FrancÃ©s (CLB)</th></tr>`
+        html += `<table><tr><th>Inglés (CLB)</th><th>Francés (CLB)</th></tr>`
         html += `<tr><td>${result.idiomas.clbIngles}</td><td>${result.idiomas.clbFrances}</td></tr></table>`
         if (result.idiomas.recursos?.length) {
             html += `<h3>Recursos Gratuitos Recomendados</h3><ul>`
@@ -550,8 +550,8 @@ function generateReportHTML(result: any): string {
 
     // LMIA
     if (result.empresasLMIA?.length) {
-        html += `<h2>ðŸ¢ Empresas con Historial de ContrataciÃ³n Internacional (LMIA)</h2>`
-        html += `<div class="lmia-disclaimer"><strong>Importante:</strong> Estas empresas <strong>han gestionado LMIA (Labour Market Impact Assessment) para contratar trabajadores extranjeros</strong> en aÃ±os recientes. Esto no garantiza que estÃ©n contratando en este momento, pero son tus principales objetivos cuando busques oportunidades con patrocinio.</div>`
+        html += `<h2>ðŸ¢ Empresas con Historial de Contratación Internacional (LMIA)</h2>`
+        html += `<div class="lmia-disclaimer"><strong>Importante:</strong> Estas empresas <strong>han gestionado LMIA (Labour Market Impact Assessment) para contratar trabajadores extranjeros</strong> en años recientes. Esto no garantiza que estén contratando en este momento, pero son tus principales objetivos cuando busques oportunidades con patrocinio.</div>`
         html += `<table><tr><th>#</th><th>Empresa</th><th>Provincia</th><th>Industria</th><th>Web</th></tr>`
         result.empresasLMIA.forEach((e: any, i: number) => {
             html += `<tr><td>${i + 1}</td><td>${e.nombre}</td><td>${e.provincia}</td><td>${e.industria}</td><td><a href="${e.website}">${e.website}</a></td></tr>`
@@ -559,7 +559,7 @@ function generateReportHTML(result: any): string {
         html += `</table>`
     }
 
-    html += `<hr><p style="font-size:10px;color:#999;margin-top:20px;">Â© ${new Date().getFullYear()} Empleabilidad CanadÃ¡. Reporte generado automÃ¡ticamente. Para soporte: canadacon40@gmail.com</p>`
+    html += `<hr><p style="font-size:10px;color:#999;margin-top:20px;">© ${new Date().getFullYear()} Empleabilidad Canadá. Reporte generado automáticamente. Para soporte: canadacon40@gmail.com</p>`
     html += `</body></html>`
     return html
 }
