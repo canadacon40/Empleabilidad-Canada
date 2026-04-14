@@ -21,7 +21,7 @@ interface UpgradeGateProps {
 }
 
 export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
-    const stripeUrl = `/api/create-checkout?success=/cv-tool&product=pro${email ? `&customer_email=${encodeURIComponent(email)}` : ""}`;
+    const stripeUrl = `/api/create-checkout?success=/cv-tool&price=2900&product=pro${email ? `&customer_email=${encodeURIComponent(email)}` : ""}`;
 
     const features = [
         {
