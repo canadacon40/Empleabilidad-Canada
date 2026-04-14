@@ -36,6 +36,7 @@ export default function GaugeChart({ score, label, color, size = 200, hideLabel 
                     </defs>
                     
                     {/* Background track */}
+                    <path
                         d="M 15 55 A 35 35 0 0 1 85 55"
                         fill="none"
                         className="stroke-slate-100"

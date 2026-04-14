@@ -5,7 +5,7 @@ import {
     AlertTriangle, CheckCircle, XCircle, Shield, Award, Shuffle, MapPin, DollarSign, Building2, Loader2, ExternalLink, Info, Download, FileSpreadsheet
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import CanadaGridMap from "./CanadaGridMap"
+import CanadaMap from "./CanadaMap"
 
 interface CvAnalysisProps {
     cvText: string
@@ -315,7 +315,7 @@ export default function CvAnalysis({ cvText, onAnalysisComplete }: CvAnalysisPro
             {/* 5. DEMANDA POR PROVINCIA (MAPA INTERACTIVO) */}
             {result.demandaProvincia?.length > 0 && (
                 <section className="mb-8">
-                    <CanadaGridMap demandaProvincia={result.demandaProvincia} />
+                    <CanadaMap demandaProvincia={result.demandaProvincia} />
                 </section>
             )}
 
