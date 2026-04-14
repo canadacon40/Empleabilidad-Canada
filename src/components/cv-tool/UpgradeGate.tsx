@@ -99,10 +99,10 @@ export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Acceso de por Vida</p>
+                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Acceso de por Vida • Lanzamiento • Lanzamiento</p>
                                 <div className="flex items-baseline justify-center gap-2">
                                     <span className="text-3xl font-medium text-white/50 line-through">$100</span>
-                                    <span className="text-6xl font-black text-white tracking-tighter">$51</span>
+                                    <span className="text-6xl font-black text-white tracking-tighter">$29</span>
                                     <span className="text-xl font-bold text-primary">USD</span>
                                 </div>
                             </div>

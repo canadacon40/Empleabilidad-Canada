@@ -49,7 +49,7 @@ import {
   Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-// import null // GaugeChart removed from "./null // GaugeChart removed";
+import GaugeChart from "./GaugeChart";
 import JdMatcher from "./JdMatcher";
 import UserManual from "./UserManual";
 import OnboardingTutorial from "./OnboardingTutorial";
@@ -94,9 +94,9 @@ export default function CvAnalysis({
   const [showProFeatures, setShowProFeatures] = useState(false);
 
   useEffect(() => {
-    // 🛠️ MODO TEST: Permitir al dueño probar las funciones PRO mediante URL o código directo
+    // ≡ƒ¢í∩╕Å MODO TEST: Permitir al due├▒o probar las funciones PRO mediante URL o c├│digo directo
     const params = new URLSearchParams(window.location.search);
-    const hasDebugParam = params.get('debug') === 'pro' || params.get('isDebugPro') === 'true' || params.get('debugPro') === 'true' || params.get('session_id') || params.get('code') === 'DEBUG_PRO' || params.get('code') === 'PIERRE-MASTER';
+    const hasDebugParam = params.get('debug') === 'pro' || params.get('session_id') || params.get('code') === 'DEBUG_PRO' || params.get('code') === 'PIERRE-MASTER';
     
     if (hasDebugParam || accessCode === 'DEBUG_PRO' || accessCode === 'PIERRE-MASTER' || accessCode === 'PREMIUM') {
       setShowProFeatures(true);
@@ -157,16 +157,16 @@ export default function CvAnalysis({
   
   const [loadingStep, setLoadingStep] = useState(0);
   const loadingMessages = [
-    "Iniciando Auditoría Quirúrgica de Empleabilidad...",
-    "Mapeando Perfil profesional vs Estándares NOC 2021...",
-    "Analizando cumplimiento de parámetros ATS Canadienses...",
-    "Evaluando estatus regulatorio y requisitos de licencia...",
-    "Simulando demanda laboral por provincias en tiempo real...",
-    "Identificando roles puente para acceso rápido al mercado...",
-    "Estimando inteligencia salarial y costo de vida...",
-    "Verificando historial de patrocinios y visados (LMIA)...",
-    "Consolidando Hoja de Ruta Táctica Personalizada...",
-    "Finalizando Reporte de Acceso al Mercado Canadiense..."
+    "Pierre est├í sobornando al algoritmo de LinkedIn...",
+    "Traduciendo 'Echarle ganas' al est├índar de Toronto...",
+    "Eliminando la foto del CV (aqu├¡ no la usamos, cr├⌐eme)...",
+    "Buscando vacantes que a├║n no existen en Indeed...",
+    "Convenciendo a los reclutadores de que tu nivel de ingl├⌐s es 'decente'...",
+    "Inyectando palabras clave de alta demanda (v├¡a Pierre)...",
+    "Identificando empresas con presupuesto para patrocinio...",
+    "Pierre est├í aplicando el sello de aprobaci├│n GOLD...",
+    "Calculando cu├íntos Tim Hortons hay cerca de tu pr├│ximo trabajo...",
+    "Finalizando el veredicto maestro para tu futuro..."
   ];
 
   useEffect(() => {
@@ -205,13 +205,13 @@ export default function CvAnalysis({
         data = await res.json();
       } else {
         const textError = await res.text();
-        console.error("❌ Error de respuesta no-JSON:", textError.substring(0, 300));
-        throw new Error(`Respuesta inválida del servidor (${res.status}). Revisa la consola.`);
+        console.error("Γ¥î Error de respuesta no-JSON:", textError.substring(0, 300));
+        throw new Error(`Respuesta inv├ílida del servidor (${res.status}). Revisa la consola.`);
       }
 
       if (!res.ok) {
-        console.error("❌ Error de API (Status " + res.status + "):", data);
-        setError(data.error || `Error del servidor (${res.status}). Revisa tu configuración.`);
+        console.error("Γ¥î Error de API (Status " + res.status + "):", data);
+        setError(data.error || `Error del servidor (${res.status}). Revisa tu configuraci├│n.`);
         return;
       }
 
@@ -236,24 +236,24 @@ export default function CvAnalysis({
       // --- PHASE 2: Pierre AI Agent Proactive Greeting ---
       setTimeout(() => {
         const score = data.result.puntaje?.final || data.result.puntaje?.base || 0;
-        const noc = data.result.analisisNOC?.titulo || data.result.analisisNOC?.título || "tu perfil";
+        const noc = data.result.analisisNOC?.titulo || data.result.analisisNOC?.t├¡tulo || "tu perfil";
         const name = localStorage.getItem("lead_name")?.split(' ')[0] || "amigo";
         
         const event = new CustomEvent("pierreChatGreeting", {
             detail: {
-                message: `¡${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}/100. Tienes un potencial enorme, pero veo brechas críticas que te frenarán en Canadá. ¿Quieres que te diga cómo cerrarlas hoy mismo?`
+                message: `┬í${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}/100. Tienes un potencial enorme, pero veo brechas cr├¡ticas que te frenar├ín en Canad├í. ┬┐Quieres que te diga c├│mo cerrarlas hoy mismo?`
             }
         });
         window.dispatchEvent(event);
       }, 2000);
       
     } catch (err: any) {
-      console.error("🚨 Error crítico en handleAnalyze:", err);
-      // Solo mostrar "Error de conexión" si el fetch falló físicamente (network error)
+      console.error("≡ƒÜ¿ Error cr├¡tico en handleAnalyze:", err);
+      // Solo mostrar "Error de conexi├│n" si el fetch fall├│ f├¡sicamente (network error)
       if (err.message && err.message.includes("fetch")) {
-        setError("Error de red. Asegúrate de que el servidor esté corriendo.");
+        setError("Error de red. Aseg├║rate de que el servidor est├⌐ corriendo.");
       } else {
-        setError(err.message || "Error inesperado en el motor de análisis.");
+        setError(err.message || "Error inesperado en el motor de an├ílisis.");
       }
     } finally {
       setIsLoading(false);
@@ -272,7 +272,7 @@ export default function CvAnalysis({
       const timer = setTimeout(() => {
         window.dispatchEvent(new CustomEvent('pierreChatGreeting', { 
             detail: { 
-                message: `¡Hola! He analizado tu perfil. Tu score final es ${result.puntaje?.final || 0}/100. 🚀 He identificado fortalezas críticas y el camino exacto para optimizar tu CV para empresas canadienses. ¿Quieres que te explique por dónde empezar?` 
+                message: `┬íHola! He analizado tu perfil. Tu score final es ${result.puntaje?.final || 0}/100. ≡ƒÜÇ He identificado fortalezas cr├¡ticas y el camino exacto para optimizar tu CV para empresas canadienses. ┬┐Quieres que te explique por d├│nde empezar?` 
             } 
         }));
         setHasGreeted(true);
@@ -316,12 +316,12 @@ export default function CvAnalysis({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        const errorMsg = data.details || data.error || "Ocurrió un error al crear la sesión de pago.";
+        const errorMsg = data.details || data.error || "Ocurri├│ un error al crear la sesi├│n de pago.";
         alert(`Error en el Radar de Empleo: ${errorMsg}`);
         setIsCheckoutLoading(false);
       }
     } catch (e) {
-      alert("Error de conexión con el sistema de pagos.");
+      alert("Error de conexi├│n con el sistema de pagos.");
       setIsCheckoutLoading(false);
     }
   };
@@ -331,15 +331,15 @@ export default function CvAnalysis({
     downloadFullReportPDF(result);
   };
 
-    const ExecutiveDiagnostic = ({ data }: { data: any }) => {
+  const ExecutiveDiagnostic = ({ data }: { data: any }) => {
     if (!data) return null;
 
     const scoreLabels: Record<string, string> = {
       experiencia: "Experiencia",
-      educacion: "Educación",
+      educacion: "Educaci├│n",
       certificaciones: "Certificaciones",
       cv: "CV",
-      idioma: "Inglés / Francés",
+      idioma: "Ingl├⌐s / Franc├⌐s",
       networking: "Networking",
       estrategia: "Estrategia",
     };
@@ -366,14 +366,14 @@ export default function CvAnalysis({
             
             <div className="grid lg:grid-cols-2 gap-10">
               <div className="space-y-4">
-                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Resumen Estratégico</p>
+                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Resumen Estrat├⌐gico</p>
                 <p className="text-slate-600 text-lg font-medium leading-relaxed italic border-l-4 border-slate-100 pl-6">
                   "{data.resumenEjecutivo?.descripcion}"
                 </p>
                 <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-200">
                   <p className="text-sm font-black text-slate-900 flex gap-2">
                     <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                    CONCLUSIÓN CLAVE: {data.resumenEjecutivo?.conclusionClave}
+                    CONCLUSI├ôN CLAVE: {data.resumenEjecutivo?.conclusionClave}
                   </p>
                 </div>
               </div>
@@ -382,16 +382,16 @@ export default function CvAnalysis({
                 <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Scoring Tipo Mercado</p>
                 <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
                   <div className="grid grid-cols-12 bg-slate-50/50 p-4 border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    <div className="col-span-8">Área de Evaluación</div>
+                    <div className="col-span-8">├ürea de Evaluaci├│n</div>
                     <div className="col-span-4 text-right">Score Competitivo</div>
                   </div>
                   <div className="divide-y divide-slate-50">
                     {Object.entries(data.scoreMultidimensional || {}).map(([key, val]: [string, any]) => {
                       if (key === 'interpretacionEstrategica') return null;
                       const scoreValue = typeof val === 'number' ? val : parseInt(val) || 0;
+                      // Ensure everything is on a 0-100 basis for consistency in display
                       const displayScore = scoreValue > 10 ? scoreValue : scoreValue * 10;
                       const label = scoreLabels[key] || key;
-                      const colorClass = displayScore >= 80 ? 'text-emerald-500' : displayScore >= 60 ? 'text-amber-500' : 'text-rose-500';
 
                       return (
                         <div key={key} className="grid grid-cols-12 items-center p-4 hover:bg-slate-50/30 transition-colors">
@@ -399,7 +399,7 @@ export default function CvAnalysis({
                             <span className="text-xs font-bold text-slate-800 uppercase tracking-tight">{label}</span>
                           </div>
                           <div className="col-span-4 flex items-center justify-end gap-3 text-right">
-                            <span className={"text-sm font-black " + colorClass}>
+                            <span className={`text-sm font-black ${displayScore >= 80 ? 'text-emerald-500' : displayScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
                               {displayScore}%
                             </span>
                             {displayScore < 60 && (
@@ -414,47 +414,43 @@ export default function CvAnalysis({
                     })}
                   </div>
                 </div>
-              </div>
+          <div className="grid lg:grid-cols-2">
+            <div className="p-8 sm:p-12 bg-rose-50/50 border-r border-slate-100">
+               <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
+                    <XCircle className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-black text-rose-600 uppercase tracking-tight italic">Los 3 Errores de impacto Cr├¡tico</h4>
+               </div>
+               <div className="grid gap-4">
+                 {data.principalesBloqueadores?.slice(0, 3).map((b: any, i: number) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                      <div className="absolute top-0 right-0 px-3 py-1 bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl">Error {i+1}</div>
+                      <p className="text-sm font-black text-slate-900 mb-2 uppercase">{b.titulo}</p>
+                      <p className="text-xs text-slate-600 leading-relaxed mb-3 font-medium">{b.descripcion}</p>
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-50">
+                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-0.5 rounded">Impacto: {b.impacto || "Cr├¡tico"}</span>
+                        <p className="text-[9px] font-bold text-slate-400 italic">"{b.insight}"</p>
+                      </div>
+                    </div>
+                 ))}
+               </div>
             </div>
-            
-            <div className="grid lg:grid-cols-2 mt-8">
-              <div className="p-8 sm:p-12 bg-rose-50/50 border-r border-slate-100">
-                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
-                      <XCircle className="w-6 h-6" />
+            <div className="p-8 sm:p-12 bg-emerald-50/50">
+              <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-black text-emerald-600 uppercase tracking-tight italic">Factores de Apalancamiento</h4>
+               </div>
+               <div className="grid grid-cols-1 gap-4">
+                  {data.factoresApalancamiento?.slice(0, 3).map((f: any, i: number) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+                      <p className="text-sm font-black text-emerald-600 mb-1 uppercase ">{f.titulo}</p>
+                      <p className="text-xs text-slate-600 leading-relaxed font-medium italic">"{f.descripcion}"</p>
                     </div>
-                    <h4 className="text-xl font-black text-rose-600 uppercase tracking-tight italic">Los 3 Errores de impacto Crítico</h4>
-                 </div>
-                 <div className="grid gap-4">
-                   {data.principalesBloqueadores?.slice(0, 3).map((b, i) => (
-                      <div key={i} className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl">Error {i+1}</div>
-                        <p className="text-sm font-black text-slate-900 mb-2 uppercase">{b.titulo}</p>
-                        <p className="text-xs text-slate-600 leading-relaxed mb-3 font-medium">{b.descripcion}</p>
-                        <div className="flex items-center gap-2 pt-3 border-t border-slate-50">
-                          <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-0.5 rounded">Impacto: {b.impacto || "Crítico"}</span>
-                          <p className="text-[9px] font-bold text-slate-400 italic">"{b.insight}"</p>
-                        </div>
-                      </div>
-                   ))}
-                 </div>
-              </div>
-              <div className="p-8 sm:p-12 bg-emerald-50/50">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                      <Zap className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-black text-emerald-600 uppercase tracking-tight italic">Factores de Apalancamiento</h4>
-                 </div>
-                 <div className="grid grid-cols-1 gap-4">
-                    {data.factoresApalancamiento?.slice(0, 3).map((f, i) => (
-                      <div key={i} className="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
-                        <p className="text-sm font-black text-emerald-600 mb-1 uppercase ">{f.titulo}</p>
-                        <p className="text-xs text-slate-600 leading-relaxed font-medium italic">"{f.descripcion}"</p>
-                      </div>
-                    ))}
-                 </div>
-              </div>
+                  ))}
+               </div>
             </div>
           </div>
         </div>
@@ -465,14 +461,14 @@ export default function CvAnalysis({
   const isUserPro = (session?.user as any)?.isPro;
   const isMasterEmail = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
   
-  // 🔒 HARD GATE: Strictly allow based on active session status or confirmed access code
-  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail || showProFeatures;
+  // ≡ƒöÆ HARD GATE: Strictly allow based on active session status or confirmed access code
+  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail;
 
   if (error) {
     return (
       <div className="p-8 text-center space-y-4 bg-white rounded-[3rem] border-2">
         <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
-        <h3 className="text-xl font-bold">Vaya, algo salió mal</h3>
+        <h3 className="text-xl font-bold">Vaya, algo sali├│ mal</h3>
         <p className="text-muted-foreground">{error}</p>
         <Button onClick={handleAnalyze}>Intentar de nuevo</Button>
       </div>
@@ -489,7 +485,7 @@ export default function CvAnalysis({
               </div>
           </div>
           <div className="max-w-md w-full space-y-8">
-              <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Pierre está analizando cada detalle...</h3>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Pierre est├í analizando cada detalle...</h3>
               <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl relative overflow-hidden">
                 <div className="absolute bottom-0 left-0 h-1 bg-primary animate-progress-fast" style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%`, transition: 'width 0.5s ease-out' }} />
                 <p className="text-slate-600 font-bold italic text-lg leading-relaxed animate-in fade-in duration-700 min-h-[3rem] flex items-center justify-center text-center">
@@ -505,7 +501,7 @@ export default function CvAnalysis({
     return (
       <div className="text-center py-20 space-y-8 bg-white border border-slate-200 rounded-[4rem] shadow-sm">
         <Shield className="w-16 h-16 text-primary mx-auto animate-pulse" />
-        <h3 className="text-2xl font-black text-slate-900 tracking-tight text-center">Diagnóstico Pierre 2.6</h3>
+        <h3 className="text-2xl font-black text-slate-900 tracking-tight text-center">Diagn├│stico Pierre 2.6</h3>
         <Button size="lg" className="rounded-2xl h-16 px-12 font-black shadow-xl" onClick={handleAnalyze}>Generar mi Reporte Gratis</Button>
       </div>
     );
@@ -513,15 +509,15 @@ export default function CvAnalysis({
 
   const getConclusionText = () => {
     if (typeof result.veredictoFinal === 'object' && result.veredictoFinal !== null) {
-      return result.veredictoFinal.conclusion || "Estrategia de empleabilidad ajustada para Canadá.";
+      return result.veredictoFinal.conclusion || "Estrategia de empleabilidad ajustada para Canad├í.";
     }
-    return result.veredictoFinal || result.introduccion || "Analizando tu perfil bajo estándares 2026...";
+    return result.veredictoFinal || result.introduccion || "Analizando tu perfil bajo est├índares 2026...";
   };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-1000 bg-slate-50 p-4 sm:p-10 rounded-[4rem] border border-slate-200 shadow-sm overflow-hidden">
       
-      {/* 🚀 PRO CHOICE BANNER */}
+      {/* ≡ƒÜÇ PRO CHOICE BANNER */}
       {isPremium && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -534,15 +530,15 @@ export default function CvAnalysis({
                <Rocket className="w-7 h-7 text-slate-950 fill-slate-950 animate-pulse" />
             </div>
             <div>
-              <h3 className="text-white text-lg sm:text-xl font-black tracking-tight leading-tight">Acceso Estratégico PRO Activo</h3>
-              <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Ya puedes acceder a todas las herramientas de rediseño y preparación.</p>
+              <h3 className="text-white text-lg sm:text-xl font-black tracking-tight leading-tight">Acceso Estrat├⌐gico PRO Activo</h3>
+              <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Ya puedes acceder a todas las herramientas de redise├▒o y preparaci├│n.</p>
             </div>
           </div>
           <Button 
             onClick={onAnalysisComplete}
             className="h-14 px-8 rounded-2xl bg-white text-slate-950 hover:bg-slate-200 font-black gap-3 text-xs uppercase shadow-xl transition-all relative z-10 border-none shrink-0"
           >
-            Ir al Centro Táctico Directo <ChevronRight className="w-4 h-4" />
+            Ir al Centro T├íctico Directo <ChevronRight className="w-4 h-4" />
           </Button>
         </motion.div>
       )}
@@ -575,16 +571,16 @@ export default function CvAnalysis({
         <div className="grid md:grid-cols-12 gap-6 pt-4">
           <div className="md:col-span-4 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl flex flex-col items-center justify-center relative overflow-hidden group min-h-[300px]">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Puntaje de Radar</p>
-            <null // GaugeChart removed 
+            <GaugeChart 
               score={result.puntaje?.final || 0} 
               label={
-                (result.puntaje?.final || 0) <= 40 ? "CRÍTICA" :
+                (result.puntaje?.final || 0) <= 40 ? "CR├ìTICA" :
                 (result.puntaje?.final || 0) <= 65 ? "BAJA" :
                 (result.puntaje?.final || 0) <= 85 ? "MEDIA" : "ALTA"
               } 
             />
             <div className="grid grid-cols-2 gap-2 mt-6 w-full px-4 border-t border-slate-100 pt-4">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /><span className="text-[8px] font-black text-slate-500 uppercase">0-40 Crítica</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /><span className="text-[8px] font-black text-slate-500 uppercase">0-40 Cr├¡tica</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[8px] font-black text-slate-500 uppercase">41-65 Baja</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[8px] font-black text-slate-500 uppercase">66-85 Media</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] font-black text-slate-500 uppercase">86-100 Alta</span></div>
@@ -594,7 +590,7 @@ export default function CvAnalysis({
           <div className="md:col-span-8 bg-white p-8 sm:p-10 rounded-[2.5rem] border border-slate-200 shadow-2xl relative overflow-hidden text-left flex flex-col justify-center">
             <div className="space-y-6 relative">
               <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                <Zap className="w-5 h-5 text-primary" /> Análisis Crítico Pierre
+                <Zap className="w-5 h-5 text-primary" /> An├ílisis Cr├¡tico Pierre
               </h4>
               <p className="text-slate-600 font-medium leading-relaxed italic text-lg border-l-4 border-primary/30 pl-6">
                 "{result.introduccion || getConclusionText()}"
@@ -604,10 +600,10 @@ export default function CvAnalysis({
         </div>
       </header>
 
-      {/* 2. BASE TÉCNICA (Paso 01) */}
+      {/* 2. BASE T├ëCNICA (Paso 01) */}
       <div className="space-y-6 max-w-6xl mx-auto px-4">
           <div className="flex items-center gap-4 pt-4">
-              <span className="px-5 py-1.5 rounded-full bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest">Paso 01: Validación</span>
+              <span className="px-5 py-1.5 rounded-full bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest">Paso 01: Validaci├│n</span>
               <div className="h-[2px] bg-slate-200 flex-1" />
           </div>
 
@@ -617,19 +613,19 @@ export default function CvAnalysis({
                 <div className="p-3 bg-blue-50 rounded-2xl">
                   <Target className="text-blue-500 w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 text-center">Análisis NOC</h3>
+                <h3 className="text-2xl font-black text-slate-900 text-center">An├ílisis NOC</h3>
               </div>
               <div className="space-y-4">
                 <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Código Identificado</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">C├│digo Identificado</span>
                   <span className="text-3xl font-black text-primary">{result.analisisNOC?.codigo || "N/A"}</span>
                 </div>
                 <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Título Oficial</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">T├¡tulo Oficial</span>
                   <span className="text-xl font-bold text-slate-900">{result.analisisNOC?.titulo || "Calculando..."}</span>
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed italic text-center">
-                  "{result.analisisNOC?.porqueEsImportante || result.analisisNOC?.queEsElNOC || "Este código es tu identidad laboral frente a migración."}"
+                  "{result.analisisNOC?.porqueEsImportante || result.analisisNOC?.queEsElNOC || "Este c├│digo es tu identidad laboral frente a migraci├│n."}"
                 </p>
                 {result.analisisNOC?.linkOficialNOC && (
                   <a 
@@ -638,7 +634,7 @@ export default function CvAnalysis({
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center w-full gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors bg-blue-50 px-4 py-3 rounded-xl border border-blue-100 mt-2"
                   >
-                    Ver descripción oficial en Job Bank <ArrowUpRight className="w-3 h-3" />
+                    Ver descripci├│n oficial en Job Bank <ArrowUpRight className="w-3 h-3" />
                   </a>
                 )}
               </div>
@@ -649,7 +645,7 @@ export default function CvAnalysis({
                 <div className="p-3 bg-emerald-50 rounded-2xl">
                   <ShieldCheck className="text-emerald-500 w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 text-center">Análisis de Brechas</h3>
+                <h3 className="text-2xl font-black text-slate-900 text-center">An├ílisis de Brechas</h3>
               </div>
               <div className="space-y-3">
                 {(result.analisisBrechas?.puntosCriticos || result.analisisNOC?.requisitosNoCumplidos || []).map((gap: any, i: number) => (
@@ -662,7 +658,7 @@ export default function CvAnalysis({
             </div>
           </div>
 
-          {/* 🔍 ESTATUS DE REGULACIÓN (NEW) */}
+          {/* ≡ƒöì ESTATUS DE REGULACI├ôN (NEW) */}
           {result.regulacion && (
              <section className="bg-white rounded-[2.5rem] border-2 border-slate-200 overflow-hidden mt-8 shadow-sm">
                  <div className={`p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 ${result.regulacion.esRegulada ? 'bg-orange-50' : 'bg-emerald-50'}`}>
@@ -672,10 +668,10 @@ export default function CvAnalysis({
                        </div>
                        <div>
                           <p className={`text-[10px] font-black uppercase tracking-widest ${result.regulacion.esRegulada ? 'text-orange-600' : 'text-emerald-600'}`}>
-                            Estatus de Profesión en Canadá
+                            Estatus de Profesi├│n en Canad├í
                           </p>
                           <h3 className="text-2xl font-black text-slate-900 leading-tight">
-                            {result.regulacion.esRegulada ? 'Sujeta a Regulación' : 'No Regulada (Acceso Libre)'}
+                            {result.regulacion.esRegulada ? 'Sujeta a Regulaci├│n' : 'No Regulada (Acceso Libre)'}
                           </h3>
                        </div>
                     </div>
@@ -691,7 +687,7 @@ export default function CvAnalysis({
                           <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Lo que PUEDES hacer ahora:
                        </h4>
                        <p className="text-slate-600 text-sm font-medium leading-relaxed italic border-l-2 border-emerald-100 pl-4">
-                          {result.regulacion.quePuedesHacer || "Trabajar en roles de soporte, coordinación o bajo supervisión de un Licenciado."}
+                          {result.regulacion.quePuedesHacer || "Trabajar en roles de soporte, coordinaci├│n o bajo supervisi├│n de un Licenciado."}
                        </p>
                     </div>
                     <div className="space-y-4">
@@ -699,7 +695,7 @@ export default function CvAnalysis({
                           <XCircle className="w-4 h-4 text-rose-500" /> Lo que tienes PROHIBIDO:
                        </h4>
                        <p className="text-slate-600 text-sm font-medium leading-relaxed italic border-l-2 border-rose-100 pl-4">
-                          {result.regulacion.queNoPuedesHacer || "Firmar proyectos oficiales o ostentar el título de Ingeniero/Profesional Colegiado."}
+                          {result.regulacion.queNoPuedesHacer || "Firmar proyectos oficiales o ostentar el t├¡tulo de Ingeniero/Profesional Colegiado."}
                        </p>
                     </div>
                     {result.regulacion.comoRegularizarse && (
@@ -716,7 +712,7 @@ export default function CvAnalysis({
             <section className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden mt-8">
                 <div className="bg-slate-900 p-8">
                   <h4 className="font-black text-white flex items-center gap-3 text-xl tracking-tight">
-                    <AlertTriangle className="w-6 h-6 text-primary" /> Auditoría de Formato
+                    <AlertTriangle className="w-6 h-6 text-primary" /> Auditor├¡a de Formato
                   </h4>
                 </div>
                 <div className="p-8 space-y-4">
@@ -766,7 +762,7 @@ export default function CvAnalysis({
 
               <section className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden flex flex-col h-full">
                   <div className="bg-slate-900 p-6 text-white font-black text-lg flex items-center gap-3 shadow-md">
-                    <Banknote className="w-5 h-5 text-primary" /> Proyección Salarial (CAD)
+                    <Banknote className="w-5 h-5 text-primary" /> Proyecci├│n Salarial (CAD)
                   </div>
                   <div className="p-8 grid gap-6 flex-1 flex flex-col justify-center">
                       <div className="flex justify-between items-center pb-4 border-b border-slate-100">
@@ -787,94 +783,9 @@ export default function CvAnalysis({
                   </div>
               </section>
           </div>
-      
+      </div>
 
-          
-          {/* REQUISITOS DE IDIOMA Y RECURSOS (INJECTED) */}
-          {result.idiomas && (
-             <section className="bg-white rounded-[2.5rem] border-2 border-slate-200 overflow-hidden mt-8 shadow-sm">
-                 <div className="bg-slate-900 p-8 flex items-center gap-4">
-                    <Languages className="w-6 h-6 text-primary" />
-                    <h4 className="font-black text-white text-xl tracking-tight">Requisitos de Idioma (CLB)</h4>
-                 </div>
-                 <div className="p-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                        <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 flex flex-col items-center justify-center">
-                            <p className="text-[10px] font-black text-blue-800 uppercase tracking-widest mb-2">Inglés (CLB)</p>
-                            <p className="text-3xl text-slate-900 font-black">{result.idiomas.clbIngles}</p>
-                        </div>
-                        <div className="rounded-2xl border border-border bg-slate-50 p-6 flex flex-col items-center justify-center">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Francés (CLB)</p>
-                            <p className="text-3xl text-slate-900 font-black">{result.idiomas.clbFrances}</p>
-                        </div>
-                    </div>
-                    
-                    {result.idiomas.recursos?.length > 0 && (
-                        <div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Recursos Gratuitos Recomendados:</p>
-                            <div className="grid gap-3">
-                                {result.idiomas.recursos.map((r, i) => (
-                                    <div key={i} className="rounded-xl border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 hover:bg-slate-100 transition-colors">
-                                        <div>
-                                            <p className="font-bold text-slate-900 text-sm">{r.nombre}</p>
-                                            <p className="text-xs text-slate-600 font-medium mt-1">{r.descripcion}</p>
-                                        </div>
-                                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                                            <div className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 flex items-center gap-2 hover:border-slate-300">
-                                                Visitar <ExternalLink className="w-3 h-3" />
-                                            </div>
-                                        </a>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                 </div>
-             </section>
-          )}
-
-          {/* EMPRESAS LMIA (INJECTED) */}
-          {result.empresasLMIA?.length > 0 && (
-             <section className="bg-white rounded-[2.5rem] border-2 border-slate-200 overflow-hidden mt-8 shadow-sm">
-                 <div className="bg-slate-900 p-8 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Building2 className="w-6 h-6 text-primary" />
-                        <h4 className="font-black text-white text-xl tracking-tight">Empresas con historial internacional</h4>
-                    </div>
-                     <div className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 flex items-center gap-2 cursor-pointer" onClick={() => {}}>
-                        <FileSpreadsheet className="w-4 h-4" /> Excel
-                    </div>
-                 </div>
-                 <div className="p-8">
-                    <div className="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-                            <table className="w-full text-sm">
-                                <thead className="bg-slate-50 sticky top-0">
-                                    <tr>
-                                        <th className="text-left p-4 font-black text-slate-500 text-[10px] uppercase tracking-widest">#</th>
-                                        <th className="text-left p-4 font-black text-slate-500 text-[10px] uppercase tracking-widest">Empresa</th>
-                                        <th className="text-left p-4 font-black text-slate-500 text-[10px] uppercase tracking-widest">Provincia</th>
-                                        <th className="text-left p-4 font-black text-slate-500 text-[10px] uppercase tracking-widest">Industria</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {result.empresasLMIA.map((e, i) => (
-                                        <tr key={i} className="border-t border-slate-100 hover:bg-slate-50/50">
-                                            <td className="p-4 text-xs font-bold text-slate-400">{i + 1}</td>
-                                            <td className="p-4 font-bold text-slate-900 text-xs">{e.nombre}</td>
-                                            <td className="p-4 text-xs font-medium text-slate-600">{e.provincia}</td>
-                                            <td className="p-4 text-xs font-medium text-slate-600">{e.industria}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                 </div>
-             </section>
-          )}
-
-          {/* 🚀 PLAN DE ROLES PUENTE (NEW) */}
+          {/* ≡ƒîë PLAN DE ROLES PUENTE (NEW) */}
           {result.rolesPuente && result.rolesPuente.length > 0 && (
             <section className="mt-12 space-y-6">
                 <div className="flex items-center gap-3">
@@ -883,9 +794,9 @@ export default function CvAnalysis({
                 </div>
                 <div className="bg-white rounded-[3rem] p-8 sm:p-12 border border-slate-200 shadow-xl space-y-10">
                     <div className="space-y-4 max-w-2xl">
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Tu Mapa de <span className="text-primary italic">Entrada Rápida</span></h3>
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Tu Mapa de <span className="text-primary italic">Entrada R├ípida</span></h3>
                         <p className="text-slate-500 font-medium leading-relaxed">
-                          Si tu rol principal requiere regularización o el mercado está saturado, estos 3 roles son tu mejor apuesta para entrar a la industria canadiense aprovechando tu experiencia actual.
+                          Si tu rol principal requiere regularizaci├│n o el mercado est├í saturado, estos 3 roles son tu mejor apuesta para entrar a la industria canadiense aprovechando tu experiencia actual.
                         </p>
                     </div>
                     
@@ -901,7 +812,7 @@ export default function CvAnalysis({
                            </div>
                            <div className="space-y-4 flex-1">
                               <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                <span className="text-slate-900 font-black uppercase text-[9px] block mb-1">¿Por qué este rol?</span>
+                                <span className="text-slate-900 font-black uppercase text-[9px] block mb-1">┬┐Por qu├⌐ este rol?</span>
                                 {role.porque}
                               </p>
                               <div className="pt-4 border-t border-slate-200/50">
@@ -913,20 +824,19 @@ export default function CvAnalysis({
                       ))}
                     </div>
                 </div>
-            </section>
           )}
       </div>
 
-      {/* 🚀 HOJA DE RUTA AL ÉXITO (NEW) */}
+      {/* ≡ƒÜÇ HOJA DE RUTA AL ├ëXITO (NEW) */}
       {!isPremium && result.puntaje?.potencialCrecimiento && (
         <section className="max-w-6xl mx-auto px-4 mt-20">
             <div className="bg-slate-900 rounded-[4rem] p-10 sm:p-16 relative overflow-hidden shadow-2xl border border-white/5">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[100px] rounded-full -mr-40 -mt-40" />
                 
                 <div className="relative z-10 text-center space-y-4 mb-16">
-                    <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tighter">Tu Hoja de Ruta al <span className="text-primary italic">Éxito en Canadá</span></h3>
+                    <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tighter">Tu Hoja de Ruta al <span className="text-primary italic">├ëxito en Canad├í</span></h3>
                     <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
-                        Identificamos los 3 pasos críticos que debes ejecutar para pasar de "Invisible" a "Contratable".
+                        Identificamos los 3 pasos cr├¡ticos que debes ejecutar para pasar de "Invisible" a "Contratable".
                     </p>
                 </div>
 
@@ -944,7 +854,7 @@ export default function CvAnalysis({
                                  Este paso es vital para corregir tus bloqueadores actuales e incrementar tu visibilidad.
                               </p>
                               <div className="pt-4 border-t border-white/5">
-                                  <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1 italic">El "CÓMO" táctico:</p>
+                                  <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1 italic">El "C├ôMO" t├íctico:</p>
                                   <p className="text-[9px] font-bold text-slate-500 uppercase leading-relaxed">
                                     Disponible paso a paso en <span className="text-white">Pierre PRO</span>
                                   </p>
@@ -956,7 +866,7 @@ export default function CvAnalysis({
 
                 <div className="mt-16 flex flex-col items-center gap-4 relative z-10">
                     <div className="px-6 py-2 bg-primary/20 rounded-full border border-primary/30">
-                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Optimización 2026</p>
+                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Optimizaci├│n 2026</p>
                     </div>
                 </div>
             </div>
@@ -966,13 +876,13 @@ export default function CvAnalysis({
       {/* 4. AHA MOMENT: Score Leap Simulator */}
       {!isPremium && (
         <div className="max-w-4xl mx-auto bg-white rounded-[3rem] p-8 sm:p-12 border border-slate-200 shadow-2xl animate-in fade-in zoom-in duration-1000 relative">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">TRANSFORMACIÓN PRO</div>
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.5em] mb-12 text-center">Tu Salto de Valor Estratégico</p>
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">TRANSFORMACI├ôN PRO</div>
+          <p className="text-[10px] font-black text-primary uppercase tracking-[0.5em] mb-12 text-center">Tu Salto de Valor Estrat├⌐gico</p>
           <div className="flex flex-col md:flex-row items-center justify-around gap-12 sm:gap-20">
             <div className="flex flex-col items-center gap-6 group">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Currículum Actual</p>
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Curr├¡culum Actual</p>
               <div className="opacity-40 grayscale group-hover:opacity-100 transition-opacity">
-                <null // GaugeChart removed score={result.puntaje?.final || 0} size={160} hideLabel />
+                <GaugeChart score={result.puntaje?.final || 0} size={160} hideLabel />
               </div>
             </div>
             <div className="flex flex-col items-center justify-center">
@@ -983,12 +893,12 @@ export default function CvAnalysis({
               >
                 <Zap className="w-10 h-10 text-primary fill-primary" />
               </motion.div>
-              <p className="text-[11px] font-black text-slate-900 mt-4 uppercase tracking-tighter">Optimización Pierre</p>
+              <p className="text-[11px] font-black text-slate-900 mt-4 uppercase tracking-tighter">Optimizaci├│n Pierre</p>
             </div>
             <div className="flex flex-col items-center gap-6 group">
-              <p className="text-[11px] font-black text-emerald-600 uppercase tracking-widest shadow-emerald-500/10">Perfil de Élite (PRO)</p>
+              <p className="text-[11px] font-black text-emerald-600 uppercase tracking-widest shadow-emerald-500/10">Perfil de ├ëlite (PRO)</p>
               <div className="scale-110 drop-shadow-[0_15px_30px_rgba(234,179,8,0.2)]">
-                <null // GaugeChart removed score={Math.min(95, (result.puntaje?.final || 0) + 40)} size={190} hideLabel />
+                <GaugeChart score={Math.min(95, (result.puntaje?.final || 0) + 40)} size={190} hideLabel />
               </div>
             </div>
           </div>
@@ -998,19 +908,10 @@ export default function CvAnalysis({
         </div>
       )}
 
-      {/* NARRATIVA DE DIAGNÓSTICO (Veredicto) */}
-      {result.conclusionEjecutiva && (
-        <div className="max-w-4xl mx-auto px-4 mt-12 mb-20 text-center space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-           <div className="inline-flex items-center gap-3 px-6 py-2 bg-slate-900 rounded-full border border-white/10 shadow-xl">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Veredicto Estratégico General</p>
-           </div>
-           <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] max-w-3xl mx-auto">
-             {result.conclusionEjecutiva.recomendacionMaestra}
-           </h3>
-           <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
-             "{result.conclusionEjecutiva.detalleEmpleabilidad}"
-           </p>
+      {/* 5. DIAGN├ôSTICO EJECUTIVO (Si existe) */}
+      {result.diagnosticoEjecutivo && (
+        <div className="max-w-6xl mx-auto px-4 mt-6">
+          <ExecutiveDiagnostic data={result.diagnosticoEjecutivo} />
         </div>
       )}
 
@@ -1019,11 +920,11 @@ export default function CvAnalysis({
         <div id="pro-tools" className="max-w-6xl mx-auto px-4 mt-12 pt-12 border-t-4 border-primary/20">
             <div className="bg-primary/10 p-4 rounded-2xl mb-8 text-center border border-primary/20">
                 <p className="text-primary font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-                    <Zap className="w-4 h-4 fill-primary" /> MODO PREMIUM ACTIVADO {showProFeatures && "(ADMIN DEBUG)"}
+                    <Zap className="w-4 h-4 fill-primary" /> MODO PREMIUM ACTIVADO {isDebugPro && "(ADMIN DEBUG)"}
                 </p>
             </div>
 
-            {/* ERROR PREVENCIÓN: Mapa de Éxito / Instrucciones PRO (FIJA) */}
+            {/* ERROR PREVENCI├ôN: Mapa de ├ëxito / Instrucciones PRO (FIJA) */}
             <div className="mb-16 space-y-10">
               {/* VIP BRIDGE: Only for PRO users seeing the report */}
               {showProFeatures && (
@@ -1035,7 +936,7 @@ export default function CvAnalysis({
                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                       <div className="text-left">
                          <h3 className="text-2xl font-black text-slate-900 leading-tight">Acceso Pierre PRO Activado</h3>
-                         <p className="text-slate-500 font-medium max-w-md">Ya tienes tu score. Ahora utiliza el arsenal táctico para transformar este CV en una oferta real.</p>
+                         <p className="text-slate-500 font-medium max-w-md">Ya tienes tu score. Ahora utiliza el arsenal t├íctico para transformar este CV en una oferta real.</p>
                       </div>
                       <Button 
                         size="lg" 
@@ -1043,7 +944,7 @@ export default function CvAnalysis({
                         className="h-16 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:scale-105 transition-all flex items-center gap-3 shrink-0"
                       >
                          <Rocket className="w-5 h-5 animate-pulse" />
-                         Entrar al Centro Táctico
+                         Entrar al Centro T├íctico
                       </Button>
                    </div>
                 </motion.div>
@@ -1054,14 +955,14 @@ export default function CvAnalysis({
                 <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
                   <div className="lg:col-span-7 space-y-8">
                     <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-primary border border-primary/30 shadow-lg shadow-primary/5">
-                      <ShieldCheck className="w-4 h-4" /> Protocolo de Ejecución PRO
+                      <ShieldCheck className="w-4 h-4" /> Protocolo de Ejecuci├│n PRO
                     </div>
                     <div>
                       <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4">
-                        Optimización <span className="text-primary italic">Maestra</span>
+                        Optimizaci├│n <span className="text-primary italic">Maestra</span>
                       </h2>
                       <p className="text-slate-200 text-lg sm:text-xl font-medium leading-relaxed max-w-2xl italic">
-                        "Para que tu perfil sea imparable, debes seguir el orden táctico. La adaptación ciega es el error #1 de los candidatos."
+                        "Para que tu perfil sea imparable, debes seguir el orden t├íctico. La adaptaci├│n ciega es el error #1 de los candidatos."
                       </p>
                     </div>
                   </div>
@@ -1073,11 +974,11 @@ export default function CvAnalysis({
                         </div>
                         <div>
                           <p className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-0.5">Control de Calidad</p>
-                          <p className="text-xs font-bold text-primary tracking-tight">Valor Estratégico Garantizado</p>
+                          <p className="text-xs font-bold text-primary tracking-tight">Valor Estrat├⌐gico Garantizado</p>
                         </div>
                       </div>
                       <p className="text-sm text-slate-300 font-medium leading-relaxed">
-                        Sigue las instrucciones del manual a continuación para asegurar que tu CV no solo pase el filtro ATS, sino que enamore al reclutador humano.
+                        Sigue las instrucciones del manual a continuaci├│n para asegurar que tu CV no solo pase el filtro ATS, sino que enamore al reclutador humano.
                       </p>
                     </div>
                   </div>
@@ -1096,12 +997,12 @@ export default function CvAnalysis({
               onCreditLimit={() => {/* Optional: handle limit in free view */}}
             />
 
-            {/* CTA: Abrir Centro Táctico Completo - HIGH POLISH REDESIGN */}
+            {/* CTA: Abrir Centro T├íctico Completo - HIGH POLISH REDESIGN */}
             <div className="mt-20 bg-slate-950 rounded-[3.5rem] p-10 sm:p-16 text-center relative overflow-hidden border border-white/10 shadow-[0_20px_100px_rgba(0,0,0,0.8)]">
                 <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.15),transparent_50%)]" />
                 <div className="relative z-10 space-y-10 max-w-4xl mx-auto">
                     <div className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-primary border border-white/10 shadow-xl">
-                        <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Arsenal Estratégico Completo
+                        <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Arsenal Estrat├⌐gico Completo
                     </div>
                     
                     <div className="space-y-4">
@@ -1109,7 +1010,7 @@ export default function CvAnalysis({
                           Centro de <span className="text-primary italic">Recursos PRO</span>
                       </h3>
                       <p className="text-slate-300 text-lg sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                          Accede a la suite completa de herramientas diseñadas para dominar el Mercado Oculto canadiense.
+                          Accede a la suite completa de herramientas dise├▒adas para dominar el Mercado Oculto canadiense.
                       </p>
                     </div>
 
@@ -1135,9 +1036,9 @@ export default function CvAnalysis({
                           onClick={onAnalysisComplete}
                       >
                           <Rocket className="w-6 h-6 mr-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                          ABRIR CENTRO ESTRATÉGICO
+                          ABRIR CENTRO ESTRAT├ëGICO
                       </Button>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-8 opacity-60">Tu éxito profesional comienza aquí.</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-8 opacity-60">Tu ├⌐xito profesional comienza aqu├¡.</p>
                     </div>
                 </div>
             </div>
@@ -1166,14 +1067,14 @@ export default function CvAnalysis({
                     {isCheckoutLoading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" /> : <Rocket className="w-5 h-5 sm:w-6 sm:h-6" />}
                     <span className="whitespace-nowrap">OBTENER MI REPORTE PRO</span>
                   </div>
-                  <span className="text-[8px] sm:text-[10px] opacity-60 font-medium uppercase tracking-widest">Acceso Instantáneo • $29.00 USD</span>
+                  <span className="text-[8px] sm:text-[10px] opacity-60 font-medium uppercase tracking-widest">Acceso Instant├íneo ΓÇó $29.00 USD</span>
               </Button>
 
               <button 
                   onClick={() => setShowCodeInput(!showCodeInput)}
                   className="text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-[0.3em] transition-colors"
               >
-                  ¿Tienes un código de beca o convenio?
+                  ┬┐Tienes un c├│digo de beca o convenio?
               </button>
 
               <AnimatePresence>
@@ -1186,7 +1087,7 @@ export default function CvAnalysis({
                     >
                       <input 
                           type="text" 
-                          placeholder="CÓDIGO AQUÍ" 
+                          placeholder="C├ôDIGO AQU├ì" 
                           className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all shadow-inner"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
@@ -1209,10 +1110,10 @@ export default function CvAnalysis({
                               if (res.ok && data.valid) {
                                 onUnlockPremium?.(promoCode);
                               } else {
-                                setCodeError(data.error || "Código inválido o expirado.");
+                                setCodeError(data.error || "C├│digo inv├ílido o expirado.");
                               }
                             } catch (e) {
-                              setCodeError("Código inválido o expirado.");
+                              setCodeError("C├│digo inv├ílido o expirado.");
                             } finally {
                               setIsVerifyingCode(false);
                             }
@@ -1231,7 +1132,7 @@ export default function CvAnalysis({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full border-t border-slate-100 pt-12">
               <div className="space-y-2">
                   <Layout className="w-5 h-5 text-primary mx-auto" />
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Optimización ATS</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Optimizaci├│n ATS</p>
               </div>
               <div className="space-y-2">
                   <FileSpreadsheet className="w-5 h-5 text-primary mx-auto" />
@@ -1251,7 +1152,7 @@ export default function CvAnalysis({
       )}
 
       <footer className="text-center py-10 opacity-40">
-          <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em]">Pierre Employability Engine v2.8 • Executive Report • Google Cloud AI</p>
+          <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em]">Pierre Employability Engine v2.8 ΓÇó Executive Report ΓÇó Google Cloud AI</p>
       </footer>
     </div>
   );
