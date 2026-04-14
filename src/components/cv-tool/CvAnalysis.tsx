@@ -96,7 +96,7 @@ export default function CvAnalysis({
   useEffect(() => {
     // 🛠️ MODO TEST: Permitir al dueño probar las funciones PRO mediante URL o código directo
     const params = new URLSearchParams(window.location.search);
-    const hasDebugParam = params.get('debug') === 'pro' || params.get('session_id') || params.get('code') === 'DEBUG_PRO' || params.get('code') === 'PIERRE-MASTER';
+    const hasDebugParam = params.get('debug') === 'pro' || params.get('isDebugPro') === 'true' || params.get('debugPro') === 'true' || params.get('session_id') || params.get('code') === 'DEBUG_PRO' || params.get('code') === 'PIERRE-MASTER';
     
     if (hasDebugParam || accessCode === 'DEBUG_PRO' || accessCode === 'PIERRE-MASTER' || accessCode === 'PREMIUM') {
       setShowProFeatures(true);
@@ -466,7 +466,7 @@ export default function CvAnalysis({
   const isMasterEmail = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
   
   // 🔒 HARD GATE: Strictly allow based on active session status or confirmed access code
-  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail;
+  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail || showProFeatures;
 
   if (error) {
     return (
@@ -578,7 +578,7 @@ export default function CvAnalysis({
             <GaugeChart 
               score={result.puntaje?.final || 0} 
               label={
-                (result.puntaje?.final || 0) <= 40 ? "CR├ìTICA" :
+                (result.puntaje?.final || 0) <= 40 ? "CRÍTICA" :
                 (result.puntaje?.final || 0) <= 65 ? "BAJA" :
                 (result.puntaje?.final || 0) <= 85 ? "MEDIA" : "ALTA"
               } 
@@ -662,7 +662,7 @@ export default function CvAnalysis({
             </div>
           </div>
 
-          {/* 🔍 ESTATUS DE REGULACI├ôN (NEW) */}
+          {/* 🔍 ESTATUS DE REGULACIÓN (NEW) */}
           {result.regulacion && (
              <section className="bg-white rounded-[2.5rem] border-2 border-slate-200 overflow-hidden mt-8 shadow-sm">
                  <div className={`p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 ${result.regulacion.esRegulada ? 'bg-orange-50' : 'bg-emerald-50'}`}>
@@ -966,7 +966,7 @@ export default function CvAnalysis({
       {/* 4. AHA MOMENT: Score Leap Simulator */}
       {!isPremium && (
         <div className="max-w-4xl mx-auto bg-white rounded-[3rem] p-8 sm:p-12 border border-slate-200 shadow-2xl animate-in fade-in zoom-in duration-1000 relative">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">TRANSFORMACI├ôN PRO</div>
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">TRANSFORMACIÓN PRO</div>
           <p className="text-[10px] font-black text-primary uppercase tracking-[0.5em] mb-12 text-center">Tu Salto de Valor Estratégico</p>
           <div className="flex flex-col md:flex-row items-center justify-around gap-12 sm:gap-20">
             <div className="flex flex-col items-center gap-6 group">
@@ -998,7 +998,7 @@ export default function CvAnalysis({
         </div>
       )}
 
-      {/* 5. DIAGN├ôSTICO EJECUTIVO (Si existe) */}
+      {/* 5. DIAGNÓSTICO EJECUTIVO (Si existe) */}
       {result.diagnosticoEjecutivo && (
         <div className="max-w-6xl mx-auto px-4 mt-6">
           <ExecutiveDiagnostic data={result.diagnosticoEjecutivo} />
@@ -1177,7 +1177,7 @@ export default function CvAnalysis({
                     >
                       <input 
                           type="text" 
-                          placeholder="C├ôDIGO AQU├ì" 
+                          placeholder="CÓDIGO AQUÍ" 
                           className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all shadow-inner"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
