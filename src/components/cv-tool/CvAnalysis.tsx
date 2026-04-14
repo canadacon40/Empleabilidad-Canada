@@ -157,16 +157,16 @@ export default function CvAnalysis({
   
   const [loadingStep, setLoadingStep] = useState(0);
   const loadingMessages = [
-    "Pierre está sobornando al algoritmo de LinkedIn...",
-    "Traduciendo 'Echarle ganas' al estándar de Toronto...",
-    "Eliminando la foto del CV (aquí no la usamos, créeme)...",
-    "Buscando vacantes que aún no existen en Indeed...",
-    "Convenciendo a los reclutadores de que tu nivel de inglés es 'decente'...",
-    "Inyectando palabras clave de alta demanda (vía Pierre)...",
-    "Identificando empresas con presupuesto para patrocinio...",
-    "Pierre está aplicando el sello de aprobación GOLD...",
-    "Calculando cuántos Tim Hortons hay cerca de tu próximo trabajo...",
-    "Finalizando el veredicto maestro para tu futuro..."
+    "Iniciando Auditoría Quirúrgica de Empleabilidad...",
+    "Mapeando Perfil profesional vs Estándares NOC 2021...",
+    "Analizando cumplimiento de parámetros ATS Canadienses...",
+    "Evaluando estatus regulatorio y requisitos de licencia...",
+    "Simulando demanda laboral por provincias en tiempo real...",
+    "Identificando roles puente para acceso rápido al mercado...",
+    "Estimando inteligencia salarial y costo de vida...",
+    "Verificando historial de patrocinios y visados (LMIA)...",
+    "Consolidando Hoja de Ruta Táctica Personalizada...",
+    "Finalizando Reporte de Acceso al Mercado Canadiense..."
   ];
 
   useEffect(() => {
@@ -998,10 +998,19 @@ export default function CvAnalysis({
         </div>
       )}
 
-      {/* 5. DIAGNÓSTICO EJECUTIVO (Si existe) */}
-      {result.diagnosticoEjecutivo && (
-        <div className="max-w-6xl mx-auto px-4 mt-6">
-          <ExecutiveDiagnostic data={result.diagnosticoEjecutivo} />
+      {/* NARRATIVA DE DIAGNÓSTICO (Veredicto) */}
+      {result.conclusionEjecutiva && (
+        <div className="max-w-4xl mx-auto px-4 mt-12 mb-20 text-center space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+           <div className="inline-flex items-center gap-3 px-6 py-2 bg-slate-900 rounded-full border border-white/10 shadow-xl">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Veredicto Estratégico General</p>
+           </div>
+           <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] max-w-3xl mx-auto">
+             {result.conclusionEjecutiva.recomendacionMaestra}
+           </h3>
+           <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
+             "{result.conclusionEjecutiva.detalleEmpleabilidad}"
+           </p>
         </div>
       )}
 
