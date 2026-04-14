@@ -49,7 +49,7 @@ import {
   Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-// import null // GaugeChart removed from "./null // GaugeChart removed";
+// import null from "./null";
 import JdMatcher from "./JdMatcher";
 import UserManual from "./UserManual";
 import OnboardingTutorial from "./OnboardingTutorial";
@@ -171,328 +171,23 @@ export default function CvAnalysis({
 
   useEffect(() => {
     if (isLoading) {
-      const interval = setInterval(() => {
-        setLoadingStep((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
-      }, 3500);
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
-
-  const handleAnalyze = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    setLoadingStep(0);
-    setHasGreeted(false);
-    setError("");
-    
-    try {
-      const res = await fetch("/api/cv-analysis", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          cvText, 
-          leadId,
-          linkedinUrl: leadData?.linkedinUrl,
-          networking: leadData?.networking,
-          workPermitStatus: leadData?.workPermit
-        }),
-      });
-
-      let data;
-      const contentType = res.headers.get("content-type");
-      
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const textError = await res.text();
-        console.error("❌ Error de respuesta no-JSON:", textError.substring(0, 300));
-        throw new Error(`Respuesta inválida del servidor (${res.status}). Revisa la consola.`);
-      }
-
-      if (!res.ok) {
-        console.error("❌ Error de API (Status " + res.status + "):", data);
-        setError(data.error || `Error del servidor (${res.status}). Revisa tu configuración.`);
-        return;
-      }
-
-      setResult(data.result);
-      
-      // Save result for Pierre chatbot context
-      try {
-        localStorage.setItem("last_report_result", JSON.stringify(data.result));
-      } catch (e) {
-        console.warn("Could not save report result to localStorage:", e);
-      }
-
-      // --- PHASE 1.5: Generate Personalized Module Plan (Background) ---
-      if (leadId) {
-        fetch("/api/generate-plan", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId })
-        }).catch(err => console.error("Plan generation error:", err));
-      }
-
-      // --- PHASE 2: Pierre AI Agent Proactive Greeting ---
-      setTimeout(() => {
-        const score = data.result.puntaje?.final || data.result.puntaje?.base || 0;
-        const noc = data.result.analisisNOC?.titulo || data.result.analisisNOC?.título || "tu perfil";
-        const name = localStorage.getItem("lead_name")?.split(' ')[0] || "amigo";
-        
-        const event = new CustomEvent("pierreChatGreeting", {
-            detail: {
-                message: `¡${name}! He analizado tu perfil como ${noc}. Tu score es de ${score}/100. Tienes un potencial enorme, pero veo brechas críticas que te frenarán en Canadá. ¿Quieres que te diga cómo cerrarlas hoy mismo?`
-            }
-        });
-        window.dispatchEvent(event);
-      }, 2000);
-      
-    } catch (err: any) {
-      console.error("🚨 Error crítico en handleAnalyze:", err);
-      // Solo mostrar "Error de conexión" si el fetch falló físicamente (network error)
-      if (err.message && err.message.includes("fetch")) {
-        setError("Error de red. Asegúrate de que el servidor esté corriendo.");
-      } else {
-        setError(err.message || "Error inesperado en el motor de análisis.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const isResultValid = result?.veredictoFinal || (result?.diagnostico && result.diagnostico.length > 0);
-    if (!isResultValid && cvText && !isLoading && !error) {
-      handleAnalyze();
-    }
-  }, [cvText]);
-
-  useEffect(() => {
-    if (result && !isLoading && !hasGreeted) {
-      const timer = setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('pierreChatGreeting', { 
-            detail: { 
-                message: `¡Hola! He analizado tu perfil. Tu score final es ${result.puntaje?.final || 0}/100. 🚀 He identificado fortalezas críticas y el camino exacto para optimizar tu CV para empresas canadienses. ¿Quieres que te explique por dónde empezar?` 
-            } 
-        }));
-        setHasGreeted(true);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [result, isLoading, hasGreeted]);
-
-  const handleCheckout = async (amount: number, successUrl: string, productName?: string) => {
-    sendGTMEvent({
-      event: "checkout_started",
-      value: { amount: amount / 100, currency: "USD" },
-    });
-    setIsCheckoutLoading(true);
-
-    if (result) {
-      localStorage.setItem(
-        "pendingReportData",
-        JSON.stringify({
-          result,
-          cvText,
-          leadId,
-          timestamp: new Date().toISOString(),
-        }),
-      );
-    }
-
-    try {
-      const leadEmail = localStorage.getItem("lead_email") || "";
-      const res = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceOverride: amount,
-          successPath: successUrl,
-          productNameOverride: productName,
-          customerEmail: leadEmail,
-        }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        const errorMsg = data.details || data.error || "Ocurrió un error al crear la sesión de pago.";
-        alert(`Error en el Radar de Empleo: ${errorMsg}`);
-        setIsCheckoutLoading(false);
-      }
-    } catch (e) {
-      alert("Error de conexión con el sistema de pagos.");
-      setIsCheckoutLoading(false);
-    }
-  };
-
-  const downloadFullReport = () => {
-    if (!result) return;
-    downloadFullReportPDF(result);
-  };
-
-    const ExecutiveDiagnostic = ({ data }: { data: any }) => {
-    if (!data) return null;
-
-    const scoreLabels: Record<string, string> = {
-      experiencia: "Experiencia",
-      educacion: "Educación",
-      certificaciones: "Certificaciones",
-      cv: "CV",
-      idioma: "Inglés / Francés",
-      networking: "Networking",
-      estrategia: "Estrategia",
-    };
-
     return (
-      <motion.section 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-8 animate-in fade-in duration-700"
-      >
-        <div className="bg-white rounded-[3rem] overflow-hidden border border-slate-200 shadow-xl relative">
-          <div className="absolute top-0 right-0 p-8 opacity-5 text-slate-400">
-            <Shield className="w-40 h-40" />
-          </div>
-          <div className="p-8 sm:p-12 border-b border-slate-100">
-            <div className="flex items-center justify-between mb-8">
-               <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                  </div>
-                  <h4 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">2. NIVEL DE EMPLEABILIDAD (REAL)</h4>
-               </div>
-            </div>
-            
-            <div className="grid lg:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Resumen Estratégico</p>
-                <p className="text-slate-600 text-lg font-medium leading-relaxed italic border-l-4 border-slate-100 pl-6">
-                  "{data.resumenEjecutivo?.descripcion}"
-                </p>
-                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-200">
-                  <p className="text-sm font-black text-slate-900 flex gap-2">
-                    <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                    CONCLUSIÓN CLAVE: {data.resumenEjecutivo?.conclusionClave}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Scoring Tipo Mercado</p>
-                <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
-                  <div className="grid grid-cols-12 bg-slate-50/50 p-4 border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    <div className="col-span-8">Área de Evaluación</div>
-                    <div className="col-span-4 text-right">Score Competitivo</div>
-                  </div>
-                  <div className="divide-y divide-slate-50">
-                    {Object.entries(data.scoreMultidimensional || {}).map(([key, val]: [string, any]) => {
-                      if (key === 'interpretacionEstrategica') return null;
-                      const scoreValue = typeof val === 'number' ? val : parseInt(val) || 0;
-                      const displayScore = scoreValue > 10 ? scoreValue : scoreValue * 10;
-                      const label = scoreLabels[key] || key;
-                      const colorClass = displayScore >= 80 ? 'text-emerald-500' : displayScore >= 60 ? 'text-amber-500' : 'text-rose-500';
-
-                      return (
-                        <div key={key} className="grid grid-cols-12 items-center p-4 hover:bg-slate-50/30 transition-colors">
-                          <div className="col-span-8">
-                            <span className="text-xs font-bold text-slate-800 uppercase tracking-tight">{label}</span>
-                          </div>
-                          <div className="col-span-4 flex items-center justify-end gap-3 text-right">
-                            <span className={"text-sm font-black " + colorClass}>
-                              {displayScore}%
-                            </span>
-                            {displayScore < 60 && (
-                              <XCircle className="w-4 h-4 text-rose-500 animate-pulse" />
-                            )}
-                            {displayScore >= 80 && (
-                              <CheckCircle className="w-4 h-4 text-emerald-500" />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid lg:grid-cols-2 mt-8">
-              <div className="p-8 sm:p-12 bg-rose-50/50 border-r border-slate-100">
-                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
-                      <XCircle className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-black text-rose-600 uppercase tracking-tight italic">Los 3 Errores de impacto Crítico</h4>
-                 </div>
-                 <div className="grid gap-4">
-                   {data.principalesBloqueadores?.slice(0, 3).map((b, i) => (
-                      <div key={i} className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl">Error {i+1}</div>
-                        <p className="text-sm font-black text-slate-900 mb-2 uppercase">{b.titulo}</p>
-                        <p className="text-xs text-slate-600 leading-relaxed mb-3 font-medium">{b.descripcion}</p>
-                        <div className="flex items-center gap-2 pt-3 border-t border-slate-50">
-                          <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-0.5 rounded">Impacto: {b.impacto || "Crítico"}</span>
-                          <p className="text-[9px] font-bold text-slate-400 italic">"{b.insight}"</p>
-                        </div>
-                      </div>
-                   ))}
-                 </div>
-              </div>
-              <div className="p-8 sm:p-12 bg-emerald-50/50">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                      <Zap className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-black text-emerald-600 uppercase tracking-tight italic">Factores de Apalancamiento</h4>
-                 </div>
-                 <div className="grid grid-cols-1 gap-4">
-                    {data.factoresApalancamiento?.slice(0, 3).map((f, i) => (
-                      <div key={i} className="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
-                        <p className="text-sm font-black text-emerald-600 mb-1 uppercase ">{f.titulo}</p>
-                        <p className="text-xs text-slate-600 leading-relaxed font-medium italic">"{f.descripcion}"</p>
-                      </div>
-                    ))}
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-    );
-  };
-
-  const isUserPro = (session?.user as any)?.isPro;
-  const isMasterEmail = session?.user?.email?.toLowerCase().trim() === "pierre-master@canadacontrabajo.com";
-  
-  // 🔒 HARD GATE: Strictly allow based on active session status or confirmed access code
-  const isPremium = accessCode === "PREMIUM" || isUserPro || isMasterEmail || showProFeatures;
-
-  if (error) {
-    return (
-      <div className="p-8 text-center space-y-4 bg-white rounded-[3rem] border-2">
-        <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
-        <h3 className="text-xl font-bold">Vaya, algo salió mal</h3>
-        <p className="text-muted-foreground">{error}</p>
-        <Button onClick={handleAnalyze}>Intentar de nuevo</Button>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] bg-slate-50 flex flex-col items-center justify-center p-8 text-center space-y-10 animate-in fade-in duration-1000 rounded-[4rem]">
-          <div className="relative w-48 h-48">
-              <div className="absolute inset-4 border-[6px] border-dashed border-primary rounded-full animate-spin duration-[6000ms]" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                    <img src="/images/pierre-avatar.png" alt="Analizando" className="w-28 h-28 rounded-full shadow-2xl" />
+      <div className="min-h-[60vh] bg-slate-950 flex flex-col items-center justify-center p-8 text-center space-y-10 animate-in fade-in duration-1000 rounded-[4rem] border border-white/10 shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+          <div className="relative w-48 h-48 flex items-center justify-center">
+              <div className="absolute inset-0 border-2 border-primary/20 rounded-[2.5rem] animate-pulse" />
+              <div className="relative z-10 w-24 h-24 bg-slate-900 rounded-3xl flex items-center justify-center border border-white/10 shadow-2xl">
+                 <ShieldCheck className="w-12 h-12 text-primary animate-pulse" />
               </div>
           </div>
-          <div className="max-w-md w-full space-y-8">
-              <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Pierre está analizando cada detalle...</h3>
-              <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl relative overflow-hidden">
-                <div className="absolute bottom-0 left-0 h-1 bg-primary animate-progress-fast" style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%`, transition: 'width 0.5s ease-out' }} />
-                <p className="text-slate-600 font-bold italic text-lg leading-relaxed animate-in fade-in duration-700 min-h-[3rem] flex items-center justify-center text-center">
+          <div className="max-w-md w-full space-y-8 relative z-10">
+              <div className="space-y-2">
+                <h3 className="text-3xl font-black text-white tracking-tighter">Consultoría Estratégica en Curso</h3>
+                <p className="text-primary/60 text-[10px] font-black uppercase tracking-[0.3em]">Protocolo Quirúrgico de Empleabilidad</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute bottom-0 left-0 h-1.5 bg-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%`, transition: 'width 1.5s ease-out' }} />
+                <p className="text-slate-200 font-bold italic text-lg leading-relaxed animate-in fade-in duration-700 min-h-[3rem] flex items-center justify-center text-center">
                     "{loadingMessages[loadingStep]}"
                 </p>
               </div>
@@ -575,7 +270,7 @@ export default function CvAnalysis({
         <div className="grid md:grid-cols-12 gap-6 pt-4">
           <div className="md:col-span-4 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl flex flex-col items-center justify-center relative overflow-hidden group min-h-[300px]">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Puntaje de Radar</p>
-            <null // GaugeChart removed 
+            <null 
               score={result.puntaje?.final || 0} 
               label={
                 (result.puntaje?.final || 0) <= 40 ? "CRÍTICA" :
@@ -961,41 +656,6 @@ export default function CvAnalysis({
                 </div>
             </div>
         </section>
-      )}
-
-      {/* 4. AHA MOMENT: Score Leap Simulator */}
-      {!isPremium && (
-        <div className="max-w-4xl mx-auto bg-white rounded-[3rem] p-8 sm:p-12 border border-slate-200 shadow-2xl animate-in fade-in zoom-in duration-1000 relative">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">TRANSFORMACIÓN PRO</div>
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.5em] mb-12 text-center">Tu Salto de Valor Estratégico</p>
-          <div className="flex flex-col md:flex-row items-center justify-around gap-12 sm:gap-20">
-            <div className="flex flex-col items-center gap-6 group">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Currículum Actual</p>
-              <div className="opacity-40 grayscale group-hover:opacity-100 transition-opacity">
-                <null // GaugeChart removed score={result.puntaje?.final || 0} size={160} hideLabel />
-              </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <motion.div 
-                animate={{ scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] }} 
-                transition={{ duration: 2, repeat: Infinity }}
-                className="bg-primary/10 p-5 rounded-full border border-primary/20 shadow-inner"
-              >
-                <Zap className="w-10 h-10 text-primary fill-primary" />
-              </motion.div>
-              <p className="text-[11px] font-black text-slate-900 mt-4 uppercase tracking-tighter">Optimización Pierre</p>
-            </div>
-            <div className="flex flex-col items-center gap-6 group">
-              <p className="text-[11px] font-black text-emerald-600 uppercase tracking-widest shadow-emerald-500/10">Perfil de Élite (PRO)</p>
-              <div className="scale-110 drop-shadow-[0_15px_30px_rgba(234,179,8,0.2)]">
-                <null // GaugeChart removed score={Math.min(95, (result.puntaje?.final || 0) + 40)} size={190} hideLabel />
-              </div>
-            </div>
-          </div>
-          <p className="text-slate-600 text-sm sm:text-lg font-bold italic mt-16 max-w-2xl mx-auto leading-relaxed text-center">
-            "Tu perfil tiene el talento, pero tu CV actual lo mantiene invisible para el algoritmo. <span className="text-primary font-black border-b-2 border-primary/30">Pierre PRO lo transforma hoy mismo.</span>"
-          </p>
-        </div>
       )}
 
       {/* NARRATIVA DE DIAGNÓSTICO (Veredicto) */}
