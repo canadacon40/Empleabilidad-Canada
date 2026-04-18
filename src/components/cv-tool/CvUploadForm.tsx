@@ -25,14 +25,11 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
     // New Lead Capture Fields
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [countryCode, setCountryCode] = useState("+1")
     const [phone, setPhone] = useState("")
     const [status, setStatus] = useState("")
-    const [province, setProvince] = useState("")
-    const [urgency, setUrgency] = useState("")
-    const [budget, setBudget] = useState("")
     const [linkedinUrl, setLinkedinUrl] = useState("")
-    const [networking, setNetworking] = useState("")
-    const [workPermit, setWorkPermit] = useState("")
+    const [subscribeToEmails, setSubscribeToEmails] = useState(false)
     
     const [showWelcome, setShowWelcome] = useState(false)
     const [showCvWarning, setShowCvWarning] = useState(false)
@@ -77,11 +74,6 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         if (!email.trim()) missing.push("email")
         if (!phone.trim()) missing.push("phone")
         if (!status) missing.push("status")
-        if (status.startsWith("inside") && !province) missing.push("province")
-        if (!urgency) missing.push("urgency")
-        if (!budget) missing.push("budget")
-        if (!networking) missing.push("networking")
-        if (!workPermit) missing.push("workPermit")
 
         if (missing.length > 0) {
             setHighlightFields(missing)
@@ -117,18 +109,15 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         localStorage.setItem("lead_email", email.toLowerCase().trim())
         localStorage.setItem("lead_name", name.trim())
 
+        const fullPhone = `${countryCode} ${phone.trim()}`;
         const leadData = { 
             name: name.trim(), 
             email: email.trim(), 
-            phone: phone.trim(),
+            phone: fullPhone,
             status, 
-            province, 
-            urgency, 
-            budget,
             language,
             linkedinUrl: linkedinUrl.trim(),
-            networking,
-            workPermit,
+            subscribeToEmails,
             cvText: cvText.trim(),
             date: new Date().toISOString(),
             source: "Free CV Tool"
@@ -141,8 +130,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             value: { 
                 email: email.trim(), 
                 status: status,
-                urgency: urgency,
-                budget: budget
+                subscribeToEmails
             } 
         });
 
@@ -301,13 +289,53 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                     <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('phone') ? 'text-destructive' : ''}`}>
                         <Phone className="w-4 h-4 text-primary" /> Teléfono de contacto {highlightFields.includes('phone') && <span className="text-destructive font-bold">*</span>}
                     </label>
-                    <input 
-                        type="tel" 
-                        value={phone} 
-                        onChange={(e) => {setPhone(e.target.value); setError("")}} 
-                        placeholder="Ej: +1 (123) 456-7890" 
-                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('phone') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`} 
-                    />
+                    <div className="flex gap-2">
+                        <select
+                            value={countryCode}
+                            onChange={(e) => setCountryCode(e.target.value)}
+                            className="w-1/3 px-4 py-3 rounded-xl border border-border bg-background transition-all appearance-none cursor-pointer text-sm"
+                        >
+                            <option value="+1">🇨🇦/🇺🇸 +1</option>
+                            <option value="+52">🇲🇽 +52</option>
+                            <option value="+57">🇨🇴 +57</option>
+                            <option value="+54">🇦🇷 +54</option>
+                            <option value="+56">🇨🇱 +56</option>
+                            <option value="+51">🇵🇪 +51</option>
+                            <option value="+58">🇻🇪 +58</option>
+                            <option value="+593">🇪🇨 +593</option>
+                            <option value="+34">🇪🇸 +34</option>
+                            <option value="+502">🇬🇹 +502</option>
+                            <option value="+503">🇸🇻 +503</option>
+                            <option value="+504">🇭🇳 +504</option>
+                            <option value="+505">🇳🇮 +505</option>
+                            <option value="+506">🇨🇷 +506</option>
+                            <option value="+507">🇵🇦 +507</option>
+                            <option value="+53">🇨🇺 +53</option>
+                            <option value="+1809">🇩🇴 +1</option>
+                            <option value="+598">🇺🇾 +598</option>
+                            <option value="+595">🇵🇾 +595</option>
+                            <option value="+591">🇧🇴 +591</option>
+                            <option value="+55">🇧🇷 +55</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+39">🇮🇹 +39</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+64">🇳🇿 +64</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+00">🌍 Otro</option>
+                        </select>
+                        <input 
+                            type="tel" 
+                            value={phone} 
+                            onChange={(e) => {setPhone(e.target.value); setError("")}} 
+                            placeholder="(123) 456-7890" 
+                            className={`w-2/3 px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('phone') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`} 
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -325,72 +353,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                     >
                         <option value="">Selecciona tu situación...</option>
                         <option value="outside">Estoy fuera de Canadá</option>
-                        <option value="inside_student">Soy estudiante o pareja de estudiante</option>
-                        <option value="inside_pr">Residente, ciudadano u otro estatus legal</option>
-                        <option value="inside_visitor">Soy visitante o no tengo estatus legal</option>
-                        <option value="other">Otro</option>
-                    </select>
-                </div>
-                
-                {/* Conditional Province selector if inside Canada */}
-                {status.startsWith("inside") && (
-                    <div className={`space-y-2 pl-4 border-l-2 border-primary/20 transition-all ${highlightFields.includes('province') ? 'animate-shake' : ''}`}>
-                         <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('province') ? 'text-destructive' : ''}`}>
-                            📍 Provincia en la que te encuentras {highlightFields.includes('province') && <span className="text-destructive font-bold">*</span>}
-                        </label>
-                        <select 
-                            value={province} 
-                            onChange={(e) => {setProvince(e.target.value); setError("")}} 
-                            className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('province') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
-                        >
-                            <option value="">Selecciona la provincia...</option>
-                            <option value="ON">Ontario</option>
-                            <option value="BC">British Columbia</option>
-                            <option value="AB">Alberta</option>
-                            <option value="QC">Quebec</option>
-                            <option value="MB">Manitoba</option>
-                            <option value="SK">Saskatchewan</option>
-                            <option value="NS">Nova Scotia</option>
-                            <option value="NB">New Brunswick</option>
-                            <option value="PE">Prince Edward Island</option>
-                            <option value="NL">Newfoundland and Labrador</option>
-                        </select>
-                    </div>
-                )}
-
-                {/* Urgency */}
-                <div className={`space-y-2 transition-all ${highlightFields.includes('urgency') ? 'animate-shake' : ''}`}>
-                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('urgency') ? 'text-destructive' : ''}`}>
-                        <Clock className="w-4 h-4 text-primary" /> ¿Qué tan pronto quieres estar trabajando? {highlightFields.includes('urgency') && <span className="text-destructive font-bold">*</span>}
-                    </label>
-                    <select 
-                        value={urgency} 
-                        onChange={(e) => {setUrgency(e.target.value); setError("")}} 
-                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('urgency') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
-                    >
-                        <option value="">Selecciona la urgencia...</option>
-                        <option value="asap">Lo más pronto posible (0 - 3 meses)</option>
-                        <option value="medium">A medio plazo (3 - 6 meses)</option>
-                        <option value="long">A largo plazo (Más de 6 meses)</option>
-                        <option value="exploring">Aún no estoy seguro, solo exploro</option>
-                    </select>
-                </div>
-
-                {/* Budget */}
-                <div className={`space-y-2 transition-all ${highlightFields.includes('budget') ? 'animate-shake' : ''}`}>
-                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('budget') ? 'text-destructive' : ''}`}>
-                        <DollarSign className="w-4 h-4 text-primary" /> ¿Con qué presupuesto cuentas para invertir? {highlightFields.includes('budget') && <span className="text-destructive font-bold">*</span>}
-                    </label>
-                    <p className="text-xs text-muted-foreground pb-1">Para herramientas, traducciones o asesorías expertas</p>
-                    <select 
-                        value={budget} 
-                        onChange={(e) => {setBudget(e.target.value); setError("")}} 
-                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('budget') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
-                    >
-                        <option value="">Selecciona tu presupuesto...</option>
-                        <option value="0">No tengo para invertir</option>
-                        <option value="0-50">Menos de $50 USD</option>
-                        <option value="50+">Más de $50 USD</option>
+                        <option value="inside">Estoy dentro de Canadá</option>
                     </select>
                 </div>
 
@@ -406,40 +369,6 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                         placeholder="https://linkedin.com/in/tuperfil" 
                         className="w-full px-4 py-3 rounded-xl border border-border bg-background transition-all" 
                     />
-                </div>
-
-                {/* Networking Selector */}
-                <div className={`space-y-2 transition-all ${highlightFields.includes('networking') ? 'animate-shake' : ''}`}>
-                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('networking') ? 'text-destructive' : ''}`}>
-                        <Users2 className="w-4 h-4 text-primary" /> ¿Tienes red de contactos en Canadá? {highlightFields.includes('networking') && <span className="text-destructive font-bold">*</span>}
-                    </label>
-                    <select 
-                        value={networking} 
-                        onChange={(e) => {setNetworking(e.target.value); setError("")}} 
-                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('networking') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
-                    >
-                        <option value="">Selecciona tu situación de red...</option>
-                        <option value="none">No tengo ningún contacto (Inexistente)</option>
-                        <option value="medium">Tengo algunos conocidos o amigos en LinkedIn (Media)</option>
-                        <option value="strong">Tengo colegas y red activa en mi industria (Sólida)</option>
-                    </select>
-                </div>
-
-                {/* Work Permit Selector */}
-                <div className={`space-y-2 transition-all ${highlightFields.includes('workPermit') ? 'animate-shake' : ''}`}>
-                    <label className={`text-sm font-semibold flex items-center gap-2 ${highlightFields.includes('workPermit') ? 'text-destructive' : ''}`}>
-                        <ShieldAlert className="w-4 h-4 text-primary" /> ¿Cuentas con permiso de trabajo? {highlightFields.includes('workPermit') && <span className="text-destructive font-bold">*</span>}
-                    </label>
-                    <select 
-                        value={workPermit} 
-                        onChange={(e) => {setWorkPermit(e.target.value); setError("")}} 
-                        className={`w-full px-4 py-3 rounded-xl border bg-background transition-all ${highlightFields.includes('workPermit') ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'}`}
-                    >
-                        <option value="">Selecciona tu estatus migratorio...</option>
-                        <option value="none">No tengo permiso (Requiero sponsorship/LMIA)</option>
-                        <option value="in_progress">En trámite / eTA / Visa Turista</option>
-                        <option value="valid">Tengo permiso abierto vigente (WP/PR/Citizenship)</option>
-                    </select>
                 </div>
             </div>
 
@@ -632,11 +561,24 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
             )}
 
             <div className="space-y-4">
+                <div className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <input 
+                        type="checkbox" 
+                        id="marketing-optin"
+                        checked={subscribeToEmails}
+                        onChange={(e) => setSubscribeToEmails(e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                    />
+                    <label htmlFor="marketing-optin" className="text-xs text-slate-600 leading-snug cursor-pointer select-none">
+                        Deseo recibir información, estrategias de búsqueda de empleo en Canadá y novedades por correo de parte de Pierre y su equipo.
+                    </label>
+                </div>
+
                 <Button 
                     size="lg" 
                     className={`w-full text-xl py-9 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-[1.01] transition-all ${(!!alreadyUsedEmail && !email.toLowerCase().includes("test")) ? 'opacity-50 grayscale pointer-events-none' : ''}`} 
                     onClick={handleSubmit} 
-                    disabled={!cvText.trim() || !name || !email || !status || !urgency || !budget || (!!alreadyUsedEmail && !email.toLowerCase().includes("test"))}
+                    disabled={!cvText.trim() || !name || !email || !status || (!!alreadyUsedEmail && !email.toLowerCase().includes("test"))}
                 >
                     <Sparkles className="mr-3 h-6 w-6 fill-current" />
                     GENERAR MI REPORTE AHORA 🚀
