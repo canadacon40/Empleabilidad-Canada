@@ -149,6 +149,14 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                     try {
                         const parsed = JSON.parse(typeof recoveredData === 'string' ? recoveredData : JSON.stringify(recoveredData));
                         const dataToUse = parsed.result || parsed;
+                        
+                        // 🛡️ DATA INTEGRITY CHECK: Prevent loading corrupted legacy reports
+                        if (dataToUse && dataToUse.veredictoFinal && (!dataToUse.mercado || !dataToUse.salarios || !dataToUse.diagnostico)) {
+                            console.warn("[Employability Engine] Detected corrupted legacy report. Clearing cache.");
+                            localStorage.removeItem("last_report_result");
+                            throw new Error("Corrupted legacy report");
+                        }
+
                         setLeadData(dataToUse);
                         setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
                         setAccessCode(isVIP ? "PREMIUM" : "LEAD_MAGNET");
@@ -180,6 +188,14 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                     try {
                         const parsed = JSON.parse(typeof recoveredData === 'string' ? recoveredData : JSON.stringify(recoveredData));
                         const dataToUse = parsed.result || parsed;
+
+                        // 🛡️ DATA INTEGRITY CHECK: Prevent loading corrupted legacy reports
+                        if (dataToUse && dataToUse.veredictoFinal && (!dataToUse.mercado || !dataToUse.salarios || !dataToUse.diagnostico)) {
+                            console.warn("[Employability Engine] Detected corrupted legacy report. Clearing cache.");
+                            localStorage.removeItem("last_report_result");
+                            throw new Error("Corrupted legacy report");
+                        }
+
                         setLeadData(dataToUse);
                         setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
                         setAccessCode(isVIP ? "PREMIUM" : "LEAD_MAGNET");
