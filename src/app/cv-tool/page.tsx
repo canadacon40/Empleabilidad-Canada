@@ -34,21 +34,39 @@ const DUMMY_LEAD_DATA = {
         descripcionQueEsNOC: "Professional role in charge of systems analysis and enterprise-level architecture.",
         requisitosNoCumplidos: ["Licensure in some provinces", "Local networking certifications"]
     },
-    diagnostico: [
-        { problema: "Falta de palabras clave ATS específicas del NOC", porque: "Los filtros automatizados descartan perfiles que no usen la jerga técnica canadiense exacta.", cambio: "Inyectar términos clave como 'SDLC', 'Business Requirements' y 'Stakeholder Management'." },
-        { problema: "Formato de Experiencia no basado en logros", porque: "En Canadá no importa qué hiciste, sino qué lograste con métricas.", cambio: "Reescribir funciones usando la fórmula: Logro + Métrica + Impacto." },
-        { problema: "Inclusión de datos personales sensibles", porque: "La foto y edad en el CV causan rechazo legal por discriminación.", cambio: "Remoción inmediata de datos demográficos." }
-    ],
-    analysis: {
-        score: 85,
-        summary: "Perfil altamente competitivo para el sector tecnológico en Canadá.",
-        strengths: ["Experiencia internacional", "Nivel de inglés avanzado", "Certificaciones técnicas"],
-        weaknesses: ["Falta de experiencia local", "Networking limitado"],
-        salary_range: "$70,000 - $95,000 CAD",
-        verdict: "Ready to Apply",
-        certifications: [
-            { name: "PMP Certification", duration: "6 months", price: "$400", link: "#" },
-            { name: "AWS Solutions Architect", duration: "3 months", price: "$150", link: "#" }
+    puntaje: {
+        final: 85,
+        base: 80,
+        level: "LOW_RISK"
+    },
+    veredictoFinal: {
+        conclusion: "Perfil altamente competitivo para el sector tecnológico en Canadá. Tu experiencia internacional y stack técnico son tus mayores bazas.",
+        ofertaEstrategica: "Optimiza tu visibilidad en LinkedIn para atraer reclutadores hoy mismo."
+    },
+    salarios: {
+        entry: "$70,000",
+        mid: "$85,000",
+        senior: "$110,000"
+    },
+    diagnosticoEjecutivo: {
+        resumenEjecutivo: {
+            descripcion: "Perfil con amplia trayectoria técnica. La brecha principal no es de capacidad, sino de adaptación cultural del CV.",
+            conclusionClave: "Tienes el 80% del camino hecho; el otro 20% es puro posicionamiento estratégico."
+        },
+        scoreMultidimensional: {
+            experiencia: 90,
+            educacion: 85,
+            cv: 60,
+            idioma: 80,
+            networking: 40,
+            estrategia: 70
+        },
+        principalesBloqueadores: [
+            { titulo: "Formato de Experiencia Obsoleto", descripcion: "Tu CV se enfoca en tareas, no en logros medibles.", impacto: "Alto", insight: "El ATS canadiense premia los resultados." },
+            { titulo: "Falta de Certificación Local", descripcion: "Algunas provincias requieren validación WES.", impacto: "Medio", insight: "Aumenta la confianza del reclutador." }
+        ],
+        factoresApalancamiento: [
+            { titulo: "Seniority", descripcion: "Tus 8+ años de experiencia son oro en Ontario." }
         ]
     }
 };
@@ -111,51 +129,73 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
     const isTrial = session?.user ? (session.user as any)?.isTrial : false;
     const isVIP = isMaster || isPro || isTrial;
 
-    // 🛡️ ACCESSO DIRECTO PARA ASESORÍA (PRO)
-    useEffect(() => {
-        const onboardingParam = searchParams.get("onboarding");
-        if (authStatus === "authenticated" && isPro && step === "form" && !leadData && onboardingParam === "true") {
-            setStep("premium-onboarding");
-        }
-    }, [authStatus, isPro, step, leadData, searchParams]);
-
-    // 🚀 PRO, MASTER & TRIAL AUTO-BYPASS: Direct entry to Strategy Center ONLY if requested
+    // 🛡️ UNIVERSAL PRO BYPASS: Direct entry to Strategy Center for authenticated PRO users
     useEffect(() => {
         const forceForm = searchParams.get("force_form") === "true";
-        const isDashboardView = searchParams.get("view") === "dashboard";
+        const onboardingParam = searchParams.get("onboarding") === "true";
+        const viewParam = searchParams.get("view");
         
-        if (authStatus === "authenticated" && isVIP && step === "form" && isDashboardView && !forceForm) {
-            const lastResult = localStorage.getItem("last_report_result");
-            console.log("[VIP_BYPASS] Jumping to Strategy Dashboard...");
-            
-            if (lastResult) {
-                try {
-                    const parsed = JSON.parse(lastResult);
-                    setLeadData(parsed);
-                    setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
-                } catch (e) {
-                    setLeadData(DUMMY_LEAD_DATA);
-                    setCvText(DUMMY_CV_TEXT);
+        // If force_form is active, we stay in the form step
+        if (forceForm) return;
+
+        // UNIVERSAL BYPASS: If authenticated, override the lead form for BOTH VIP and Free users.
+        if (authStatus === "authenticated") {
+            // 1. Explicit Dashboard Request
+            if (viewParam === "dashboard" && step !== "strategy") {
+                const lastResult = localStorage.getItem("last_report_result");
+                const recoveredData = lastResult || savedData;
+                
+                if (recoveredData) {
+                    try {
+                        const parsed = JSON.parse(typeof recoveredData === 'string' ? recoveredData : JSON.stringify(recoveredData));
+                        const dataToUse = parsed.result || parsed;
+                        setLeadData(dataToUse);
+                        setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
+                        setAccessCode(isVIP ? "PREMIUM" : "LEAD_MAGNET");
+                        setStep("strategy");
+                        if (onDashboardEnter) onDashboardEnter();
+                        return;
+                    } catch (e) {}
                 }
-            } else if (pendingData) {
-                try {
-                    const { result, cvText: savedText } = JSON.parse(pendingData);
-                    setLeadData(result);
-                    setCvText(savedText);
-                } catch (e) {
-                    setLeadData(DUMMY_LEAD_DATA);
-                    setCvText(DUMMY_CV_TEXT);
-                }
-            } else {
+                
+                // Fallback with no data: Dashboard with placeholders
                 setLeadData(DUMMY_LEAD_DATA);
-                setCvText(DUMMY_CV_TEXT);
+                setAccessCode(isVIP ? "PREMIUM" : "LEAD_MAGNET");
+                setStep("strategy");
+                if (onDashboardEnter) onDashboardEnter();
+                return;
             }
-            
-            setAccessCode("PREMIUM");
-            setStep("strategy");
-            if (onDashboardEnter) onDashboardEnter();
+
+            // 2. Default Bypass (when landing on form)
+            if (step === "form") {
+                if (onboardingParam && isVIP) {
+                    setStep("premium-onboarding");
+                    return;
+                }
+
+                const lastResult = localStorage.getItem("last_report_result");
+                const recoveredData = lastResult || savedData;
+                
+                if (recoveredData) {
+                    try {
+                        const parsed = JSON.parse(typeof recoveredData === 'string' ? recoveredData : JSON.stringify(recoveredData));
+                        const dataToUse = parsed.result || parsed;
+                        setLeadData(dataToUse);
+                        setCvText(localStorage.getItem("last_cv_text") || DUMMY_CV_TEXT);
+                        setAccessCode(isVIP ? "PREMIUM" : "LEAD_MAGNET");
+                        setStep("strategy");
+                        if (onDashboardEnter) onDashboardEnter();
+                    } catch (e) {
+                        setLeadData(DUMMY_LEAD_DATA);
+                        setStep("strategy");
+                    }
+                } else {
+                    // No data: VIPs inject CV, Free users go to locked dashboard
+                    setStep(isVIP ? "premium-onboarding" : "strategy");
+                }
+            }
         }
-    }, [authStatus, isVIP, step, onDashboardEnter]);
+    }, [authStatus, isVIP, step, searchParams, onDashboardEnter, savedData]);
 
     // 1. Detect Stripe Session or Developer Bypass and Recover Data
     useEffect(() => {
@@ -250,6 +290,9 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                     resultData={leadData} 
                     onBackToReport={() => {
                         setStep("analysis");
+                        if (typeof window !== "undefined") {
+                            window.dispatchEvent(new CustomEvent("pierre-dashboard-exit"));
+                        }
                     }} 
                 />
             )}
@@ -280,8 +323,14 @@ function CvToolPageWrapper() {
 
     useEffect(() => {
         const handleDashboardEnter = () => setIsDashboard(true);
+        const handleDashboardExit = () => setIsDashboard(false);
+        
         window.addEventListener("pierre-dashboard-enter", handleDashboardEnter);
-        return () => window.removeEventListener("pierre-dashboard-enter", handleDashboardEnter);
+        window.addEventListener("pierre-dashboard-exit", handleDashboardExit);
+        return () => {
+            window.removeEventListener("pierre-dashboard-enter", handleDashboardEnter);
+            window.removeEventListener("pierre-dashboard-exit", handleDashboardExit);
+        };
     }, []);
 
     return (

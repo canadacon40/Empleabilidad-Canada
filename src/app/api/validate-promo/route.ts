@@ -11,6 +11,15 @@ export async function POST(req: Request) {
 
     const normalizedCode = code.trim().toUpperCase();
 
+    // 🏆 MASTER BYPASS: Always valid codes for administrative/debug access
+    const MASTER_CODES = ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"];
+    if (MASTER_CODES.includes(normalizedCode)) {
+      return NextResponse.json({ 
+        success: true, 
+        message: "¡Acceso Maestro Activado! Bienvenido, Pierre." 
+      });
+    }
+
     // 1. DB-MANAGED PROMO CODES (Scholarships & Admin Codes)
     // Every code must be present in the database to be valid.
     const promo = await prisma.promoCode.findUnique({

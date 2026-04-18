@@ -59,7 +59,7 @@ export default function Navbar() {
                                 className="h-9 sm:h-12 px-3 sm:px-6 text-[9px] sm:text-xs font-black uppercase tracking-tight sm:tracking-widest text-slate-900 hover:bg-slate-50 transition-all border border-slate-100 rounded-xl" 
                                 asChild
                             >
-                                <Link href="/login">
+                                <Link href="/login?callbackUrl=/cv-tool?view=dashboard">
                                     ACCESO PRO
                                 </Link>
                             </Button>

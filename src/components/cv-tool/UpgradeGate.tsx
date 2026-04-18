@@ -21,7 +21,7 @@ interface UpgradeGateProps {
 }
 
 export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
-    const stripeUrl = `/api/create-checkout?success=/cv-tool&price=2900&product=pro${email ? `&customer_email=${encodeURIComponent(email)}` : ""}`;
+    const stripeUrl = `/api/create-checkout?success=/cv-tool&product=pro${email ? `&customer_email=${encodeURIComponent(email)}` : ""}`;
 
     const features = [
         {
@@ -69,7 +69,7 @@ export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
                                 Has llegado al <span className="text-primary relative inline-block">
                                     Límite
                                     <div className="absolute -bottom-1 left-0 w-full h-1.5 bg-primary/20 rounded-full" />
-                                </span> Gratuito.
+                                </span> Gratuitio.
                             </h2>
                             <p className="text-slate-500 text-lg font-medium max-w-md">
                                 Tu diagnóstico está listo, pero la ejecución es donde se gana la guerra. Desbloquea el arsenal completo de Pierre.
@@ -99,10 +99,10 @@ export default function UpgradeGate({ onBack, email }: UpgradeGateProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Acceso de por Vida • Lanzamiento • Lanzamiento</p>
+                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Acceso de por Vida</p>
                                 <div className="flex items-baseline justify-center gap-2">
                                     <span className="text-3xl font-medium text-white/50 line-through">$100</span>
-                                    <span className="text-6xl font-black text-white tracking-tighter">$29</span>
+                                    <span className="text-6xl font-black text-white tracking-tighter">$51</span>
                                     <span className="text-xl font-bold text-primary">USD</span>
                                 </div>
                             </div>

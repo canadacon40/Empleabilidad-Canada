@@ -166,6 +166,43 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
         onResult(leadData, cvText.trim(), language, accessCode, lead?.id)
     }
 
+    if (isPremium && !showWelcome) {
+        return (
+            <div className="max-w-xl mx-auto py-12 px-8 bg-white border border-slate-200 rounded-[3.5rem] shadow-2xl text-center space-y-8 animate-in fade-in zoom-in duration-700">
+                <div className="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto border-2 border-amber-200 shadow-xl shadow-amber-500/10">
+                    <Sparkles className="w-10 h-10 text-amber-600 animate-pulse" />
+                </div>
+                <div className="space-y-3">
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">¡Bienvenido de nuevo, VIP!</h3>
+                    <p className="text-slate-500 font-medium">Tienes acceso PRO activo. No necesitas llenar este formulario para acceder a tus herramientas.</p>
+                </div>
+                
+                <div className="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Acceso Estratégico Pierre v2.7 Maestro • ACTIVO
+                </div>
+
+                <Button 
+                    size="lg"
+                    onClick={() => onResult(null, "", "es", "PREMIUM")}
+                    className="w-full h-20 rounded-[2rem] bg-slate-950 text-white font-black text-lg gap-3 hover:bg-slate-900 shadow-2xl transition-all group"
+                >
+                    Entrar a mi Panel Táctico <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </Button>
+
+                <button 
+                    onClick={() => {
+                        localStorage.clear();
+                        signOut({ callbackUrl: "/cv-tool?force_form=true" });
+                    }}
+                    className="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto"
+                >
+                    <LogOut className="w-3 h-3" />
+                    Cerrar Sesión para usar otra cuenta
+                </button>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-8 max-w-2xl mx-auto relative">
             {/* Welcome Modal */}
@@ -539,7 +576,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                                             setTimeout(() => {
                                                                 setAlreadyUsedEmail(null);
                                                                 localStorage.setItem("pierre_promo_unlocked", "true");
-                                                                window.location.href = window.location.pathname + "?code=" + promoCode;
+                                                                window.location.href = "/register?code=" + promoCode;
                                                             }, 1500);
                                                         } else {
                                                             setError(data.error || "Código inválido o agotado.");
@@ -641,7 +678,7 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                                                         setIsPromoSuccess(true);
                                                         setTimeout(() => {
                                                             localStorage.setItem("pierre_promo_unlocked", "true");
-                                                            window.location.href = window.location.pathname + "?code=" + promoCode;
+                                                            window.location.href = "/register?code=" + promoCode;
                                                         }, 1000);
                                                     } else {
                                                         setError(data.error || "Código inválido.");

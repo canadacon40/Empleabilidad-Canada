@@ -140,23 +140,50 @@ function RegistrationForm() {
                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="mb-8 p-6 rounded-3xl bg-amber-400/10 border border-amber-400/20 flex items-center gap-5 shadow-[0_20px_50px_-15px_rgba(251,191,36,0.1)] relative overflow-hidden"
+                className={`mb-8 p-6 rounded-3xl border flex items-center gap-5 shadow-2xl relative overflow-hidden ${
+                    ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) 
+                    ? 'bg-slate-950 border-white/20' 
+                    : 'bg-amber-400/10 border-amber-400/20'
+                }`}
               >
                  <div className="absolute top-0 right-0 p-2 opacity-10">
                     <Sparkles className="w-12 h-12 text-amber-400" />
                  </div>
-                 <div className="w-14 h-14 rounded-2xl bg-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-400/20">
-                    <Star className="w-7 h-7 text-black fill-black" />
+                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+                    ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) 
+                    ? 'bg-white' 
+                    : 'bg-amber-400 shadow-amber-400/20'
+                 }`}>
+                    <Star className={`w-7 h-7 ${
+                        ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) 
+                        ? 'text-slate-950 fill-slate-950' 
+                        : 'text-black fill-black'
+                    }`} />
                  </div>
                  <div>
-                    <h3 className="text-sm font-black text-amber-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-2">
-                        Acceso Exclusivo Pierre <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <h3 className={`text-sm font-black uppercase tracking-widest leading-none mb-1.5 flex items-center gap-2 ${
+                        ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode)
+                        ? 'text-white'
+                        : 'text-amber-400'
+                    }`}>
+                        {["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) ? "Acceso Maestro Activado" : "Acceso Exclusivo Pierre"} 
+                        <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                            ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) 
+                            ? 'bg-white' 
+                            : 'bg-amber-400'
+                        }`} />
                     </h3>
                     <p className="text-white text-xs font-bold font-mono tracking-wider">
                         CÓDIGO: <span className="text-white">{formData.becaCode}</span> • DETECTADO 
                     </p>
-                    <p className="text-amber-400/50 text-[10px] font-black uppercase tracking-widest mt-2 leading-none">
-                       {formData.becaCode.includes("BECA") ? "Soporte de Muestreo Activo (10 USOS)" : "Acceso PRO Estratégico Autorizado"}
+                    <p className={`text-[10px] font-black uppercase tracking-widest mt-2 leading-none ${
+                        ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode)
+                        ? 'text-amber-400'
+                        : 'text-amber-400/50'
+                    }`}>
+                       {["PIERRE-MASTER", "DEBUG_PRO", "BECA100"].includes(formData.becaCode) 
+                        ? "ADMINISTRADOR PIERRE • ACCESO TOTAL" 
+                        : (formData.becaCode.includes("BECA") ? "Soporte de Muestreo Activo (10 USOS)" : "Acceso PRO Estratégico Autorizado")}
                     </p>
                  </div>
               </motion.div>

@@ -49,32 +49,41 @@ export async function POST(req: Request) {
 
     if (becaCode || promoCode) {
         const activeCode = (becaCode || promoCode).toUpperCase();
-        const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1 AND "isActive" = true', [activeCode])
-        const promo = promoRes.rows[0]
-        
-        if (!promo) {
-            return NextResponse.json({ error: "Código de beca/promoción inválido" }, { status: 403 })
-        }
-        
-        if (promo.maxUses && promo.currentUses >= promo.maxUses) {
-            return NextResponse.json({ error: "Este código ya ha superado su límite de usos" }, { status: 403 })
-        }
 
-        // Precision Access Logic: Determine tier and capacity
-        const isBeca = activeCode.includes("BECA");
-        
-        // 1. Assign Trial Status
-        isTrial = isBeca;
-
-        // 2. Assign Credits (Priority: DB field -> Default based on type)
-        if (promo.grantedCredits && promo.grantedCredits > 0) {
-            initialCredits = promo.grantedCredits;
+        // 🏆 MASTER BYPASS: Administrative codes skip DB checks
+        const MASTER_CODES = ["PIERRE-MASTER", "DEBUG_PRO", "BECA100"];
+        if (MASTER_CODES.includes(activeCode)) {
+            console.log(`[AUTH_BYPASS] Master Code ${activeCode} detected. Granting PRO access...`);
+            isTrial = false;
+            initialCredits = 999;
         } else {
-            initialCredits = isBeca ? 10 : 50; 
+            const promoRes = await client.query('SELECT * FROM "PromoCode" WHERE code = $1 AND "isActive" = true', [activeCode])
+            const promo = promoRes.rows[0]
+            
+            if (!promo) {
+                return NextResponse.json({ error: "Código de beca/promoción inválido" }, { status: 403 })
+            }
+            
+            if (promo.maxUses && promo.currentUses >= promo.maxUses) {
+                return NextResponse.json({ error: "Este código ya ha superado su límite de usos" }, { status: 403 })
+            }
+
+            // Precision Access Logic: Determine tier and capacity
+            const isBeca = activeCode.includes("BECA");
+            
+            // 1. Assign Trial Status
+            isTrial = isBeca;
+
+            // 2. Assign Credits (Priority: DB field -> Default based on type)
+            if (promo.grantedCredits && promo.grantedCredits > 0) {
+                initialCredits = promo.grantedCredits;
+            } else {
+                initialCredits = isBeca ? 10 : 50; 
+            }
+            
+            // Increment promo usage
+            await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
         }
-        
-        // Increment promo usage
-        await client.query('UPDATE "PromoCode" SET "currentUses" = "currentUses" + 1 WHERE id = $1', [promo.id])
     } else if (sessionId) {
         // Stripe success flow (Real Purchasers)
         isTrial = false;

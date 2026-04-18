@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield, LogOut, User, Share2, Zap, EyeOff, Map as MapIcon, Heart } from "lucide-react"
+import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield, LogOut, User, Share2, Zap, EyeOff, Map as MapIcon, Heart, Star, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
 import { downloadFullReportPDF, downloadUserManualPDF, downloadLMIAExcel, downloadStyledCVPdf, downloadCustomizedCVWord, downloadInterviewPDF, downloadCoverLetterPDF } from "@/lib/report-utils"

@@ -650,7 +650,7 @@ export function downloadUserManualPDF() {
  * 📄 PREMIUM PDF ENGINE - SURGICAL CANADIAN STANDARD
  * This engine handles the 3 distinct visual styles and eliminates the UI freeze.
  */
-export function downloadStyledCVPdf(cvData: any, style: 'Classic' | 'Elegant' | 'Modern' | 'Executive', language: string = 'En') {
+export function downloadStyledCVPdf(cvData: any, style: 'Classic' | 'Elegant' | 'Modern', language: string = 'En') {
     // If we received a string (old format), we try to parse it or wrap it
     let data = cvData;
     if (typeof cvData === 'string') {

@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  password  String?
-  isPro     Boolean  @default(false)
-  credits   Int      @default(0)
-  isTrial       Boolean  @default(false)
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String?
+  createdAt      DateTime @default(now())
+  password       String?
+  isPro          Boolean  @default(false)
+  credits        Int      @default(0)
+  isTrial        Boolean  @default(false)
   registrationIp String?
-  events        Event[]
-  leads     Lead[]
+  events         Event[]
+  leads          Lead[]
 }
 
 model Lead {
@@ -84,15 +84,15 @@ model Tag {
 }
 
 model PromoCode {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  maxUses     Int      @default(1)
-  currentUses Int      @default(0)
-  isActive    Boolean  @default(true)
-  grantedCredits Int      @default(10)
+  id             String   @id @default(uuid())
+  code           String   @unique
+  maxUses        Int      @default(1)
+  currentUses    Int      @default(0)
+  isActive       Boolean  @default(true)
   description    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  grantedCredits Int      @default(10)
 }
 
 model VerificationToken {
