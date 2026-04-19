@@ -885,13 +885,13 @@ export default function CvAnalysis({
 
                   <Button 
                       size="lg"
-                      className="h-20 w-full rounded-[1.5rem] bg-amber-400 text-slate-950 hover:bg-amber-300 transition-all text-sm font-black shadow-xl shadow-amber-400/20 group flex flex-col items-center justify-center"
+                      className="h-20 w-full rounded-[1.5rem] bg-amber-400 text-slate-950 hover:bg-amber-300 transition-all text-xs sm:text-sm font-black shadow-xl shadow-amber-400/20 group flex flex-col items-center justify-center px-2"
                       onClick={() => handleCheckout(2900, "/cv-tool/success", "Centro Táctico PRO")}
                       disabled={isCheckoutLoading}
                   >
-                      <div className="flex items-center gap-3">
-                        {isCheckoutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />}
-                        <span className="uppercase tracking-widest">ENTRAR AL SISTEMA</span>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        {isCheckoutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform shrink-0" />}
+                        <span className="uppercase tracking-wider sm:tracking-widest whitespace-nowrap">ENTRAR AL SISTEMA</span>
                       </div>
                   </Button>
                   
@@ -909,12 +909,12 @@ export default function CvAnalysis({
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="flex gap-2 mt-4"
+                              className="flex flex-col sm:flex-row gap-2 mt-4"
                             >
                               <input 
                                   type="text" 
-                                  placeholder="CÓDIGO" 
-                                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all uppercase"
+                                  placeholder="CÓDIGO"
+                                  className="w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 h-12 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all uppercase"
                                   value={promoCode}
                                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                               />
@@ -945,9 +945,9 @@ export default function CvAnalysis({
                                     }
                                   }}
                                   disabled={isVerifyingCode || !promoCode}
-                                  className="rounded-xl h-12 px-6 text-[10px] font-black bg-slate-900 text-white hover:bg-slate-800"
+                                  className="w-full sm:w-auto shrink-0 rounded-xl h-12 px-6 text-[10px] font-black bg-slate-900 text-white hover:bg-slate-800"
                               >
-                                  {isVerifyingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : "VALIDAR"}
+                                  {isVerifyingCode ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "VALIDAR"}
                               </Button>
                             </motion.div>
                           )}

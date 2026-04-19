@@ -1387,16 +1387,66 @@ export default function StrategyResources({ cvText = "", onCustomize, resultData
 
                 {/* Main Dashboard Content - SCROLLABLE INTERNAL ONLY */}
                 <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative overscroll-contain">
+                    
+                    {/* HARD PAYWALL OVERLAY */}
+                    {profile?.isTrial && profile.credits <= 0 && (
+                        <div className="absolute inset-0 z-[200] bg-slate-900/40 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8">
+                            <div className="bg-slate-950 border-2 border-amber-400/30 rounded-[3rem] p-8 sm:p-12 max-w-2xl w-full text-center shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 blur-[80px] rounded-full pointer-events-none" />
+                                <div className="relative z-10">
+                                    <div className="w-20 h-20 bg-amber-400 rounded-3xl mx-auto flex items-center justify-center shadow-xl shadow-amber-400/20 mb-8">
+                                        <Target className="w-10 h-10 text-slate-950" />
+                                    </div>
+                                    <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tighter mb-4">
+                                        ARSENAL <span className="text-amber-400">AGOTADO</span>
+                                    </h2>
+                                    <p className="text-slate-300 text-sm sm:text-lg font-bold mb-8">
+                                        Has consumido tus 10 interacciones de beca. Tu perfil competitivo ha empezado a tomar forma, pero la verdadera ventaja táctica está en la constancia.
+                                    </p>
+                                    
+                                    <div className="space-y-4 mb-8 text-left max-w-md mx-auto">
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                            <ShieldCheck className="w-5 h-5 text-amber-400 shrink-0" />
+                                            <span className="text-xs sm:text-sm font-bold text-slate-200">Acceso ilimitado a simuladores ATS</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                            <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
+                                            <span className="text-xs sm:text-sm font-bold text-slate-200">Generación infinita de Cover Letters</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                            <Lock className="w-5 h-5 text-amber-400 shrink-0" />
+                                            <span className="text-xs sm:text-sm font-bold text-slate-200">Bolsas de empleo ocultas VIP</span>
+                                        </div>
+                                    </div>
+
+                                    <Button 
+                                        size="lg"
+                                        className="h-20 w-full sm:w-auto px-12 rounded-[1.5rem] bg-amber-400 text-slate-950 hover:bg-amber-300 transition-all text-sm font-black shadow-xl shadow-amber-400/20 group flex flex-col items-center justify-center mx-auto"
+                                        onClick={handleDirectPurchase}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="uppercase tracking-widest">DESBLOQUEAR ACCESO PRO</span>
+                                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                        </div>
+                                        <span className="text-[10px] opacity-70 mt-1 uppercase tracking-widest">Pago único de $29 USD</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="max-w-[1400px] mx-auto p-4 sm:p-10 pb-48 sm:pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         {profile?.isTrial && cvText?.includes?.("Juan Perez") && (
                             <PersonalizationBanner onStart={() => window.location.href = '/cv-tool?force_form=true'} />
                         )}
 
-                        <UsageBanner 
-                            credits={profile?.credits ?? 0} 
-                            isTrial={profile?.isTrial ?? false} 
-                            onUpgrade={handleDirectPurchase}
-                        />
+                        {(!profile?.isTrial || profile.credits > 0) && (
+                            <UsageBanner 
+                                credits={profile?.credits ?? 0} 
+                                isTrial={profile?.isTrial ?? false} 
+                                onUpgrade={handleDirectPurchase}
+                            />
+                        )}
                         
                         <div className="bg-white rounded-[1.5rem] sm:rounded-[3.5rem] border-2 border-slate-100 shadow-[0_40px_100px_-30px_rgba(var(--primary-rgb),0.05)] p-4 sm:p-14 relative overflow-visible min-h-[500px]">
                             <div className="absolute top-0 left-0 w-full h-1 sm:h-1.5 bg-primary/20" />
