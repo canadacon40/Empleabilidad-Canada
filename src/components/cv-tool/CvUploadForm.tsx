@@ -161,20 +161,28 @@ export default function LeadCaptureForm({ onResult }: CvUploadFormProps) {
                     <Sparkles className="w-10 h-10 text-amber-600 animate-pulse" />
                 </div>
                 <div className="space-y-3">
-                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">¡Bienvenido de nuevo, VIP!</h3>
-                    <p className="text-slate-500 font-medium">Tienes acceso PRO activo. No necesitas llenar este formulario para acceder a tus herramientas.</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">¡Bienvenido de nuevo!</h3>
+                    <p className="text-slate-500 font-medium">
+                        Tu suite de empleabilidad avanzada está lista. Hemos guardado tu último reporte de diagnóstico.
+                    </p>
                 </div>
-                
-                <div className="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Acceso Estratégico Pierre v2.7 Maestro • ACTIVO
+
+                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 flex flex-col sm:flex-row items-center gap-4 text-left justify-center">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-amber-200 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-6 h-6 text-amber-500" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Estado del Sistema</p>
+                        <p className="text-sm font-bold text-slate-900">Centro Táctico de Empleabilidad • ACTIVO</p>
+                    </div>
                 </div>
 
                 <Button 
                     size="lg"
                     onClick={() => onResult(null, "", "es", "PREMIUM")}
-                    className="w-full h-20 rounded-[2rem] bg-slate-950 text-white font-black text-lg gap-3 hover:bg-slate-900 shadow-2xl transition-all group"
+                    className="w-full h-16 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-400/20 transition-all hover:scale-[1.02] active:scale-[0.98] group flex items-center justify-center gap-3"
                 >
-                    Entrar a mi Panel Táctico <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    Entrar al Centro Táctico <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
 
                 <button 

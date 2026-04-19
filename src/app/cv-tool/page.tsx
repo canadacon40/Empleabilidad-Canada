@@ -84,9 +84,9 @@ function LoadingShield() {
                 <ShieldCheck className="w-20 h-20 text-primary relative z-10 animate-bounce duration-[2000ms]" />
             </div>
             <div className="space-y-4">
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter italic">Validando Acceso Pierre PRO...</h3>
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter italic">Accediendo al Centro Táctico...</h3>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
-                    Estamos verificando tus credenciales tácticas y sincronizando tu Centro de Estrategia.
+                    Estamos verificando tus credenciales y sincronizando tus recursos de estrategia.
                 </p>
                 <div className="w-48 h-1 bg-slate-200 mx-auto rounded-full overflow-hidden">
                     <div className="h-full bg-primary animate-progress-fast" />
@@ -265,7 +265,7 @@ function CvToolContent({ onDashboardEnter }: { onDashboardEnter?: () => void }) 
                     <div className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full animate-pulse ${isVIP ? 'bg-amber-400' : 'bg-primary'}`} />
                         <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
-                            {isVIP ? "Panel Pierre PRO • Centro de Estrategia" : "Reporte de Empleabilidad • Lead Magnet"}
+                            {isVIP ? "Centro Táctico de Empleabilidad" : "Reporte de Empleabilidad • Lead Magnet"}
                         </h2>
                     </div>
                 </div>
