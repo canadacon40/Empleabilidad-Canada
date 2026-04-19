@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield, LogOut, User, Share2, Zap, EyeOff, Map as MapIcon, Heart, Star, ArrowRight } from "lucide-react"
+import { FileText, Mail, MessageSquare, Loader2, Copy, Check, Sparkles, Search, Target, ShieldCheck, ChevronDown, ChevronUp, Phone, Palette, Globe, Download, FileSpreadsheet, Rocket, Shield, LogOut, User, Share2, Zap, EyeOff, Map as MapIcon, Heart, Star, ArrowRight, Users, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
 import { downloadFullReportPDF, downloadUserManualPDF, downloadLMIAExcel, downloadStyledCVPdf, downloadCustomizedCVWord, downloadInterviewPDF, downloadCoverLetterPDF } from "@/lib/report-utils"
@@ -20,6 +20,8 @@ interface UserProfile {
 const tabs = [
     { id: "engine-pro", label: "Motor Pierre PRO", icon: Rocket },
     { id: "job-boards", label: "Canal de Empleo", icon: Search },
+    { id: "networking", label: "Networking", icon: Users },
+    { id: "scam-checker", label: "Detector", icon: ShieldAlert },
     { id: "cover-letter", label: "Cover Letter", icon: Mail },
     { id: "interview", label: "Entrevista", icon: MessageSquare },
     { id: "scripts", label: "Scripts PRO", icon: Phone },
@@ -1197,6 +1199,263 @@ function UsageBanner({ credits, isTrial, onUpgrade }: { credits: number, isTrial
     );
 }
 
+// ============= NETWORKING TAB ============
+function NetworkingTab({ cvText, onCreditLimit }: { cvText: string; onCreditLimit?: () => void }) {
+    const [contactName, setContactName] = useState("")
+    const [companyName, setCompanyName] = useState("")
+    const [jobTitle, setJobTitle] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [result, setResult] = useState<any>(null)
+
+    const handleGenerate = async () => {
+        if (!contactName.trim() || !companyName.trim()) {
+            setError("El nombre del contacto y la empresa son obligatorios.");
+            return;
+        }
+        setIsLoading(true);
+        setError("");
+        try {
+            const res = await fetch("/api/networking-outreach", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contactName, companyName, jobTitle, cvText })
+            });
+            const data = await res.json();
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+            if (!res.ok) throw new Error(data.error || "No se pudo generar el mensaje.");
+            setResult(data.result);
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <div className="space-y-6 sm:space-y-8">
+            <div className="p-6 sm:p-8 bg-slate-950 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-amber-400/5 blur-3xl rounded-full -mr-24 -mt-24 pointer-events-none" />
+                <div className="relative z-10 text-center">
+                    <div className="w-16 h-16 rounded-3xl bg-amber-400/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-amber-400/20">
+                        <Users className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tighter uppercase">
+                        Arsenal de <span className="text-amber-400">Networking</span>
+                    </h3>
+                    <p className="text-slate-400 text-sm font-medium max-w-xl mx-auto leading-relaxed">
+                        Genera mensajes tácticos para contactar reclutadores en LinkedIn. Ajustados al estándar corporativo canadiense (Coffee Chat directo, cero ruego, máx 300 caracteres).
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Nombre / Puesto del Contacto *</label>
+                    <input 
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="Ej. Sarah Connor o Sr. Tech Recruiter"
+                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors"
+                    />
+                </div>
+                <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Nombre de la Empresa *</label>
+                    <input 
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="Ej. Shopify"
+                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors"
+                    />
+                </div>
+                <div className="sm:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Rol Objetivo (Opcional)</label>
+                    <input 
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="Ej. Senior Frontend Developer"
+                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors"
+                    />
+                </div>
+            </div>
+
+            {error && (
+                <div className="p-4 bg-red-50 border-2 border-red-100 rounded-2xl text-red-600 text-sm font-bold">
+                    {error}
+                </div>
+            )}
+
+            <Button 
+                onClick={handleGenerate}
+                disabled={isLoading}
+                className="w-full h-16 rounded-[1.5rem] bg-slate-950 text-amber-400 hover:bg-slate-900 hover:text-amber-300 font-black text-xs uppercase tracking-widest shadow-xl transition-all"
+            >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "GENERAR MENSAJE TÁCTICO"}
+            </Button>
+
+            {result && (
+                <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="p-6 bg-amber-50 rounded-3xl border-2 border-amber-200 shadow-sm relative">
+                        <div className="absolute top-4 right-4"><CopyButton text={result.message} /></div>
+                        <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Mensaje Principal (LinkedIn)</h4>
+                        <p className="text-slate-900 font-medium whitespace-pre-wrap leading-relaxed">{result.message}</p>
+                    </div>
+
+                    {result.subjectLine && (
+                        <div className="p-6 bg-white rounded-3xl border-2 border-slate-100 shadow-sm relative">
+                            <div className="absolute top-4 right-4"><CopyButton text={result.subjectLine} /></div>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Asunto sugerido (Para email)</h4>
+                            <p className="text-slate-900 font-bold">{result.subjectLine}</p>
+                        </div>
+                    )}
+
+                    <div className="p-6 bg-slate-50 rounded-3xl border-2 border-slate-100 shadow-sm relative">
+                        <div className="absolute top-4 right-4"><CopyButton text={result.followUp} /></div>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Seguimiento (4 días después)</h4>
+                        <p className="text-slate-700 font-medium whitespace-pre-wrap">{result.followUp}</p>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ============= SCAM CHECKER TAB ============
+function ScamCheckerTab({ onCreditLimit }: { onCreditLimit?: () => void }) {
+    const [offerText, setOfferText] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [result, setResult] = useState<any>(null)
+
+    const handleCheck = async () => {
+        if (!offerText.trim() || offerText.length < 20) {
+            setError("Por favor, pega el contenido completo del correo u oferta (mínimo 20 caracteres).");
+            return;
+        }
+        setIsLoading(true);
+        setError("");
+        try {
+            const res = await fetch("/api/scam-checker", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ offerText })
+            });
+            const data = await res.json();
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+            if (!res.ok) throw new Error(data.error || "No se pudo analizar la oferta.");
+            setResult(data.result);
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <div className="space-y-6 sm:space-y-8">
+            <div className="p-6 sm:p-8 bg-red-950 rounded-[1.5rem] sm:rounded-[2.5rem] border border-red-500/20 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 blur-3xl rounded-full -mr-24 -mt-24 pointer-events-none" />
+                <div className="relative z-10 text-center">
+                    <div className="w-16 h-16 rounded-3xl bg-red-500/20 flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-500/30">
+                        <ShieldAlert className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tighter uppercase">
+                        Radar <span className="text-red-400">Anti-Fraude</span> LMIA
+                    </h3>
+                    <p className="text-red-200/80 text-sm font-medium max-w-xl mx-auto leading-relaxed">
+                        ¿Te llegó una oferta demasiado buena para ser verdad? Pega el correo, el mensaje de WhatsApp o la descripción del trabajo y la IA detectará instantáneamente las red flags.
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                <textarea 
+                    value={offerText}
+                    onChange={(e) => setOfferText(e.target.value)}
+                    rows={8}
+                    placeholder="Pega aquí el texto completo del correo del 'reclutador' o la oferta sospechosa..."
+                    className="w-full bg-white border-2 border-slate-100 rounded-[2rem] p-6 text-sm font-medium focus:outline-none focus:border-red-400 transition-colors resize-none leading-relaxed shadow-inner"
+                />
+            </div>
+
+            {error && (
+                <div className="p-4 bg-red-50 border-2 border-red-100 rounded-2xl text-red-600 text-sm font-bold">
+                    {error}
+                </div>
+            )}
+
+            <Button 
+                onClick={handleCheck}
+                disabled={isLoading}
+                className="w-full h-16 rounded-[1.5rem] bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-red-600/20 transition-all"
+            >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "ACTIVAR RADAR ANTI-FRAUDE"}
+            </Button>
+
+            {result && (
+                <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                    <div className={`p-8 rounded-[2rem] border-2 shadow-xl ${
+                        result.riskLevel === 'HIGH' ? 'bg-red-50 border-red-200' :
+                        result.riskLevel === 'MEDIUM' ? 'bg-orange-50 border-orange-200' :
+                        'bg-emerald-50 border-emerald-200'
+                    }`}>
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                                result.riskLevel === 'HIGH' ? 'bg-red-500' :
+                                result.riskLevel === 'MEDIUM' ? 'bg-orange-500' :
+                                'bg-emerald-500'
+                            }`}>
+                                <ShieldAlert className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60">Veredicto Oficial</h4>
+                                <div className={`text-2xl font-black uppercase tracking-tight ${
+                                    result.riskLevel === 'HIGH' ? 'text-red-700' :
+                                    result.riskLevel === 'MEDIUM' ? 'text-orange-700' :
+                                    'text-emerald-700'
+                                }`}>
+                                    {result.riskLevel === 'HIGH' ? 'ALERTA DE ESTAFA' :
+                                     result.riskLevel === 'MEDIUM' ? 'ALTAMENTE SOSPECHOSO' :
+                                     'PARECE LEGÍTIMO'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <p className="text-slate-800 font-medium leading-relaxed mb-8">{result.verdict}</p>
+
+                        {result.redFlags && result.redFlags.length > 0 && (
+                            <div className="mb-8">
+                                <h5 className="text-xs font-black uppercase tracking-widest mb-4 opacity-70 text-slate-900">Red Flags Detectadas:</h5>
+                                <ul className="space-y-3">
+                                    {result.redFlags.map((flag: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                                                <span className="text-red-600 text-xs font-black">!</span>
+                                            </span>
+                                            <span className="text-sm font-bold text-slate-700">{flag}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <h5 className="text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Acción Táctica Recomendada</h5>
+                            <p className="text-sm font-black text-slate-900">{result.action}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ============= MAIN COMPONENT =============
 export default function StrategyResources({ cvText = "", onCustomize, resultData, onBackToReport }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any; onBackToReport?: () => void }) {
     const { data: session } = useSession();
@@ -1457,6 +1716,8 @@ export default function StrategyResources({ cvText = "", onCustomize, resultData
                                 if (onCustomize) onCustomize(data);
                             }} />}
                             {activeTab === "job-boards" && <JobBoardTab initialProvince={resultData?.province} />}
+                            {activeTab === "networking" && <NetworkingTab cvText={cvText} onCreditLimit={handleDirectPurchase} />}
+                            {activeTab === "scam-checker" && <ScamCheckerTab onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "interview" && <InterviewTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "scripts" && <ScriptsTab />}
