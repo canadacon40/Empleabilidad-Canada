@@ -823,85 +823,140 @@ export default function CvAnalysis({
       )}
 
       {!isPremium && (
-        <section className="bg-white text-slate-900 rounded-[3rem] sm:rounded-[4rem] p-8 sm:p-20 relative overflow-hidden border-2 border-primary group mx-4 shadow-2xl">
-          <div className="relative z-10 flex flex-col items-center text-center space-y-10">
-            <h3 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-tight">Estrategia Ganadora</h3>
-            <p className="text-slate-600 text-lg max-w-2xl font-medium leading-relaxed italic mx-auto">
-              "{conclusionTextResult}"
-            </p>
+        <section className="bg-slate-900 text-white rounded-[3rem] sm:rounded-[4rem] p-8 sm:p-16 relative overflow-hidden border-4 border-amber-400/20 group mx-4 shadow-2xl">
+          {/* Background Accents */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
 
-            <div className="flex flex-col gap-6 w-full max-w-lg">
-              <Button 
-                  size="lg"
-                  className="h-24 w-full rounded-[2.5rem] bg-slate-900 text-white hover:bg-primary transition-all text-xl font-black shadow-2xl group flex flex-col items-center justify-center px-4"
-                  onClick={() => handleCheckout(2900, "/cv-tool/success", "Radar de Empleo PRO")}
-                  disabled={isCheckoutLoading}
-              >
-                  <div className="flex items-center gap-4 mb-1">
-                    {isCheckoutLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Rocket className="w-6 h-6" />}
-                    <span>OBTENER MI REPORTE PRO</span>
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12">
+            
+            {/* Left Column: Value Proposition */}
+            <div className="flex-1 space-y-8 text-left">
+              <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 mb-4">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Siguiente Paso Recomendado</span>
                   </div>
-                  <span className="text-[10px] opacity-60 font-medium uppercase tracking-widest">Acceso Instantáneo • $29.00 USD</span>
-              </Button>
+                  <h3 className="text-4xl sm:text-5xl font-black tracking-tighter leading-tight mb-4">
+                      Desbloquea el <br/><span className="text-amber-400 italic">Centro Táctico</span>
+                  </h3>
+                  <p className="text-slate-300 text-lg font-medium leading-relaxed italic">
+                    "{conclusionTextResult}"
+                  </p>
+              </div>
 
-              <button 
-                  onClick={() => setShowCodeInput(!showCodeInput)}
-                  className="text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-[0.3em]"
-              >
-                  ¿Tienes un código de beca o convenio?
-              </button>
-
-              <AnimatePresence>
-                  {showCodeInput && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="flex gap-2"
-                    >
-                      <input 
-                          type="text" 
-                          placeholder="CÓDIGO AQUÍ" 
-                          className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all"
-                          value={promoCode}
-                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      />
-                      <Button 
-                          onClick={async () => {
-                            setIsVerifyingCode(true);
-                            setCodeError("");
-                            try {
-                              const res = await fetch("/api/auth/register", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ 
-                                   email: localStorage.getItem("lead_email"),
-                                   promoCode: promoCode,
-                                   isChecking: true
-                                })
-                              });
-                              const data = await res.json();
-                              if (res.ok && data.valid) {
-                                onUnlockPremium?.(promoCode);
-                              } else {
-                                setCodeError(data.error || "Código inválido.");
-                              }
-                            } catch (e) {
-                              setCodeError("Error de validación.");
-                            } finally {
-                              setIsVerifyingCode(false);
-                            }
-                          }}
-                          disabled={isVerifyingCode || !promoCode}
-                          className="rounded-2xl h-14 px-8 font-black bg-slate-900 text-white"
-                      >
-                          {isVerifyingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : "VALIDAR"}
-                      </Button>
-                    </motion.div>
-                  )}
-              </AnimatePresence>
-              {codeError && <p className="text-rose-600 text-[10px] font-black uppercase text-center mt-2">{codeError}</p>}
+              <div className="space-y-4 bg-white/5 rounded-3xl p-6 border border-white/10">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Tu suite de empleabilidad incluye:</h4>
+                  <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-200">Reestructuración de CV al estándar canadiense</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-200">Generación de Cover Letters adaptativas</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-200">Optimización y Match garantizado con sistemas ATS</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-200">Directorio VIP de Bolsas de Empleo Ocultas</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-200">Simulador táctico para preparación de Entrevistas</span>
+                      </li>
+                  </ul>
+              </div>
             </div>
+
+            {/* Right Column: Checkout & Promo */}
+            <div className="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
+              <div className="bg-white rounded-[2.5rem] p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+                  <div className="mb-6 space-y-2">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acceso Inmediato</p>
+                      <div className="flex items-center justify-center gap-2">
+                          <span className="text-5xl font-black text-slate-900 tracking-tighter">$29</span>
+                          <span className="text-sm font-bold text-slate-500 mt-3 uppercase">USD</span>
+                      </div>
+                  </div>
+
+                  <Button 
+                      size="lg"
+                      className="h-20 w-full rounded-[1.5rem] bg-amber-400 text-slate-950 hover:bg-amber-300 transition-all text-sm font-black shadow-xl shadow-amber-400/20 group flex flex-col items-center justify-center"
+                      onClick={() => handleCheckout(2900, "/cv-tool/success", "Centro Táctico PRO")}
+                      disabled={isCheckoutLoading}
+                  >
+                      <div className="flex items-center gap-3">
+                        {isCheckoutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />}
+                        <span className="uppercase tracking-widest">ENTRAR AL SISTEMA</span>
+                      </div>
+                  </Button>
+                  
+                  <div className="mt-6 pt-6 border-t border-slate-100">
+                      <button 
+                          onClick={() => setShowCodeInput(!showCodeInput)}
+                          className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors"
+                      >
+                          ¿Tienes un código de beca?
+                      </button>
+
+                      <AnimatePresence>
+                          {showCodeInput && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="flex gap-2 mt-4"
+                            >
+                              <input 
+                                  type="text" 
+                                  placeholder="CÓDIGO" 
+                                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all uppercase"
+                                  value={promoCode}
+                                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                              />
+                              <Button 
+                                  onClick={async () => {
+                                    setIsVerifyingCode(true);
+                                    setCodeError("");
+                                    try {
+                                      const res = await fetch("/api/auth/register", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ 
+                                           email: localStorage.getItem("lead_email"),
+                                           promoCode: promoCode,
+                                           isChecking: true
+                                        })
+                                      });
+                                      const data = await res.json();
+                                      if (res.ok && data.valid) {
+                                        onUnlockPremium?.(promoCode);
+                                      } else {
+                                        setCodeError(data.error || "Código inválido.");
+                                      }
+                                    } catch (e) {
+                                      setCodeError("Error de validación.");
+                                    } finally {
+                                      setIsVerifyingCode(false);
+                                    }
+                                  }}
+                                  disabled={isVerifyingCode || !promoCode}
+                                  className="rounded-xl h-12 px-6 text-[10px] font-black bg-slate-900 text-white hover:bg-slate-800"
+                              >
+                                  {isVerifyingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : "VALIDAR"}
+                              </Button>
+                            </motion.div>
+                          )}
+                      </AnimatePresence>
+                      {codeError && <p className="text-rose-500 text-[10px] font-black uppercase text-center mt-3">{codeError}</p>}
+                  </div>
+              </div>
+            </div>
+
           </div>
         </section>
       )}
