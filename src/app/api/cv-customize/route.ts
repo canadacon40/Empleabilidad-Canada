@@ -42,9 +42,10 @@ export async function POST(req: Request) {
             - tips: (string[]) 3 consejos estratégicos para este rol específico.`;
             
             userPrompt = `Job Description: ${jobDescription}\n\nCV del Candidato: ${cvText}`;
+        } else if (action === "customize") {
             const targetLanguage = req.headers.get("x-target-language") || "en";
             const langSystemInstruction = targetLanguage.toLowerCase() === 'fr' 
-                ? 'IDIOMA: FRANÇAIS (Québec). Traduce COMPLETAMENTE el contenido (titulares, logros, resumen) al francés de Quebec. IMPORTANTE: Los valores deben ser franceses, pero las LLAVES del JSON DEBEN permanecer en inglés.' 
+                ? 'IDIOMA: FRANÇAIS (Québec). Traduce TODOS LOS VALORES de texto al francés de Quebec. IMPORTANTE: Las LLAVES estructurales del JSON DEBEN permanecer EXACTAMENTE IGUAL en inglés. NO traduzcas las llaves bajo ninguna circunstancia.' 
                 : 'LANGUAGE: ENGLISH (Canada).';
 
             systemPrompt = `Eres un Consultor de Carrera Canadiense de Élite y experto en "Ingeniería Quirúrgica" de CVs. 

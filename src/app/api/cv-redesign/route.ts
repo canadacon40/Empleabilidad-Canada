@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         }
 
         const languageInstruction = targetLanguage.toLowerCase() === 'fr' 
-            ? 'IDIOMA: FRANÇAIS (Québec). Traduce COMPLETAMENTE el contenido. Usa terminología corporativa de Quebec (ej: "Expérience professionnelle", "Compétences clés"). Evita modismos de Francia (ej: no usar "Stage" si es una pasantía profesional de alto nivel, prefiere términos locales). IMPORTANTE: Los valores deben ser franceses, pero las LLAVES del JSON DEBEN permanecer en inglés.' 
+            ? 'IDIOMA: FRANÇAIS (Québec). Traduce TODOS LOS VALORES de texto al francés de Quebec. Usa terminología corporativa de Quebec (ej: "Expérience professionnelle", "Compétences clés"). Evita modismos de Francia. IMPORTANTE: Las LLAVES estructurales del JSON DEBEN permanecer EXACTAMENTE IGUAL en inglés (ej. "personalInfo", "workExperience", "achievements"). NO traduzcas las llaves bajo ninguna circunstancia, solo los valores string.' 
             : 'LANGUAGE: ENGLISH (Canada). Translate and format the CV to English (Rest of Canada standard).';
 
         const nocInstruction = (nocCode && nocTitle) 
