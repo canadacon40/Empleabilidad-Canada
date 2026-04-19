@@ -23,7 +23,7 @@ Font.register({
 
 // ============= CLASSIC DESIGN =============
 const classicStyles = StyleSheet.create({
-    page: { padding: 40, fontFamily: "Helvetica", fontSize: 10, color: "#1a1a1a", lineHeight: 1.4 },
+    page: { paddingTop: 45, paddingBottom: 45, paddingHorizontal: 40, fontFamily: "Helvetica", fontSize: 10, color: "#1a1a1a", lineHeight: 1.4 },
     header: { textAlign: "center", marginBottom: 16, paddingBottom: 12, borderBottomWidth: 2, borderBottomColor: "#222222", borderBottomStyle: "solid" },
     name: { fontSize: 22, fontWeight: "bold", marginBottom: 6, letterSpacing: 0.5 },
     contactRow: { flexDirection: "row", justifyContent: "center", gap: 8, fontSize: 9, color: "#555555" },
@@ -48,7 +48,7 @@ const classicStyles = StyleSheet.create({
 
 // ============= MODERN DESIGN =============
 const modernStyles = StyleSheet.create({
-    page: { padding: 36, fontFamily: "Helvetica", fontSize: 10, color: "#2d2d2d", lineHeight: 1.4 },
+    page: { paddingTop: 40, paddingBottom: 40, paddingHorizontal: 36, fontFamily: "Helvetica", fontSize: 10, color: "#2d2d2d", lineHeight: 1.4 },
     header: { marginBottom: 18, paddingBottom: 14, borderBottomWidth: 3, borderBottomColor: "#2563eb", borderBottomStyle: "solid" },
     name: { fontSize: 24, fontWeight: "bold", marginBottom: 4, color: "#1e40af", letterSpacing: 0.3 },
     contactRow: { flexDirection: "row", gap: 10, fontSize: 9, color: "#6b7280" },
@@ -73,7 +73,7 @@ const modernStyles = StyleSheet.create({
 
 // ============= EXECUTIVE DESIGN =============
 const executiveStyles = StyleSheet.create({
-    page: { padding: 45, fontFamily: "Helvetica", fontSize: 10, color: "#1f2937", lineHeight: 1.45 },
+    page: { paddingTop: 50, paddingBottom: 50, paddingHorizontal: 45, fontFamily: "Helvetica", fontSize: 10, color: "#1f2937", lineHeight: 1.45 },
     header: { textAlign: "center", marginBottom: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: "#9ca3af", borderBottomStyle: "solid" },
     name: { fontSize: 26, fontWeight: "bold", marginBottom: 3, letterSpacing: 2, textTransform: "uppercase", color: "#111827" },
     contactRow: { flexDirection: "row", justifyContent: "center", gap: 12, fontSize: 8.5, color: "#6b7280", marginTop: 4 },
@@ -133,7 +133,7 @@ export default function CvPdfDocument({ cvData, design = "classic" }: { cvData: 
                     <View>
                         <Text style={s.sectionTitle}>Professional Experience</Text>
                         {experience.map((exp, i) => (
-                            <View key={i} style={s.expBlock}>
+                            <View key={i} style={s.expBlock} wrap={false}>
                                 <View style={s.expHeader}>
                                     <Text style={s.expTitle}>{exp.title}</Text>
                                     <Text style={s.expDate}>
@@ -160,7 +160,7 @@ export default function CvPdfDocument({ cvData, design = "classic" }: { cvData: 
                     <View>
                         <Text style={s.sectionTitle}>Education</Text>
                         {education.map((edu, i) => (
-                            <View key={i} style={s.eduBlock}>
+                            <View key={i} style={s.eduBlock} wrap={false}>
                                 <Text style={s.eduDegree}>{edu.degree}</Text>
                                 <Text style={s.eduInst}>
                                     {edu.institution}
@@ -176,28 +176,28 @@ export default function CvPdfDocument({ cvData, design = "classic" }: { cvData: 
                     <Text style={s.sectionTitle}>Skills</Text>
 
                     {skills?.technical?.length > 0 && (
-                        <View style={s.skillCategory}>
+                        <View style={s.skillCategory} wrap={false}>
                             <Text style={s.skillLabel}>Technical:</Text>
                             <Text style={s.skillItem}>{skills.technical.join(design === "executive" ? "  |  " : " • ")}</Text>
                         </View>
                     )}
 
                     {skills?.soft?.length > 0 && (
-                        <View style={s.skillCategory}>
+                        <View style={s.skillCategory} wrap={false}>
                             <Text style={s.skillLabel}>Soft Skills:</Text>
                             <Text style={s.skillItem}>{skills.soft.join(design === "executive" ? "  |  " : " • ")}</Text>
                         </View>
                     )}
 
                     {skills?.languages?.length > 0 && (
-                        <View style={s.skillCategory}>
+                        <View style={s.skillCategory} wrap={false}>
                             <Text style={s.skillLabel}>Languages:</Text>
                             <Text style={s.skillItem}>{skills.languages.join(design === "executive" ? "  |  " : " • ")}</Text>
                         </View>
                     )}
 
                     {skills?.certifications?.length > 0 && (
-                        <View style={s.skillCategory}>
+                        <View style={s.skillCategory} wrap={false}>
                             <Text style={s.skillLabel}>Certifications:</Text>
                             <Text style={s.skillItem}>{skills.certifications.join(design === "executive" ? "  |  " : " • ")}</Text>
                         </View>
