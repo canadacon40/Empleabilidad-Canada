@@ -20,6 +20,7 @@ interface UserProfile {
 const tabs = [
     { id: "engine-pro", label: "Motor Pierre PRO", icon: Rocket },
     { id: "job-boards", label: "Canal de Empleo", icon: Search },
+    { id: "equivalency", label: "Equivalencias", icon: MapIcon },
     { id: "networking", label: "Networking", icon: Users },
     { id: "scam-checker", label: "Detector", icon: ShieldAlert },
     { id: "cover-letter", label: "Cover Letter", icon: Mail },
@@ -1456,6 +1457,155 @@ function ScamCheckerTab({ onCreditLimit }: { onCreditLimit?: () => void }) {
     )
 }
 
+// ============= EQUIVALENCY TAB ============
+function EquivalencyTab({ onCreditLimit }: { onCreditLimit?: () => void }) {
+    const [latamTitle, setLatamTitle] = useState("")
+    const [experienceYears, setExperienceYears] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [result, setResult] = useState<any>(null)
+
+    const handleTranslate = async () => {
+        if (!latamTitle.trim()) {
+            setError("El título o profesión es obligatorio.");
+            return;
+        }
+        setIsLoading(true);
+        setError("");
+        try {
+            const res = await fetch("/api/equivalency-mapper", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ latamTitle, experienceYears })
+            });
+            const data = await res.json();
+            if (res.status === 403) {
+                if (onCreditLimit) onCreditLimit();
+                return;
+            }
+            if (!res.ok) throw new Error(data.error || "No se pudo realizar la traducción.");
+            setResult(data.result);
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <div className="space-y-6 sm:space-y-8">
+            <div className="p-6 sm:p-8 bg-slate-950 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-400/5 blur-3xl rounded-full -mr-24 -mt-24 pointer-events-none" />
+                <div className="relative z-10 text-center">
+                    <div className="w-16 h-16 rounded-3xl bg-emerald-400/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-400/20">
+                        <MapIcon className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tighter uppercase">
+                        Mapeador de <span className="text-emerald-400">Equivalencias</span>
+                    </h3>
+                    <p className="text-slate-400 text-sm font-medium max-w-xl mx-auto leading-relaxed">
+                        Traduce tu cargo de Latinoamérica al mercado laboral canadiense. Descubre tu código NOC exacto, certificaciones necesarias y el estatus de regulación.
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Título Profesional o Cargo en LATAM *</label>
+                    <input 
+                        value={latamTitle}
+                        onChange={(e) => setLatamTitle(e.target.value)}
+                        placeholder="Ej. Ingeniero Civil, Licenciado en Administración, Jefe de Ventas"
+                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                    />
+                </div>
+                <div className="sm:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Años de Experiencia (Opcional)</label>
+                    <select 
+                        value={experienceYears}
+                        onChange={(e) => setExperienceYears(e.target.value)}
+                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                    >
+                        <option value="">Selecciona tus años de experiencia...</option>
+                        <option value="0-2">Junior (0-2 años)</option>
+                        <option value="3-5">Intermedio (3-5 años)</option>
+                        <option value="6-9">Senior (6-9 años)</option>
+                        <option value="10+">Experto/Director (10+ años)</option>
+                    </select>
+                </div>
+            </div>
+
+            {error && (
+                <div className="p-4 bg-red-50 border-2 border-red-100 rounded-2xl text-red-600 text-sm font-bold">
+                    {error}
+                </div>
+            )}
+
+            <Button 
+                onClick={handleTranslate}
+                disabled={isLoading}
+                className="w-full h-16 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-600/20 transition-all"
+            >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "TRADUCIR AL MERCADO CANADIENSE"}
+            </Button>
+
+            {result && (
+                <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="p-8 bg-emerald-50 rounded-[2rem] border-2 border-emerald-200 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                            <MapIcon className="w-32 h-32 text-emerald-900" />
+                        </div>
+                        
+                        <div className="relative z-10">
+                            <div className="mb-6">
+                                <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Título Canadiense Estándar</h4>
+                                <p className="text-3xl font-black text-emerald-950 uppercase tracking-tight">
+                                    {result.canadianTitle}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div className="p-4 bg-white rounded-2xl shadow-sm border border-emerald-100">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Código NOC</h4>
+                                    <p className="text-lg font-black text-slate-900">{result.nocCode}</p>
+                                </div>
+                                <div className="p-4 bg-white rounded-2xl shadow-sm border border-emerald-100">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Regulación</h4>
+                                    <p className="text-sm font-bold text-slate-900 leading-tight">{result.regulation}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="p-5 bg-white rounded-2xl shadow-sm border border-emerald-100">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Certificaciones Sugeridas (Opcionales/Obligatorias)</h4>
+                                    <ul className="flex flex-wrap gap-2">
+                                        {result.certifications?.map((cert: string, i: number) => (
+                                            <li key={i} className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold">
+                                                {cert}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                
+                                <div className="p-5 bg-slate-900 rounded-2xl shadow-sm border border-slate-800">
+                                    <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-3">Keywords Críticas para ATS</h4>
+                                    <ul className="flex flex-wrap gap-2">
+                                        {result.resumeKeywords?.map((kw: string, i: number) => (
+                                            <li key={i} className="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-medium border border-slate-700">
+                                                {kw}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ============= MAIN COMPONENT =============
 export default function StrategyResources({ cvText = "", onCustomize, resultData, onBackToReport }: { cvText: string; onCustomize?: (data: any) => void; resultData?: any; onBackToReport?: () => void }) {
     const { data: session } = useSession();
@@ -1716,6 +1866,7 @@ export default function StrategyResources({ cvText = "", onCustomize, resultData
                                 if (onCustomize) onCustomize(data);
                             }} />}
                             {activeTab === "job-boards" && <JobBoardTab initialProvince={resultData?.province} />}
+                            {activeTab === "equivalency" && <EquivalencyTab onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "networking" && <NetworkingTab cvText={cvText} onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "scam-checker" && <ScamCheckerTab onCreditLimit={handleDirectPurchase} />}
                             {activeTab === "cover-letter" && <CoverLetterTab cvText={cvText} onAction={() => fetchProfile()} onCreditLimit={handleDirectPurchase} />}

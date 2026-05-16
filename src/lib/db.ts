@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
+  if (!process.env.DATABASE_URL) {
+    console.warn("⚠️ DATABASE_URL is missing. Database operations will fail unless USE_MOCK_DATA is enabled.");
+  }
   return new PrismaClient();
 };
 

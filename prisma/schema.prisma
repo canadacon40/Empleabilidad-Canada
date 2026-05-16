@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  name           String?
-  createdAt      DateTime @default(now())
-  password       String?
-  isPro          Boolean  @default(false)
-  credits        Int      @default(0)
-  isTrial        Boolean  @default(false)
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?  @unique
+  name      String?
+  createdAt DateTime @default(now())
+  password  String?
+  isPro     Boolean  @default(false)
+  credits   Int      @default(0)
+  isTrial       Boolean  @default(false)
   registrationIp String?
-  events         Event[]
-  leads          Lead[]
+  events        Event[]
+  leads     Lead[]
 }
 
 model Lead {
@@ -26,13 +27,91 @@ model Lead {
   userId           String
   formData         Json
   cvText           String?
-  status           String            @default("NEW")
+  status           String            @default("INTAKE_RECEIVED") // INTAKE_RECEIVED, AWAITING_REVIEW, DIAGNOSIS_GENERATED, MODULES_GENERATED, PENDING_APPROVAL, DELIVERED, FOLLOW_UP_REQUIRED
   createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  // Phase 2 Relations
+  intake           Intake?
+  scores           EmployabilityScore[]
+  modules          AIModule[]
+  diagnostics      Diagnostic[]
+  tracking         Tracking[]
+  
+  // Phase 4 Portal Fields
+  portalToken      String?           @unique
+  portalAccessActive Boolean         @default(false)
+
+  // Legacy Relations (kept for stability)
   decisions        Decision[]
-  user             User              @relation(fields: [userId], references: [id])
   personalizedPlan PersonalizedPlan?
-  scores           Score[]
+  oldScores        Score[]
   tags             Tag[]
+  
+  user             User              @relation(fields: [userId], references: [id])
+}
+
+model Intake {
+  id              String   @id @default(uuid())
+  leadId          String   @unique
+  rawTallyData    Json
+  resumeUrl       String?
+  linkedinUrl     String?
+  goals           String?
+  behavioralData  Json?
+  emotionalState  String?
+  createdAt       DateTime @default(now())
+  lead            Lead     @relation(fields: [leadId], references: [id])
+}
+
+model EmployabilityScore {
+  id              String   @id @default(uuid())
+  leadId          String
+  category        String   // ATS_READINESS, POSITIONING_CLARITY, EXECUTIVE_BRANDING, VISIBILITY_STRENGTH, NETWORKING_MATURITY, INTERVIEW_READINESS, EMOTIONAL_SUSTAINABILITY, HIDDEN_MARKET_READINESS
+  value           Int      // 0-100
+  justification   String   @db.Text
+  recommendations String[]
+  isEditable      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  lead            Lead     @relation(fields: [leadId], references: [id])
+
+  @@unique([leadId, category])
+}
+
+model AIModule {
+  id              String   @id @default(uuid())
+  leadId          String
+  agentName       String   // IntakeParser, PositioningStrategist, ResumeStrategist, LinkedInBranding, VisibilityStrategy, NetworkingStrategy, InterviewStrategy, ExecutionPsychology, PlaybookDecision
+  content         Json
+  status          String   @default("GENERATED") // GENERATED, APPROVED, REJECTED
+  version         Int      @default(1)
+  dependencies    String[] // Array of agentNames
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lead            Lead     @relation(fields: [leadId], references: [id])
+}
+
+model Diagnostic {
+  id              String   @id @default(uuid())
+  leadId          String
+  type            String   // PSYCHOLOGICAL, MARKET_FIT, TECHNICAL, BEHAVIORAL
+  payload         Json
+  findings        String[]
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  lead            Lead     @relation(fields: [leadId], references: [id])
+}
+
+model Tracking {
+  id              String   @id @default(uuid())
+  leadId          String
+  actionType      String   // NETWORKING, APPLICATION, INTERVIEW, LEARNING
+  details         Json
+  status          String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, FAILED
+  dueDate         DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  lead            Lead     @relation(fields: [leadId], references: [id])
 }
 
 model PersonalizedPlan {
@@ -84,15 +163,15 @@ model Tag {
 }
 
 model PromoCode {
-  id             String   @id @default(uuid())
-  code           String   @unique
-  maxUses        Int      @default(1)
-  currentUses    Int      @default(0)
-  isActive       Boolean  @default(true)
-  description    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String   @id @default(uuid())
+  code        String   @unique
+  maxUses     Int      @default(1)
+  currentUses Int      @default(0)
+  isActive    Boolean  @default(true)
   grantedCredits Int      @default(10)
+  description    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model VerificationToken {

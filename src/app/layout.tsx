@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { GoogleTagManager } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/react";
@@ -6,14 +6,15 @@ import { TrackingProvider } from "@/components/providers/TrackingProvider";
 import SessionProvider from "@/components/providers/SessionProvider";
 import "./globals.css";
 
-import ChatWrapper from "@/components/chat/ChatWrapper";
+
 import MasterAccess from "@/components/debug/MasterAccess";
+import WhatsAppFab from "@/components/ui/WhatsAppFab";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Acelerador de Entrevistas | Tu Próximo Salto Profesional",
-  description: "Diagnostica tu perfil profesional en 60 segundos. Optimiza tu CV con IA y estrategias de élite para cualquier mercado.",
+  title: "Acelerador de Entrevistas | Tu PrÃ³ximo Salto Profesional",
+  description: "Diagnostica tu perfil profesional en 60 segundos. Optimiza tu CV con IA y estrategias de Ã©lite para cualquier mercado.",
 };
 
 export const dynamic = 'force-dynamic';
@@ -35,10 +36,13 @@ export default function RootLayout({
             {children}
           </TrackingProvider>
           <Analytics />
-          <ChatWrapper />
+          
+          <WhatsAppFab />
           <MasterAccess />
         </SessionProvider>
       </body>
     </html>
   );
 }
+
+
